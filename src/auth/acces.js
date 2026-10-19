@@ -109,7 +109,8 @@ export function exigerEspace(services) {
     if (!espace || !acces || (!espace.doc.actif && !r.compteGlobal.admin)) throw erreurs.introuvable('Espace de jeu introuvable.');
     r.espace = espace;
     r.compte = { ...r.compteGlobal, metiers: acces.metiers, membreId: acces.membreId };
-    espace.automatismes?.verifier();
+    // Jeu désactivé ouvert par l'Administrateur général (export, suppression) : ni méta payante ni semaine créée.
+    if (espace.doc.actif !== false) espace.automatismes?.verifier();
   };
 }
 

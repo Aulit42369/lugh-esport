@@ -107,6 +107,15 @@ export function creerFabriqueMongo({ uri, Client = MongoClient }) {
       return bases.get(nom);
     },
 
+    // Efface une base entière, collection par collection : l'utilisateur Atlas « lecture et écriture » peut supprimer
+    // une collection mais pas une base ; une base sans collection disparaît d'elle-même.
+    async supprimerBase(nom) {
+      if (!client) throw new Error('Base non connectée');
+      const db = client.db(nom);
+      for (const { name } of await db.listCollections({}, { nameOnly: true }).toArray()) await db.collection(name).drop();
+      bases.delete(nom);
+    },
+
     async fermer() {
       if (client) await client.close();
       client = null;
