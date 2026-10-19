@@ -97,6 +97,52 @@ test('désactiver puis réactiver un jeu garde toutes ses données', async () =>
   }
 });
 
+test('suppression définitive : seulement un jeu désactivé, nom tapé ; base, accès, annonces et point de restauration nettoyés', async () => {
+  const { sim, admin } = await monde({ jeux: ['valorant', 'lol'] });
+  try {
+    const id = nouvelId('s');
+    await admin.put(`/api/e/lol/c/strats/${id}`, { valeur: stratPour('lol', 'Disparaîtra') });
+    const seul = await creerCompte(sim, { identifiant: 'seullol', acces: { lol: ['joueur'] } });
+    const deux = await creerCompte(sim, { identifiant: 'deuxjeux', acces: { lol: ['coach'], valorant: ['coach'] } });
+    const pourLol = (await admin.post('/api/admin/annonces', { titre: 'LoL seul', texte: 'x', jeux: ['lol'], discord: false })).json;
+    const pourDeux = (await admin.post('/api/admin/annonces', { titre: 'Les deux', texte: 'x', jeux: ['lol', 'valorant'], discord: false })).json;
+    const pourTous = (await admin.post('/api/admin/annonces', { titre: 'Tous', texte: 'x', jeux: [], discord: false })).json;
+    await sim.global.ecrire('restaurations', { _id: 'lol', jeu: 'lol', type: 'entete' });
+    const base = `${sim.config.base}_lol`;
+    assert.ok(sim.fabrique.noms().includes(base));
+
+    assert.equal((await admin.post('/api/admin/jeux/lol/supprimer', { confirmation: 'League of Legends' })).statut, 409, 'actif : refusé');
+    await admin.put('/api/admin/jeux/lol', { actif: false });
+    const faux = await admin.post('/api/admin/jeux/lol/supprimer', { confirmation: 'LoL' });
+    assert.equal(faux.statut, 400);
+    assert.match(faux.json.erreur.details[0].message, /League of Legends/);
+    assert.equal((await admin.post('/api/admin/jeux/inconnu/supprimer', { confirmation: 'x' })).statut, 404);
+
+    const ok = await admin.post('/api/admin/jeux/lol/supprimer', { confirmation: '  league of  legends ' });
+    assert.equal(ok.statut, 200);
+    assert.deepEqual(ok.json.bilan, { acces: 2, sansJeu: 1, annoncesModifiees: 1, annoncesSupprimees: 1 });
+    assert.deepEqual(ok.json.jeux.map((j) => j.id), ['valorant']);
+    assert.equal(sim.espace('lol'), null);
+    assert.ok(!sim.fabrique.noms().includes(base), 'base du jeu effacée');
+    assert.equal(await sim.global.lire('espaces', 'lol'), null);
+    assert.equal(await sim.global.lire('restaurations', 'lol'), null);
+    assert.deepEqual(Object.keys((await compteGlobal(sim, 'seullol')).acces), []);
+    assert.deepEqual(Object.keys((await compteGlobal(sim, 'deuxjeux')).acces), ['valorant']);
+    assert.equal(await sim.global.lire('annonces', pourLol.annonce._id), null, 'annonce qui ne visait que ce jeu supprimée');
+    assert.deepEqual((await sim.global.lire('annonces', pourDeux.annonce._id)).jeux, ['valorant']);
+    assert.deepEqual((await sim.global.lire('annonces', pourTous.annonce._id)).jeux, []);
+    assert.equal((await admin.get('/api/e/lol/donnees')).statut, 404);
+    assert.equal((await journal(admin, { action: 'jeu supprimé définitivement' })).length, 1);
+    assert.ok(seul && deux);
+
+    // Recréé plus tard : un espace neuf, sans les anciennes données.
+    assert.equal((await admin.post('/api/admin/jeux', { modele: 'lol' })).statut, 201);
+    assert.equal(await sim.espace('lol').stockage.lire('strats', id), null);
+  } finally {
+    await sim.arreter();
+  }
+});
+
 test('un jeu désactivé disparaît pour tous sauf l’Administrateur général, comme un jeu inconnu', async () => {
   const { sim, admin } = await monde();
   try {

@@ -8,6 +8,7 @@ import { icone } from '../icones.js';
 import { topo } from '../composants/topo.js';
 import { champCode, activation2fa, blocCodesSecours } from './deuxfacteurs.js';
 import { MARQUE } from '/shared/marque.js';
+import { lienConfidentialite } from '../composants/confidentialite.js';
 
 // Marque du produit : l'écusson complet en grand, le lettrage dessous (styles : identite.css).
 function marque() {
@@ -79,7 +80,8 @@ export function ecranConnexion(racine, { message = '', surConnecte }) {
   erreur,
   bouton,
   info,
-  h('p', { class: 'champ__aide' }, 'Pas encore de compte ? ', h('span', { class: 'sans-coupure' }, 'Demande-le'), ' au Responsable de ton jeu.'));
+  h('p', { class: 'champ__aide' }, 'Pas encore de compte ? ', h('span', { class: 'sans-coupure' }, 'Demande-le'), ' au Responsable de ton jeu.'),
+  h('p', { class: 'champ__aide connexion__confidentialite' }, lienConfidentialite()));
   cadre(racine, formulaire, 'Connexion');
   identifiant.focus();
 }

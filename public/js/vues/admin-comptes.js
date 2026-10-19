@@ -100,7 +100,7 @@ function ficheDeuxFacteurs(d, ctx) {
   return h('section', { class: 'fiche adm-2fa' },
     h('div', { class: 'adm-2fa__texte' },
       h('h2', {}, 'Double authentification'),
-      h('p', { class: 'texte-2 petit' }, 'Un code à usage unique en plus du mot de passe. Exigée, elle s’impose à l’Administrateur général et aux Responsables de jeu ; les autres comptes la choisissent dans « Mon compte ».'),
+      h('p', { class: 'texte-2 petit' }, 'Un code à usage unique en plus du mot de passe. Exigée, elle s’impose à l’Administrateur général, au Trésorier et aux Responsables de jeu ; les autres comptes la choisissent dans « Mon compte ».'),
       h('p', { class: ['petit', !sans.length && 'texte-positif'] }, sans.length
         ? `Pas encore activée par : ${sans.map((c) => `${c.nomAffiche}${c.admin ? ' (Administrateur général)' : ''}`).join(', ')}.`
         : 'Tous les comptes concernés l’ont activée.')),
@@ -123,12 +123,13 @@ function ligneCompte(c, d, ctx) {
       h('div', { class: 'adm-compte__noms' },
         h('strong', {}, c.nomAffiche),
         h('span', { class: 'texte-3 petit' }, `identifiant ${c.identifiant}`),
-        c.admin || soi || c.deuxFacteurs?.actif ? h('span', { class: 'rangee' }, c.admin ? puce('Administrateur général', 'accent') : null,
+        c.admin || c.tresorier || soi || c.deuxFacteurs?.actif ? h('span', { class: 'rangee' }, c.admin ? puce('Administrateur général', 'accent') : null,
+          c.tresorier ? puce('Trésorier') : null,
           c.deuxFacteurs?.actif ? puce('Double authentification', 'positif') : null, soi ? puce('C’est toi') : null) : null)),
     h('div', { class: 'adm-compte__acces' },
       c.admin ? h('span', { class: 'adm-acces adm-acces--tous' }, h('span', { class: 'puce-jeu', 'aria-hidden': 'true' }, 'TOUS'), h('span', {}, 'Responsable de tous les jeux')) : null,
       acces.map(([id, a]) => puceAcces(d.jeux.find((j) => j.id === id), a)),
-      !c.admin && !acces.length ? h('span', { class: 'texte-3 petit' }, 'Aucun accès : ne voit aucun jeu') : null),
+      !c.admin && !acces.length ? h('span', { class: 'texte-3 petit' }, c.tresorier ? 'Aucun jeu : comptes de la structure seulement' : 'Aucun accès : ne voit aucun jeu') : null),
     h('div', { class: 'adm-compte__etat' }, etatCompte(c)),
     h('div', { class: 'adm-compte__actions' }, bouton('Modifier', { classe: 'btn--petit', icone: 'modifier', onclick: () => modifier(c, d, ctx), 'aria-label': `Modifier le compte ${c.identifiant}` })));
 }
@@ -187,6 +188,7 @@ function creer(d, ctx) {
   });
   const nom = saisie({ maxlength: 32, required: true, autocomplete: 'off' });
   const admin = caseACocher(h('span', {}, h('strong', {}, 'Administrateur général'), ' : tous les jeux, tous les comptes et cette administration'));
+  const tresorier = caseACocher(h('span', {}, h('strong', {}, 'Trésorier'), ' : tient le livre des comptes de l’association (même sans aucun jeu)'));
   const acces = blocAcces(d.jeux, {}, false);
   admin.input.addEventListener('change', () => acces.admin(admin.input.checked));
   let cree = null;
@@ -198,14 +200,15 @@ function creer(d, ctx) {
         champ('Identifiant de connexion', identifiant, { aide: '3 à 24 caractères : minuscules, chiffres, point, tiret. Définitif.' }),
         champ('Nom affiché', nom, { aide: 'Souvent le pseudo.' })),
       admin.element,
+      tresorier.element,
       acces.element,
     ],
     actions: [{ libelle: 'Annuler' }, {
       libelle: 'Créer le compte',
       classe: 'btn--principal',
       action: async () => {
-        const corps = { identifiant: identifiant.value, nomAffiche: nom.value.trim(), admin: admin.input.checked, acces: acces.lire(admin.input.checked) };
-        if (!corps.admin && !Object.keys(corps.acces).length) throw new Error('Coche au moins un métier dans un jeu, sinon ce compte ne verra rien.');
+        const corps = { identifiant: identifiant.value, nomAffiche: nom.value.trim(), admin: admin.input.checked, tresorier: tresorier.input.checked, acces: acces.lire(admin.input.checked) };
+        if (!corps.admin && !corps.tresorier && !Object.keys(corps.acces).length) throw new Error('Coche au moins un métier dans un jeu (ou Trésorier), sinon ce compte ne verra rien.');
         cree = await api('POST', '/api/admin/comptes', corps);
         await ctx.recharger();
       },
@@ -219,6 +222,7 @@ function modifier(c, d, ctx) {
   const nom = saisie({ valeur: c.nomAffiche, maxlength: 32, required: true, autocomplete: 'off' });
   const admin = caseACocher(h('span', {}, h('strong', {}, 'Administrateur général'), ' : tous les jeux, tous les comptes et cette administration'), { coche: c.admin, disabled: soi });
   const actif = caseACocher('Compte actif (décocher ferme ses sessions et bloque la connexion, sans rien effacer)', { coche: c.actif, disabled: soi });
+  const tresorier = caseACocher(h('span', {}, h('strong', {}, 'Trésorier'), ' : tient le livre des comptes de l’association'), { coche: c.tresorier });
   const acces = blocAcces(d.jeux, c.acces || {}, c.admin);
   admin.input.addEventListener('change', () => acces.admin(admin.input.checked));
   let mdp = null;
@@ -280,7 +284,7 @@ function modifier(c, d, ctx) {
           ? `active depuis ${c.deuxFacteurs.depuis ? formatHorodatage(c.deuxFacteurs.depuis) : '?'}, ${c.deuxFacteurs.codesRestants} code${c.deuxFacteurs.codesRestants > 1 ? 's' : ''} de secours`
           : 'non activée')),
       champ('Nom affiché', nom),
-      h('div', { class: 'pile-s' }, admin.element, actif.element,
+      h('div', { class: 'pile-s' }, admin.element, tresorier.element, actif.element,
         soi ? h('p', { class: 'texte-3 petit' }, 'C’est ton compte : tu ne peux ni le désactiver ni retirer ton rôle d’Administrateur général. Ton mot de passe se change dans « Mon compte ».') : null),
       acces.element,
       autres,
@@ -295,6 +299,7 @@ function modifier(c, d, ctx) {
             nomAffiche: nom.value.trim(),
             actif: soi ? true : actif.input.checked,
             admin: soi ? true : admin.input.checked,
+            tresorier: tresorier.input.checked,
             acces: acces.lire(soi || admin.input.checked),
           };
           if (c.actif && !corps.actif) {

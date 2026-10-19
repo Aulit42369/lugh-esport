@@ -3,7 +3,7 @@
 //   #/admin/…  #/compte  #/jeux   pages générales
 //   #/<page>/…                   lien relatif au jeu affiché (liens enregistrés dans les suggestions, les alertes…)
 
-export const PAGES_GENERALES = new Set(['admin', 'compte', 'jeux']);
+export const PAGES_GENERALES = new Set(['admin', 'compte', 'jeux', 'tresorerie']);
 
 function morceaux() {
   const brut = window.location.hash.replace(/^#\/?/, '');

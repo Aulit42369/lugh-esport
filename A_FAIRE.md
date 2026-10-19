@@ -16,18 +16,25 @@
 - 19/10 : 2.2.0 : devise « Le soleil se lève avec nous. » sous le logo de la connexion ; annonces reprises dans #annonces sur Discord ; export de chaque jeu pour la sauvegarde hebdomadaire sur le Pi ; relecture indépendante et corrections ; zip rangé en trois envois GitHub ; 162 tests.
 - 19/10 : premier déploiement fait par Olivier : Atlas, GitHub, Render (lugh-esport.onrender.com), première connexion, jeux activés, serveur Discord, bot sur le Pi, BOT Aulit sur le serveur.
 - 19/10 : 2.3.0 : le bot branche lui-même le webhook de chaque jeu (et des annonces) qui n'en a pas ; un webhook retiré à la main n'est pas rebranché ; onglet Discord « Jeux sur Discord » ; 163 tests.
+- 19/10 : 2.4.0 : suppression définitive d'un jeu désactivé (export proposé, nom à taper ; base, accès, annonces et point de restauration nettoyés) ; 2.4.1 : onglet Jeux en deux parties : « Tes jeux » (jeux créés seulement) et « Ajouter un jeu » replié ; 165 tests.
+- 19/10 : 2.4.2 : un jeu désactivé ne lance plus aucune vérification de méta ni semaine type, même ouvert par l'Administrateur général ; 166 tests.
+- 19/10 : 2.5.0 : Administration générale → Administratif (obligations légales et veille au bouton avec validation, livre des comptes et rôle Trésorier, documents types, autorisations des mineurs dans le roster, identité) ; page « Données et confidentialité » ; sauvegarde de la structure (téléchargement et `_structure.json` sur le Pi avec le bot 2.2.1) ; relecture indépendante corrigée (compte Trésorier protégé et soumis à la double authentification, clôture d'un exercice terminé seulement, ouverture cohérente, sources officielles BOFiP, CNIL et service-public) ; 177 tests.
 
 ## En cours
 - Rien.
 
 ## À faire
+- Créer l'association (Administratif → Obligations → Créer l'association), puis renseigner son RNA dans Identité.
+- Lancer la veille légale de temps en temps (avant l'assemblée générale par exemple) et relire les propositions.
 - Créer les comptes et les Responsables, régler chaque jeu (Réglages du jeu) et suivre « Premiers pas ».
 - Vérifier les points incertains notés dans les modèles (pool R6, profils publics, barèmes battle royale) à la première méta de chaque jeu.
 - Exporter une sauvegarde de chaque jeu une fois par mois (Gestion du jeu → Sauvegarde).
+- Restauration automatique de la sauvegarde de la structure (`_structure.json`) : aujourd'hui, à la main.
 - Revue L99 complète avant d'ouvrir Lugh à d'autres structures.
 - Après le premier vrai essai du bot : vérifier les rappels d'une vraie semaine et la synchronisation des rôles.
 
 ## Décisions prises
+- 19/10 : livre des comptes ouvert à l'Administrateur général et à un rôle Trésorier ; justificatifs hors de Lugh (numéro de pièce seulement) ; veille légale au bouton seulement (pas d'automatique) ; association pas encore créée.
 - 18/10 : la méta n'écrit jamais le travail de l'équipe : les ajustements deviennent des suggestions.
 - 18/10 : pas d'inscription : identifiant + mot de passe par personne, métiers cumulables.
 - 18/10 : hébergement Render (gratuit) + MongoDB Atlas (gratuit) ; méta vérifiée à la première visite après chaque créneau (pas de cron externe).

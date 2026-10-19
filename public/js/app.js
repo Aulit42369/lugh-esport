@@ -47,7 +47,9 @@ async function afficher({ conserver = false } = {}) {
   }
   if (!r.jeu && !r.route) {
     const jeu = jeuParDefaut();
-    return remplacerEtAfficher(jeu ? `#/${jeu}` : (E.estAdmin() && !E.jeux().length ? '#/admin/jeux' : '#/jeux'));
+    // Sans jeu : l'Administrateur crée le premier, un Trésorier arrive sur ses comptes.
+    const sansJeu = E.estAdmin() && !E.jeux().length ? '#/admin/jeux' : E.estTresorier() && !E.jeux().length ? '#/tresorerie' : '#/jeux';
+    return remplacerEtAfficher(jeu ? `#/${jeu}` : sansJeu);
   }
 
   const moi = ++jeton;

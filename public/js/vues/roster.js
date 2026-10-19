@@ -10,6 +10,7 @@ import { lienProfil, aideIdentifiant } from '../composants/profil.js';
 import { STATUTS_MEMBRE, TYPES_MEMBRE, FONCTIONS_STAFF, libelle } from '/shared/referentiel.js';
 import { nouvelId } from '/shared/validation.js';
 import { nomsMetiers } from '/shared/roles.js';
+import * as Autorisations from './roster-autorisations.js';
 
 const SANS_PERSONNAGES = { principaux: [], secondaires: [], parMap: {} };
 const shotcall = () => !!J.def()?.shotcall;
@@ -209,6 +210,7 @@ function detailMembre(m) {
         h('dl', { class: 'details details--jetons' }, parMap.map(([map, x]) => [h('dt', {}, nomMap(map)), h('dd', {}, jetonPersonnage(x))]))) : null,
       m.forces ? h('div', { class: 'pile-s' }, h('h3', {}, 'Points forts'), h('p', { class: 'texte-multi' }, m.forces)) : null,
       m.axes ? h('div', { class: 'pile-s' }, h('h3', {}, 'Axes de progrès'), h('p', { class: 'texte-multi' }, m.axes)) : null,
+      Autorisations.bloc(m, () => document.dispatchEvent(new CustomEvent('lugh:recharger'))),
       h('p', { class: 'texte-3 petit' }, compte
         ? `Compte : ${compte.nomAffiche} (${nomsMetiers(compte.metiers).join(', ') || 'aucun métier'})`
         : 'Aucun compte relié à ce profil.'),
@@ -236,6 +238,7 @@ function carteMembre(m) {
   h('span', { class: 'rangee' },
     joueur ? pucePalier(E.palierDe(m._id)) : null,
     compte ? puce(compte.nomAffiche, 'info') : puce('Sans compte')),
+  Autorisations.emplacement(m._id),
   m.idJeu ? h('span', { class: 'texte-3 tres-petit carte-membre__id' }, m.idJeu) : null);
 }
 
@@ -305,4 +308,5 @@ export function rendre(page) {
   }
   page.append(h('p', { class: 'texte-3 petit section' }, icone('info', { classe: 'icone-texte' }),
     ' Le palier de chaque joueur se règle dans ', h('a', { href: J.lien('/progression') }, 'Progression'), '.'));
+  Autorisations.charger(page);
 }

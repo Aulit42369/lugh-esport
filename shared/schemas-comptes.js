@@ -21,6 +21,7 @@ const base = {
 export const creationCompte = objet({
   ...base,
   admin: booleen(),
+  tresorier: booleen(),
   acces: dictionnaire(MOTIFS.jeu, accesJeu, { max: 15 }),
 });
 
@@ -38,6 +39,7 @@ export const modificationCompte = objet({
   nomAffiche: texte({ max: 32, requis: true }),
   actif: booleen({ defaut: true }),
   admin: booleen(),
+  tresorier: booleen(),
   acces: dictionnaire(MOTIFS.jeu, accesJeu, { max: 15 }),
 });
 

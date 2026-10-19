@@ -12,7 +12,7 @@ Ce qui tient tout ensemble :
 - **Un compte par personne** (identifiant et mot de passe, sans inscription) avec des **métiers par jeu** : chacun ne voit que ses jeux. Un agenda `.ics` regroupe tous ses jeux, et une alerte prévient quand une personne a deux séances au même moment dans deux jeux.
 - **L'Administrateur général** active les jeux, gère tous les comptes et voit la **vue d'ensemble** de la structure. Il publie des **annonces**, avec la liste de qui les a lues.
 - **Le Responsable du jeu** gère les comptes et les réglages de son jeu.
-- **La double authentification** (application d'authentification et codes de secours) est proposée à tous, et peut être exigée pour l'Administrateur général et les Responsables.
+- **La double authentification** (application d'authentification et codes de secours) est proposée à tous, et peut être exigée pour l'Administrateur général, le Trésorier et les Responsables.
 - **Les Réglages du jeu** se modifient sans code : rôles, rangs, chiffres suivis, types de strat, blocs, vocabulaire, objectifs, couleur du jeu, seuils de charge…
 - **La méta** de chaque jeu est vérifiée le lundi et le jeudi, avec une clé API Claude (facultative) ou par import en deux copier-coller.
 
@@ -46,7 +46,7 @@ Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été dépl
 
 ### 2. GitHub : le code
 1. Crée un dépôt **privé** nommé `lugh-esport`.
-2. Dézippe le zip livré et ouvre le dossier `Lugh-2.3.0`. GitHub accepte 100 fichiers au plus par envoi : le zip est déjà rangé en **trois dossiers**, `envoi-1`, `envoi-2` et `envoi-3`. Pour chacun, dans l'ordre : sur GitHub, à la **racine** du dépôt, *Add file → Upload files* ; ouvre le dossier sur ton PC, sélectionne tout ce qu'il contient (*Ctrl+A*), glisse-le dans la page, puis *Commit changes*.
+2. Dézippe le zip livré et ouvre le dossier `Lugh-2.5.0`. GitHub accepte 100 fichiers au plus par envoi : le zip est déjà rangé en **trois dossiers**, `envoi-1`, `envoi-2` et `envoi-3`. Pour chacun, dans l'ordre : sur GitHub, à la **racine** du dépôt, *Add file → Upload files* ; ouvre le dossier sur ton PC, sélectionne tout ce qu'il contient (*Ctrl+A*), glisse-le dans la page, puis *Commit changes*.
    - `envoi-1` : `public` (sans ses vues) et `shared`, 94 fichiers.
    - `envoi-2` : `src`, `test`, `marque`, `licences` et les fichiers de la racine, 82 fichiers. Les fichiers qui commencent par un point (`.gitignore`, `.node-version`, `.env.example`) sont cachés sous Windows : *Affichage → Éléments masqués*.
    - `envoi-3` : `public/js/vues`, 51 fichiers. Il complète le dossier `public` du premier envoi.
@@ -71,7 +71,7 @@ Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été dépl
    - scanne le QR code avec ton application d'authentification ;
    - tape le code à 6 chiffres affiché ;
    - **range les 10 codes de secours** (fichier téléchargé ou papier). Chacun ne sert qu'une fois, si tu perds ton téléphone.
-3. **Administration générale → Jeux** : active les jeux de la structure (interrupteur « Activé »). Pour un jeu absent de la liste : *Autre jeu*, puis son nom. L'identifiant proposé est définitif, car c'est le nom de sa base.
+3. **Administration générale → Jeux → Ajouter un jeu** : *Ajouter* sur chaque jeu de la structure. Pour un jeu sans modèle : *Créer un jeu*, avec son nom. L'identifiant proposé est définitif, car c'est le nom de sa base.
 4. **Administration générale → Comptes** :
    - crée un compte par personne, avec ses métiers dans chaque jeu ;
    - donne le métier « Responsable du jeu » à la personne qui gère ce jeu ;
@@ -102,7 +102,7 @@ Rôles Discord synchronisés avec les métiers de Lugh, rappels avant les séanc
 
 4. Webhooks : le bot branche lui-même le webhook de chaque jeu et celui des annonces là où Lugh n'en a pas (il ne remplace jamais une adresse collée à la main, et ne rebranche pas un webhook que tu as retiré). Chaque nouvelle annonce part alors aussi dans #annonces (case décochable ; une annonce importante y mentionne @everyone).
 
-5. **Nouveau jeu** : active-le dans **Administration générale → Jeux**. À sa synchronisation suivante (ou tout de suite avec `/synchro` sur Discord), le bot crée son rôle, sa catégorie `🎮 NOM DU JEU`, ses salons et son webhook, et met à jour #bienvenue. L'onglet **Discord → Jeux sur Discord** montre où en est chaque jeu. Le bot ne supprime jamais rien : un jeu désactivé garde ses salons, à archiver à la main si tu veux. Évite de renommer un jeu dans Lugh une fois installé : le bot créerait un rôle et une catégorie au nouveau nom.
+5. **Nouveau jeu** : ajoute-le dans **Administration générale → Jeux → Ajouter un jeu**. À sa synchronisation suivante (ou tout de suite avec `/synchro` sur Discord), le bot crée son rôle, sa catégorie `🎮 NOM DU JEU`, ses salons et son webhook, et met à jour #bienvenue. L'onglet **Discord → Jeux sur Discord** montre où en est chaque jeu. Le bot ne supprime jamais rien : un jeu désactivé garde ses salons, à archiver à la main si tu veux. Évite de renommer un jeu dans Lugh une fois installé : le bot créerait un rôle et une catégorie au nouveau nom.
 
 Le bot interroge Lugh toutes les 3 h : l'appli gratuite se réveille environ 8 fois par jour, soit à peu près 90 h par mois sur les 750 h gratuites que Render partage entre tes services.
 
@@ -146,6 +146,38 @@ Le recrutement (candidats et avis) n'est visible que des métiers qui donnent le
 
 ---
 
+## Désactiver ou supprimer un jeu
+
+- **Administration générale → Jeux** : *Tes jeux* ne montre que les jeux créés ; les autres modèles sont dans *Ajouter un jeu*, replié en dessous.
+- **Désactiver** (interrupteur sur la carte du jeu) : le jeu disparaît pour tout le monde sauf l'Administrateur général, plus de méta automatique ni de bot. Les données restent : réactiver le rend tel quel. Il garde sa place parmi les 15.
+- **Supprimer définitivement** (jeu désactivé seulement) : *Supprimer…* sur sa carte → *Exporter d'abord* → tape le nom du jeu → *Supprimer définitivement*. Sa base est effacée, les comptes perdent leur accès à ce jeu (les comptes restent), une annonce qui ne visait que lui est supprimée, et sa place se libère. **Irréversible** : seul l'export (ou une sauvegarde hebdomadaire du Pi) permet de le retrouver. Recréer le jeu ensuite repart de zéro.
+- Sur Discord, le bot ne supprime rien : retire à la main la catégorie et le rôle du jeu.
+- Ne supprime jamais la base `lugh_<jeu>` à la main dans Atlas : Lugh croirait le jeu encore là.
+
+---
+
+## Administratif de l'association
+
+**Administration générale → Administratif**, en cinq rubriques. Rien n'y est un avis juridique : ce sont les règles officielles, résumées, avec leurs sources.
+
+- **Obligations** : tout ce que la loi et les éditeurs demandent à la structure (créer l'association, gestion courante, mineurs, RGPD, tournois, joueurs salariés, jeux et marque). Pour chaque point : *À faire / En cours / Fait / Pas concerné*, et ses sources officielles.
+  - **Veille légale** : *Vérifier maintenant* (avec la clé API Claude, recherche limitée aux sites officiels : service-public, economie.gouv, entreprises.gouv, Légifrance, CNIL, URSSAF, impots.gouv, France Esports, Riot) ou *Vérifier sans la clé API* (copier la consigne dans claude.ai, recoller la réponse). Les changements trouvés arrivent comme **propositions** : rien ne change sans *Accepter*. Une vérification coûte environ 0,10 à 0,30 $ ; à lancer de temps en temps, par exemple avant l'assemblée générale.
+- **Comptes** : le livre des comptes (voir ci-dessous).
+- **Documents** : statuts, procès-verbal de l'assemblée constitutive, autorisation parentale, droit à l'image, charte de protection des mineurs, registre RGPD. Pré-remplis avec l'identité de la structure, à imprimer ou enregistrer en PDF (*Imprimer ou PDF*). Ce qui concerne une personne reste en pointillés.
+- **Mineurs** : les mineurs signalés dans chaque jeu et les autorisations manquantes. Le Responsable du jeu les coche dans le **Roster**, sur la fiche du joueur (*Autorisations → Mettre à jour*) : « mineur », date de l'autorisation parentale, date du droit à l'image. Aucun âge n'est enregistré, et les autres membres du jeu n'en voient rien.
+- **Identité** : nom de l'association, RNA, SIRET, contact public, référent. Le contact s'affiche sur **Données et confidentialité** (lien sous le formulaire de connexion et dans Mon compte), visible sans connexion : mets une adresse de l'association.
+  - **Sauvegarde** (en bas d'Identité) : *Télécharger la sauvegarde* récupère le livre des comptes, les autorisations, le suivi et l'identité, qui ne sont dans aucun jeu. Avec le bot Discord 2.2.1, une copie est rangée chaque semaine sur le Pi (`_structure.json`, à côté des jeux).
+
+### Livre des comptes
+
+- Accès : l'Administrateur général, et les comptes cochés **Trésorier** (Administration générale → Comptes → Modifier). Un trésorier sans jeu voit seulement **Comptes de la structure**. Seul l'Administrateur général gère un compte Trésorier (mot de passe, nom, suppression), et la double authentification exigée s'applique à lui.
+- Commencer : *Réglages* → début de l'exercice (janvier, ou septembre pour une saison) et soldes de la banque et de la caisse le jour de l'ouverture.
+- Chaque *Nouvelle écriture* : recette, dépense ou transfert banque ↔ caisse, catégorie, montant, **numéro de pièce**. Les justificatifs (photos, PDF) restent dans le dossier de la trésorerie, rangés sous ce numéro ; à garder au moins 6 ans, 10 ans conseillés.
+- Une fois par mois : *Comparer avec un relevé* (solde de la banque à une date). Un écart signale une écriture oubliée, en double ou mal datée.
+- Assemblée générale : *Imprimer le bilan* (recettes et dépenses par catégorie, résultat, trésorerie au début et à la fin), *Tableur* pour l'export. Après l'approbation des comptes : *Clôturer l'exercice* (possible seulement une fois l'exercice terminé) ; ses écritures ne bougent plus. Seul l'Administrateur général peut le rouvrir.
+
+---
+
 ## Sauvegarde et restauration (par jeu)
 
 **Gestion du jeu → Sauvegarde** :
@@ -158,7 +190,7 @@ Le recrutement (candidats et avis) n'est visible que des métiers qui donnent le
 
 ## Mise à jour du code
 
-Dézippe le nouveau zip, toujours complet. Dépose son contenu dans le dépôt en trois envois, comme à l'installation : contenu de `envoi-1`, puis de `envoi-2`, puis de `envoi-3`, toujours à la racine. Render redéploie tout seul. Les données ne bougent pas, elles sont dans Atlas.
+Chaque mise à jour arrive dans **un seul dossier** `Lugh-<version>-a-envoyer` : seulement les fichiers qui ont changé, déjà rangés dans leurs sous-dossiers. Sur GitHub, à la racine du dépôt : *Add file → Upload files*, ouvre le dossier, sélectionne tout son contenu (*Ctrl+A*), glisse-le dans la page, puis *Commit changes*. Les fichiers non livrés restent tels quels. Render redéploie tout seul. Les données ne bougent pas, elles sont dans Atlas. Le zip complet (en trois envois) ne sert que pour une installation de zéro.
 
 ---
 

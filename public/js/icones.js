@@ -54,6 +54,9 @@ const TRACES = {
   annonce: 'M3 10v4h3l7 5V5l-7 5M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12',
   securite: 'M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6zM9 12l2 2 4-4',
   structure: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  euro: 'M17.5 6.5A6.5 6.5 0 1 0 17.5 17.5M4 10.5h9M4 13.5h9',
+  document: 'M7 3h7l4 4v14H7zM14 3v4h4M10 12h5M10 16h5',
+  balance: 'M12 4v16M8 20h8M5 7h14M5 7l-2.5 6h5zM19 7l-2.5 6h5zM2.5 13a2.5 2 0 0 0 5 0M16.5 13a2.5 2 0 0 0 5 0',
   compteRendu: 'M5 4h10l4 4v12H5zM14 4v5h5M8 13h8M8 17h5',
   charge: 'M4 18a8 8 0 1 1 16 0M12 18l4-6',
 };
