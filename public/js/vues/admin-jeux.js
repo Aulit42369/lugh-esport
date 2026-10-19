@@ -1,6 +1,7 @@
-// Administration générale, onglet Jeux : chaque modèle du catalogue s'active d'un interrupteur (l'espace du jeu est
-// créé la première fois, puis simplement réactivé) ; désactiver masque le jeu à tous sauf à l'Administrateur général,
-// sans rien effacer. « Autre jeu » se crée avec un nom et un identifiant définitif (il nomme la base du jeu).
+// Administration générale, onglet Jeux : « Tes jeux » (les jeux créés, actifs puis désactivés, avec leur interrupteur ;
+// désactiver masque le jeu à tous sauf à l'Administrateur général, sans rien effacer ; un jeu désactivé peut être
+// supprimé définitivement), puis « Ajouter un jeu », replié : les modèles pas encore créés et « Autre jeu » (nom et
+// identifiant définitif, qui nomme la base du jeu).
 
 import { h, modale, confirmer, champ, saisie, bouton, toast, messageErreur, idUnique } from '../ui.js';
 import { icone } from '../icones.js';
@@ -12,7 +13,7 @@ import { VUES, PAGES, styleCouleurJeu } from '../navigation.js';
 import { GENRES } from '/shared/jeux/commun.js';
 import { COULEURS_JEU } from '/shared/couleurs.js';
 import { MARQUE } from '/shared/marque.js';
-import { idDepuisNom, pastilleJeu, interrupteur, chargement, erreurChargement } from './admin-commun.js';
+import { idDepuisNom, interrupteur, chargement, erreurChargement } from './admin-commun.js';
 
 const ID_AUTRE = 'autre';
 const MOTIF_ID = /^[a-z0-9]{2,20}$/;
@@ -20,6 +21,7 @@ const MOTIF_ID = /^[a-z0-9]{2,20}$/;
 const RESERVES = new Set([...Object.keys(PAGES), ...Object.keys(VUES), 'api', 'shared']);
 
 let cache = null; // dernière réponse de /api/admin/jeux : affichée tout de suite au rendu suivant
+let ajoutOuvert = null; // « Ajouter un jeu » ouvert ou replié (null : ouvert seulement s'il n'y a encore aucun jeu)
 const brouillonAutre = { nom: '', id: '', idModifie: false };
 
 const nomGenre = (id) => GENRES.find((g) => g.id === id)?.nom || 'Autre genre';
@@ -38,7 +40,7 @@ export function rendreJeux(zone, ctx) {
   let affiche = '';
   const dessiner = (d) => {
     affiche = JSON.stringify(d);
-    zone.replaceChildren(bilan(d), catalogue(d, ctx), sectionAutre(d, ctx));
+    zone.replaceChildren(bilan(d), tesJeux(d, ctx), sectionAjout(d, ctx));
   };
   if (cache) dessiner(cache);
   else zone.replaceChildren(chargement());
@@ -67,13 +69,68 @@ function bilan(d) {
       h('p', { class: 'texte-3 tres-petit' }, `Chaque jeu créé a sa propre base de données : ${d.max} jeux au maximum avec MongoDB Atlas gratuit. Un jeu désactivé compte toujours. Le nombre de comptes d’un jeu n’inclut pas l’Administrateur général, présent partout.`)));
 }
 
-function catalogue(d, ctx) {
-  const modeles = d.catalogue.filter((m) => m.id !== ID_AUTRE);
+// Jeux créés seulement : les actifs d'abord, puis les désactivés (données gardées), dans l'ordre de la navigation.
+function tesJeux(d, ctx) {
+  const modele = (j) => d.catalogue.find((m) => m.id === j.modele) || d.catalogue.find((m) => m.id === ID_AUTRE);
+  const jeux = [...d.jeux].sort((a, b) => Number(b.actif) - Number(a.actif) || a.ordre - b.ordre || a.nom.localeCompare(b.nom, 'fr'));
   return h('section', { class: 'section' },
     h('div', { class: 'section__entete' },
-      h('h2', {}, 'Catalogue'),
-      h('p', { class: 'section__aide' }, 'Activer crée l’espace du jeu la première fois (roster à compléter, méta, semaine type), puis le rouvre tel quel.')),
-    h('div', { class: 'adm-catalogue' }, modeles.map((m) => carteModele(m, d.jeux.find((j) => j.id === m.id) || null, d, ctx))));
+      h('h2', {}, 'Tes jeux'),
+      h('p', { class: 'section__aide' }, 'Désactiver masque un jeu sans rien effacer ; le réactiver le rend tel quel. Un jeu désactivé peut aussi être supprimé définitivement.')),
+    jeux.length
+      ? h('div', { class: 'adm-catalogue' }, jeux.map((j) => carteModele(modele(j), j, d, ctx)))
+      : h('p', { class: 'texte-3' }, 'Aucun jeu pour l’instant : ajoute le premier ci-dessous.'));
+}
+
+// Modèles pas encore créés (une ligne chacun, bouton Ajouter) et « Autre jeu ». Replié dès qu'il existe un jeu.
+function sectionAjout(d, ctx) {
+  const libres = d.catalogue.filter((m) => m.id !== ID_AUTRE && !d.jeux.some((j) => j.id === m.id));
+  const plein = d.jeux.length >= d.max;
+  const ouvert = ajoutOuvert ?? !d.jeux.length;
+  const modeleAutre = d.catalogue.find((m) => m.id === ID_AUTRE);
+  return h('details', { class: 'section adm-ajout', open: ouvert, ontoggle: (e) => { ajoutOuvert = e.currentTarget.open; } },
+    h('summary', { class: 'adm-ajout__titre' },
+      h('h2', {}, 'Ajouter un jeu'),
+      h('span', { class: 'texte-3 petit' }, plein ? `limite de ${d.max} jeux atteinte` : `${libres.length} modèle${libres.length > 1 ? 's' : ''} prêt${libres.length > 1 ? 's' : ''}, ou un autre jeu`)),
+    h('div', { class: 'adm-ajout__grille' },
+      h('div', { class: 'pile-s' },
+        h('h3', { class: 'adm-autre__titre' }, 'Avec un modèle'),
+        libres.length
+          ? h('ul', { class: 'adm-ajout__liste' }, libres.map((m) => ligneModele(m, plein, ctx)))
+          : h('p', { class: 'texte-3 petit' }, 'Tous les modèles sont déjà créés.'),
+        h('p', { class: 'texte-3 tres-petit' }, 'Ajouter crée l’espace du jeu : roster à compléter, méta, semaine type.')),
+      h('div', { class: 'pile-s' },
+        formulaireAutre(d, ctx),
+        modeleAutre ? h('p', { class: 'texte-3 tres-petit' }, `Pour un jeu sans modèle dédié : ${modeleAutre.titulaires} titulaires · score simple · ni maps ni personnages, à adapter ensuite dans ses Réglages du jeu.`) : null)));
+}
+
+function ligneModele(m, plein, ctx) {
+  const ajouter = bouton('Ajouter', {
+    classe: 'btn--petit',
+    icone: 'ajouter',
+    disabled: plein,
+    'aria-label': `Ajouter ${m.nom}`,
+    onclick: async () => {
+      ajouter.disabled = true;
+      ajouter.setAttribute('aria-busy', 'true');
+      try {
+        const r = await api('POST', '/api/admin/jeux', { modele: m.id });
+        if (cache && r?.jeux) cache = { ...cache, jeux: r.jeux };
+        toast(`${m.nom} ajouté : son espace est prêt.`);
+        await ctx.recharger();
+      } catch (err) {
+        toast(messageErreur(err), { type: 'erreur' });
+        ajouter.disabled = false;
+        ajouter.removeAttribute('aria-busy');
+      }
+    },
+  });
+  return h('li', { class: 'adm-ajout__ligne' },
+    h('span', { class: 'puce-jeu adm-ajout__code' }, m.court),
+    h('div', { class: 'adm-ajout__texte' },
+      h('strong', {}, m.nom),
+      h('span', { class: 'texte-3 tres-petit' }, [nomGenre(m.genre), `${m.titulaires} titulaires`, m.patch ? `patch ${m.patch}` : ''].filter(Boolean).join(' · '))),
+    ajouter);
 }
 
 function statut(j) {
@@ -123,10 +180,10 @@ function carteModele(m, j, d, ctx) {
   const etat = !j ? 'absent' : (j.actif ? 'actif' : 'inactif');
   const plein = !j && d.jeux.length >= d.max;
   const nom = j?.nom || m.nom;
-  const g = graine(m.id);
+  const g = graine(j?.id || m.id);
   return h('article', { class: ['adm-modele', `adm-modele--${etat}`] },
     h('div', { class: 'adm-modele__terrain' },
-      topo({ largeur: 480, hauteur: 120, graine: `jeu-${m.id}`, colonnes: 40, niveaux: 8, bosses: 6, classe: 'topo adm-modele__fond' }),
+      topo({ largeur: 480, hauteur: 120, graine: `jeu-${j?.id || m.id}`, colonnes: 40, niveaux: 8, bosses: 6, classe: 'topo adm-modele__fond' }),
       j ? h('span', { class: 'adm-modele__poste', 'aria-hidden': 'true', style: { left: `${56 + (g % 27)}%`, top: `${30 + ((g >>> 8) % 30)}%` } }) : null,
       h('span', { class: 'puce-jeu adm-modele__code', style: j ? styleCouleurJeu(j.couleur) : null }, j?.court || m.court)),
     h('div', { class: 'adm-modele__corps' },
@@ -222,21 +279,6 @@ function renommer(j, ctx) {
 
 // ——— Autre jeu ———
 
-function sectionAutre(d, ctx) {
-  const autres = d.jeux.filter((j) => j.modele === ID_AUTRE);
-  const modele = d.catalogue.find((m) => m.id === ID_AUTRE);
-  return h('section', { class: 'section adm-autre' },
-    h('div', { class: 'section__entete' },
-      h('h2', {}, 'Autre jeu'),
-      h('p', { class: 'section__aide' }, 'Pour un jeu sans modèle dédié : un modèle neutre, à adapter ensuite dans ses Réglages du jeu (vocabulaire, rôles, rangs, score…).')),
-    h('div', { class: 'adm-autre__grille' },
-      formulaireAutre(d, ctx),
-      h('div', { class: 'pile-s' },
-        h('h3', { class: 'adm-autre__titre' }, autres.length ? `Jeux créés avec ce modèle (${autres.length})` : 'Aucun jeu créé avec ce modèle'),
-        autres.map((j) => ligneAutre(j, ctx)),
-        modele ? h('p', { class: 'texte-3 tres-petit' }, `Équipe de départ : ${modele.titulaires} titulaires · score simple · ni maps ni personnages (à régler).`) : null)));
-}
-
 function problemeId(id, d) {
   if (!id) return 'Choisis un identifiant.';
   if (!MOTIF_ID.test(id)) return 'Identifiant : 2 à 20 lettres minuscules sans accent ou chiffres.';
@@ -316,14 +358,4 @@ function formulaireAutre(d, ctx) {
   erreur,
   plein ? h('p', { class: 'texte-3 petit' }, `Limite de ${d.max} jeux atteinte.`) : null,
   h('div', {}, creer));
-}
-
-function ligneAutre(j, ctx) {
-  return h('div', { class: ['adm-autre__jeu', !j.actif && 'adm-autre__jeu--inactif'] },
-    pastilleJeu(j),
-    h('div', { class: 'adm-autre__texte' },
-      h('strong', {}, j.nom),
-      h('span', { class: 'texte-3 tres-petit' }, `#/${j.id} · ${j.comptes} compte${j.comptes > 1 ? 's' : ''}`)),
-    interrupteur({ coche: j.actif, nom: j.nom, surChange: (input, remettre) => basculer(input, remettre, { modele: ID_AUTRE, jeu: j, nom: j.nom }, ctx) }),
-    liensJeu(j, ctx));
 }

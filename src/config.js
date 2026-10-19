@@ -77,7 +77,7 @@ export function lireConfig(env = process.env) {
     cookieSecurise: surRender || origine.startsWith('https://'),
     hsts: surRender,
     fuseau: 'Europe/Paris',
-    version: '2.4.0',
+    version: '2.4.1',
     erreurs,
     avertissements,
   };

@@ -46,7 +46,7 @@ Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été dépl
 
 ### 2. GitHub : le code
 1. Crée un dépôt **privé** nommé `lugh-esport`.
-2. Dézippe le zip livré et ouvre le dossier `Lugh-2.4.0`. GitHub accepte 100 fichiers au plus par envoi : le zip est déjà rangé en **trois dossiers**, `envoi-1`, `envoi-2` et `envoi-3`. Pour chacun, dans l'ordre : sur GitHub, à la **racine** du dépôt, *Add file → Upload files* ; ouvre le dossier sur ton PC, sélectionne tout ce qu'il contient (*Ctrl+A*), glisse-le dans la page, puis *Commit changes*.
+2. Dézippe le zip livré et ouvre le dossier `Lugh-2.4.1`. GitHub accepte 100 fichiers au plus par envoi : le zip est déjà rangé en **trois dossiers**, `envoi-1`, `envoi-2` et `envoi-3`. Pour chacun, dans l'ordre : sur GitHub, à la **racine** du dépôt, *Add file → Upload files* ; ouvre le dossier sur ton PC, sélectionne tout ce qu'il contient (*Ctrl+A*), glisse-le dans la page, puis *Commit changes*.
    - `envoi-1` : `public` (sans ses vues) et `shared`, 94 fichiers.
    - `envoi-2` : `src`, `test`, `marque`, `licences` et les fichiers de la racine, 82 fichiers. Les fichiers qui commencent par un point (`.gitignore`, `.node-version`, `.env.example`) sont cachés sous Windows : *Affichage → Éléments masqués*.
    - `envoi-3` : `public/js/vues`, 51 fichiers. Il complète le dossier `public` du premier envoi.
@@ -71,7 +71,7 @@ Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été dépl
    - scanne le QR code avec ton application d'authentification ;
    - tape le code à 6 chiffres affiché ;
    - **range les 10 codes de secours** (fichier téléchargé ou papier). Chacun ne sert qu'une fois, si tu perds ton téléphone.
-3. **Administration générale → Jeux** : active les jeux de la structure (interrupteur « Activé »). Pour un jeu absent de la liste : *Autre jeu*, puis son nom. L'identifiant proposé est définitif, car c'est le nom de sa base.
+3. **Administration générale → Jeux → Ajouter un jeu** : *Ajouter* sur chaque jeu de la structure. Pour un jeu sans modèle : *Créer un jeu*, avec son nom. L'identifiant proposé est définitif, car c'est le nom de sa base.
 4. **Administration générale → Comptes** :
    - crée un compte par personne, avec ses métiers dans chaque jeu ;
    - donne le métier « Responsable du jeu » à la personne qui gère ce jeu ;
@@ -102,7 +102,7 @@ Rôles Discord synchronisés avec les métiers de Lugh, rappels avant les séanc
 
 4. Webhooks : le bot branche lui-même le webhook de chaque jeu et celui des annonces là où Lugh n'en a pas (il ne remplace jamais une adresse collée à la main, et ne rebranche pas un webhook que tu as retiré). Chaque nouvelle annonce part alors aussi dans #annonces (case décochable ; une annonce importante y mentionne @everyone).
 
-5. **Nouveau jeu** : active-le dans **Administration générale → Jeux**. À sa synchronisation suivante (ou tout de suite avec `/synchro` sur Discord), le bot crée son rôle, sa catégorie `🎮 NOM DU JEU`, ses salons et son webhook, et met à jour #bienvenue. L'onglet **Discord → Jeux sur Discord** montre où en est chaque jeu. Le bot ne supprime jamais rien : un jeu désactivé garde ses salons, à archiver à la main si tu veux. Évite de renommer un jeu dans Lugh une fois installé : le bot créerait un rôle et une catégorie au nouveau nom.
+5. **Nouveau jeu** : ajoute-le dans **Administration générale → Jeux → Ajouter un jeu**. À sa synchronisation suivante (ou tout de suite avec `/synchro` sur Discord), le bot crée son rôle, sa catégorie `🎮 NOM DU JEU`, ses salons et son webhook, et met à jour #bienvenue. L'onglet **Discord → Jeux sur Discord** montre où en est chaque jeu. Le bot ne supprime jamais rien : un jeu désactivé garde ses salons, à archiver à la main si tu veux. Évite de renommer un jeu dans Lugh une fois installé : le bot créerait un rôle et une catégorie au nouveau nom.
 
 Le bot interroge Lugh toutes les 3 h : l'appli gratuite se réveille environ 8 fois par jour, soit à peu près 90 h par mois sur les 750 h gratuites que Render partage entre tes services.
 
@@ -148,7 +148,8 @@ Le recrutement (candidats et avis) n'est visible que des métiers qui donnent le
 
 ## Désactiver ou supprimer un jeu
 
-- **Désactiver** (**Administration générale → Jeux**, interrupteur) : le jeu disparaît pour tout le monde sauf l'Administrateur général, plus de méta automatique ni de bot. Les données restent : réactiver le rend tel quel. Il garde sa place parmi les 15.
+- **Administration générale → Jeux** : *Tes jeux* ne montre que les jeux créés ; les autres modèles sont dans *Ajouter un jeu*, replié en dessous.
+- **Désactiver** (interrupteur sur la carte du jeu) : le jeu disparaît pour tout le monde sauf l'Administrateur général, plus de méta automatique ni de bot. Les données restent : réactiver le rend tel quel. Il garde sa place parmi les 15.
 - **Supprimer définitivement** (jeu désactivé seulement) : *Supprimer…* sur sa carte → *Exporter d'abord* → tape le nom du jeu → *Supprimer définitivement*. Sa base est effacée, les comptes perdent leur accès à ce jeu (les comptes restent), une annonce qui ne visait que lui est supprimée, et sa place se libère. **Irréversible** : seul l'export (ou une sauvegarde hebdomadaire du Pi) permet de le retrouver. Recréer le jeu ensuite repart de zéro.
 - Sur Discord, le bot ne supprime rien : retire à la main la catégorie et le rôle du jeu.
 - Ne supprime jamais la base `lugh_<jeu>` à la main dans Atlas : Lugh croirait le jeu encore là.

@@ -60,6 +60,21 @@
 .adm-faits > div { display: grid; gap: 1px; min-width: 0; }
 .adm-faits dt { font-size: var(--t-xs); color: var(--encre-3); font-weight: 600; }
 .adm-faits dd { margin: 0; font-size: var(--t-s); font-weight: 600; overflow-wrap: anywhere; }
+/* ——— Ajouter un jeu (replié) ——— */
+.adm-ajout { border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); padding: 0; }
+.adm-ajout__titre { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--e-1) var(--e-3); padding: var(--e-4); cursor: pointer; list-style: none; }
+.adm-ajout__titre::-webkit-details-marker { display: none; }
+.adm-ajout__titre::before { content: '+'; display: inline-grid; place-items: center; width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 1px solid var(--trait-fort); color: var(--surimpression); font-weight: 700; transition: transform var(--duree); align-self: center; }
+.adm-ajout[open] > .adm-ajout__titre::before { transform: rotate(45deg); }
+.adm-ajout__titre h2 { margin: 0; }
+.adm-ajout__titre:hover h2 { color: var(--surimpression); }
+.adm-ajout__grille { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--e-5); align-items: start; padding: 0 var(--e-4) var(--e-4); border-top: 1px solid var(--trait); padding-top: var(--e-4); }
+.adm-ajout__liste { display: grid; gap: var(--e-2); margin: 0; padding: 0; list-style: none; }
+.adm-ajout__ligne { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--e-3); padding: var(--e-2) var(--e-3); border: 1px dashed var(--trait-fort); border-radius: var(--r-fiche); }
+.adm-ajout__code { min-width: 2.6rem; height: 1.6rem; background: transparent; color: var(--encre-2); box-shadow: inset 0 0 0 1px var(--trait-fort); }
+.adm-ajout__texte { display: grid; min-width: 0; }
+.adm-ajout__texte strong { overflow-wrap: anywhere; }
+.adm-ajout .adm-autre__formulaire { margin: 0; }
 /* ——— Autre jeu ——— */
 .adm-autre__grille { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--e-5); align-items: start; }
 .adm-autre__formulaire { display: grid; gap: var(--e-3); }
@@ -354,7 +369,7 @@
 }
 @media (max-width: 899px) {
   .adm-bilan, .adm-lectures__colonnes { grid-template-columns: minmax(0, 1fr); }
-  .adm-autre__grille, .rgl-paires, .rgl-choix-score, .rgl-objectif, .rgl-bareme { grid-template-columns: minmax(0, 1fr); }
+  .adm-autre__grille, .adm-ajout__grille, .rgl-paires, .rgl-choix-score, .rgl-objectif, .rgl-bareme { grid-template-columns: minmax(0, 1fr); }
   .adm-compte { grid-template-columns: minmax(0, 1fr) auto; gap: var(--e-2) var(--e-3); }
   .adm-compte__qui { grid-column: 1; grid-row: 1; }
   .adm-compte__actions { grid-column: 2; grid-row: 1; }
