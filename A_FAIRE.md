@@ -17,7 +17,6 @@
 - 19/10 : premier déploiement fait par Olivier : Atlas, GitHub, Render (lugh-esport.onrender.com), première connexion, jeux activés, serveur Discord, bot sur le Pi, BOT Aulit sur le serveur.
 - 19/10 : 2.3.0 : le bot branche lui-même le webhook de chaque jeu (et des annonces) qui n'en a pas ; un webhook retiré à la main n'est pas rebranché ; onglet Discord « Jeux sur Discord » ; 163 tests.
 - 19/10 : 2.4.0 : suppression définitive d'un jeu désactivé (export proposé, nom à taper ; base, accès, annonces et point de restauration nettoyés) ; 2.4.1 : onglet Jeux en deux parties : « Tes jeux » (jeux créés seulement) et « Ajouter un jeu » replié ; 165 tests.
-- 19/10 : 2.4.2 : un jeu désactivé ne lance plus aucune vérification de méta ni semaine type, même ouvert par l'Administrateur général ; 166 tests.
 
 ## En cours
 - Rien.
