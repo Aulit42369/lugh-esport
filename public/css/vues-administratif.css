@@ -1,0 +1,115 @@
+/* Administration générale → Administratif : obligations et veille légale, livre des comptes, documents types,
+   autorisations des mineurs ; page « Comptes de la structure » et fenêtre « Données et confidentialité ». */
+
+/* ——— Sous-rubriques : une règle graduée, l'onglet actif posé dessus comme un sceau ——— */
+.admv-sousnav { display: flex; flex-wrap: wrap; gap: 0 var(--e-1); margin: calc(-1 * var(--e-3)) 0 var(--e-5); border-bottom: 1px solid var(--trait); }
+.admv-sousnav a {
+  position: relative; display: inline-flex; align-items: center; gap: var(--e-2); min-height: 2.6rem; padding: 0 var(--e-3);
+  font-size: var(--t-s); font-weight: 650; color: var(--encre-2); text-decoration: none;
+}
+.admv-sousnav a svg { width: 1rem; height: 1rem; color: var(--encre-3); }
+.admv-sousnav a:hover { color: var(--encre); }
+.admv-sousnav a[aria-current='page'] { color: var(--encre); }
+.admv-sousnav a[aria-current='page'] svg { color: var(--surimpression); }
+.admv-sousnav a[aria-current='page']::after { content: ''; position: absolute; left: var(--e-2); right: var(--e-2); bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--surimpression); }
+
+/* ——— Tuiles de chiffres (comptes, mineurs) ——— */
+.tres-tuiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr)); gap: var(--e-3); margin-bottom: var(--e-4); }
+.tres-tuile { display: grid; gap: 2px; padding: var(--e-3) var(--e-4); border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); }
+.tres-tuile__valeur { font-family: var(--police-titre); font-size: var(--t-xl); font-weight: 800; font-variant-numeric: tabular-nums; }
+.tres-tuile--negatif { border-color: var(--brique); background: var(--brique-voile); }
+.tres-tuile--negatif .tres-tuile__valeur { color: var(--brique); }
+.tres-tuile--positif .tres-tuile__valeur { color: var(--foret); }
+
+/* ——— Livre des comptes ——— */
+.tres-barre { margin-bottom: var(--e-4); }
+.tres-livres { margin-bottom: var(--e-3); }
+.tres-indicateur { margin-bottom: var(--e-4); }
+.tres-indicateur .jauge + .jauge { margin-top: var(--e-2); }
+.tres-ecritures td { vertical-align: top; }
+.tres-date { white-space: nowrap; color: var(--encre-2); }
+.tres-tiers { display: block; }
+.tres-montant { white-space: nowrap; font-weight: 700; }
+.tres-montant--recette { color: var(--foret); }
+.tres-montant--depense { color: var(--brique); }
+.tres-actions { white-space: nowrap; text-align: right; }
+.tres-bilan { margin-top: var(--e-2); }
+.tres-bilan tfoot th { border-top: 2px solid var(--trait-fort); padding: var(--e-2) var(--e-3); text-align: left; }
+.tres-bilan tfoot .num { text-align: right; }
+
+/* ——— Obligations et veille légale ——— */
+.admv-veille { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: var(--e-5); }
+.admv-veille__progres, .admv-veille__legal { display: grid; gap: var(--e-2); align-content: start; }
+.admv-veille__legal { padding-left: var(--e-5); border-left: 1px dashed var(--trait-fort); }
+.admv-manuel summary { cursor: pointer; color: var(--encre-2); font-weight: 600; }
+.admv-manuel ol { margin-top: var(--e-2); }
+.admv-manuel textarea { margin-top: var(--e-2); }
+.admv-propositions > h2 { color: var(--surimpression); }
+.admv-proposition { border-left: 3px solid var(--surimpression); }
+.admv-diff { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-3); }
+.admv-diff > div { padding: var(--e-2) var(--e-3); border-radius: 8px; background: var(--creux); }
+.admv-diff > div:last-child { background: var(--surimpression-voile); }
+.admv-points { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: var(--e-3); }
+.admv-point {
+  display: grid; gap: var(--e-2); align-content: start; padding: var(--e-4);
+  border: 1px solid var(--trait); border-left: 4px solid var(--trait-fort); border-radius: var(--r-fiche); background: var(--surface);
+}
+.admv-point h3 { font-size: var(--t-m); line-height: 1.25; }
+.admv-point__tete { display: grid; gap: var(--e-2); }
+.admv-point__pied { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); margin-top: var(--e-1); padding-top: var(--e-2); border-top: 1px solid var(--trait); }
+.admv-point--fait { border-left-color: var(--foret); }
+.admv-point--en_cours { border-left-color: var(--champ); }
+.admv-point--non_concerne { opacity: 0.6; border-left-style: dashed; }
+.admv-point--a_faire { border-left-color: var(--surimpression); }
+.admv-sources { display: flex; flex-wrap: wrap; gap: var(--e-1) var(--e-3); }
+
+/* ——— Documents types : la liste, puis la feuille ——— */
+.admv-docs { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: var(--e-3); }
+.admv-doc {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--e-3); padding: var(--e-4);
+  border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); color: inherit; text-decoration: none;
+  transition: border-color var(--duree), transform var(--duree);
+}
+.admv-doc:hover { border-color: var(--surimpression); transform: translateY(-1px); }
+.admv-doc > svg:first-child { width: 1.6rem; height: 1.6rem; color: var(--surimpression); }
+.admv-doc > span { display: grid; gap: 2px; }
+.admv-papier {
+  max-width: 50rem; margin: 0 auto; padding: clamp(1.25rem, 4vw, 3.5rem);
+  background: #fffdf8; color: #1a1612; border-radius: 4px; box-shadow: 0 1px 0 #0000000d, 0 18px 40px -18px #00000080;
+  font-size: 0.98rem; line-height: 1.6;
+}
+.admv-papier > * + * { margin-top: 0.7em; }
+.admv-papier ul { padding-left: 1.3rem; }
+.admv-papier__titre { font-size: 1.6rem; line-height: 1.2; text-align: center; margin-bottom: 1.2em; color: #1a1612; }
+.admv-papier__sous { font-size: 1.05rem; margin-top: 1.4em; color: #1a1612; }
+.admv-papier__cases { list-style: none; padding-left: 0 !important; }
+.admv-papier__cases li { display: flex; align-items: center; gap: 0.6em; }
+.admv-papier__case { width: 0.95em; height: 0.95em; border: 1.5px solid #1a1612; border-radius: 2px; flex: none; }
+.admv-papier__champ { display: flex; gap: 0.4em; align-items: baseline; }
+.admv-papier__ligne { flex: 1; border-bottom: 1px dotted #1a1612; min-height: 1.2em; }
+.admv-papier__signatures { margin-top: 2em; }
+.admv-papier__cadres { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: 1.2em; margin-top: 0.8em; }
+.admv-papier__cadre { display: grid; gap: 0.3em; align-content: start; min-height: 7em; padding: 0.7em; border: 1px solid #b9b1a3; border-radius: 4px; }
+.admv-papier__note { font-size: 0.85rem; color: #5c5246; font-style: italic; }
+
+/* ——— Confidentialité, liens-boutons, roster ——— */
+.btn-lien { padding: 0; border: 0; background: none; color: var(--surimpression); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.btn-lien:hover { color: var(--surimpression-fonce); }
+.connexion__confidentialite { margin-top: var(--e-2); }
+.confidentialite h3 { font-size: var(--t-m); color: var(--surimpression); }
+.roster-autorisations { padding-top: var(--e-3); border-top: 1px dashed var(--trait-fort); }
+
+@media (max-width: 899px) {
+  .admv-veille, .admv-diff { grid-template-columns: minmax(0, 1fr); }
+  .admv-veille__legal { padding-left: 0; padding-top: var(--e-4); border-left: 0; border-top: 1px dashed var(--trait-fort); }
+  .tres-ecritures th:nth-child(4), .tres-ecritures td:nth-child(4), .tres-ecritures th:nth-child(5), .tres-ecritures td:nth-child(5) { display: none; }
+}
+
+@media print {
+  .adm-onglets, .admv-sousnav { display: none !important; }
+  .tres-tuile, .admv-point { break-inside: avoid; }
+  body.impression-document .principal > * > :not(.adm-zone),
+  body.impression-document .adm-entete,
+  body.impression-document .adm-onglets { display: none !important; }
+  body.impression-document .admv-papier { max-width: none; padding: 0; box-shadow: none; background: #fff; }
+}

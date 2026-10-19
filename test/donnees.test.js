@@ -39,7 +39,7 @@ test('chargement d’un jeu : définition effective, toutes les collections, com
   const moi = d.comptes.find((x) => x._id === coach.id);
   assert.deepEqual(moi, { _id: coach.id, nomAffiche: 'Ardent', metiers: ['headcoach'], membreId: staff._id, actif: true, admin: false });
   assert.ok(d.comptes.some((x) => x.admin && x.metiers.includes('responsable')));
-  assert.equal(d.serveur.version, '2.3.0');
+  assert.equal(d.serveur.version, '2.6.0');
   assert.match(d.serveur.semaine, /^\d{4}-W\d{2}$/);
   assert.match(d.serveur.aujourdhui, /^\d{4}-\d{2}-\d{2}$/);
   assert.equal(d.serveur.metaAuto, true);

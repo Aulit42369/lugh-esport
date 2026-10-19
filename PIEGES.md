@@ -47,3 +47,25 @@
 | Plus de 100 fichiers dans `public` | GitHub web refuse l'envoi | zip rangé en `envoi-1` (public sans vues + shared), `envoi-2` (src, test, racine), `envoi-3` (public/js/vues) |
 | Le bot rebranche un webhook retiré exprès | « manquant » ne distinguait pas « jamais posé » de « retiré » | `retire: true` posé par Retirer, effacé quand on colle une adresse ; la synchro n'annonce comme manquants que les webhooks jamais posés |
 | Jeu renommé dans Lugh après son installation sur Discord | le bot nomme rôle et catégorie d'après le nom du jeu | il en crée de nouveaux au nouveau nom ; renommer à la main l'ancien rôle et l'ancienne catégorie sur Discord, ou ne pas renommer le jeu |
+| Suppression d'un jeu : `dropDatabase` refusé par Atlas | l'utilisateur « lecture et écriture » n'a pas ce droit | `supprimerBase` supprime chaque collection ; la base vide disparaît seule |
+| Annonce qui ne visait qu'un jeu supprimé | une liste de jeux vide veut dire « tous les jeux » | l'annonce est supprimée avec le jeu |
+| Jeu désactivé ouvert par l'Administrateur général (export, suppression) | chaque visite d'un jeu déclenche ses automatismes | `exigerEspace` ne les lance que pour un jeu actif : pas de méta payante pour un jeu désactivé |
+
+
+## Administratif (19/10)
+
+| Piège | Pourquoi | Ce qu'il faut faire |
+|---|---|---|
+| Une vue renvoie une promesse | le routeur appelle la valeur renvoyée comme fonction de nettoyage : l'affichage suivant plante | les vues renvoient `null` ; le chargement se fait dans `.then` sans `return` |
+| `replaceChildren(null)` | le navigateur affiche le texte « null » | filtrer les enfants (`.filter(Boolean)`) ou passer un tableau vide |
+| Montants en euros à virgule | erreurs d'arrondi (0,1 + 0,2) | tout en centimes entiers ; `lireMontant` à la saisie, `euros` à l'affichage |
+| Export tableur avec un libellé « =… » | Excel exécute une formule | `csvEcritures` préfixe d'une apostrophe les cellules qui commencent par = + - @ |
+| Veille légale qui « invente » | une IA peut citer une source non officielle ou une règle imaginaire | sources https d'une liste fermée, propositions à accepter une par une, la source à lire avant |
+| Nouveau rôle sensible (Trésorier) | les contrôles « gérable par un Responsable » ne regardaient que les jeux du compte : un Responsable pouvait réinitialiser le mot de passe du trésorier | tout rôle de structure (admin, trésorier) est exclu de `gerable()`, du parcours « compte existant » et inclus dans `soumisA2fa` |
+| Formulaire qui remplace tout un document | « Enregistrer » l'identité (ou un ancien onglet) écrasait la forme juridique | le serveur fusionne l'envoi avec l'identité enregistrée ; un champ absent ne change pas |
+| Seuil chiffré dans un texte et dans le code | la veille peut mettre à jour le texte de « gestion.impots », pas la constante de l'indicateur | si la veille fait accepter un nouveau seuil de franchise, changer aussi `SEUILS` dans `obligations.js` |
+| Un an avant le 29 février | `setUTCFullYear` donne le 1er mars | revenir au dernier jour du mois quand le mois a changé |
+| Livre choisi dans la requête | modifier une écriture avec `?livre=association` aurait pu la déplacer d'un livre à l'autre | le livre se lit sur l'écriture enregistrée |
+| Données hors jeux | les sauvegardes du Pi ne prenaient que les jeux : livre des comptes et autorisations n'avaient aucune copie | `_structure` dans la sauvegarde du bot, et téléchargement dans Administratif → Identité |
+| `e.currentTarget` après un `await` | il vaut `null` : le bouton ne se réactive pas | le garder dans une variable avant le premier `await` |
+| Identité publique | le contact s'affiche sans connexion | une adresse de l'association, jamais une adresse personnelle ; pas d'adresse postale ni de nom de dirigeant dans Lugh |

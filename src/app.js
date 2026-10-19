@@ -23,6 +23,10 @@ import { routesOrganisation } from './routes/organisation.js';
 import { routesStructure } from './routes/structure.js';
 import { routesBot } from './routes/bot.js';
 import { routesDiscord } from './routes/discord.js';
+import { routesAdministratif, lireIdentite } from './routes/administratif.js';
+import { contexteStructure } from '../shared/administratif/identite.js';
+import { routesTresorerie } from './routes/tresorerie.js';
+import { creerVeille } from './domaine/veille.js';
 import { creerParametres } from './domaine/parametres.js';
 import { reinitialiserAuDemarrage } from './auth/deuxfacteurs.js';
 import { creerAnnoncesDiscord } from './notifications/annonces.js';
@@ -55,6 +59,11 @@ export async function creerApp({
     parametres: creerParametres({ global, maintenant }),
     annoncesDiscord: creerAnnoncesDiscord({ global, ...(fetchDiscord ? { fetchImpl: fetchDiscord } : {}) }),
     limiteurConnexion: creerLimiteurConnexion({ maintenant: () => maintenant().getTime() }),
+    veille: creerVeille({
+      global, config, maintenant, journal,
+      contexte: async () => contexteStructure(await lireIdentite(global)),
+      ...(interrogerClaude ? { interroger: interrogerClaude } : {}),
+    }),
   };
 
   const limiteurDebit = creerLimiteurDebit({ max: 300, maintenant: () => maintenant().getTime() });
@@ -72,6 +81,8 @@ export async function creerApp({
   routesStructure(routeur, services);
   routesBot(routeur, services);
   routesDiscord(routeur, services);
+  routesAdministratif(routeur, services);
+  routesTresorerie(routeur, services);
 
   const servirStatique = creerStatique([
     { prefixe: '/shared/', dossier: join(RACINE, 'shared') },

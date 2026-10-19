@@ -8,6 +8,7 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 import { envoyerJson, erreurs } from '../http/outils.js';
 import { verifierQuota } from './donnees.js';
 import { sauvegardeDuJeu } from '../domaine/restauration.js';
+import { sauvegardeStructure, ID_SAUVEGARDE_STRUCTURE } from '../domaine/sauvegarde-structure.js';
 import { MOTIF_WEBHOOK } from '../notifications/discord.js';
 import { nouvelId } from '../../shared/validation.js';
 import { accesEspace, peut } from '../../shared/roles.js';
@@ -171,6 +172,12 @@ export function routesBot(routeur, s) {
   // (sans mot de passe ni webhook). Atlas gratuit n'en fait aucune : c'est la copie hors de Render et d'Atlas.
   routeur.post('/api/bot/sauvegarde', exigerBot, async (r) => {
     const { jeu } = (await r.corps()) || {};
+    // « _structure » : l'administratif de l'association (comptes, autorisations…), rangé à côté des jeux.
+    if (jeu === ID_SAUVEGARDE_STRUCTURE) {
+      const sauvegarde = await sauvegardeStructure(s);
+      await s.historique.ecrire(null, 'sauvegarde automatique de la structure (Raspberry Pi)');
+      return envoyerJson(r.res, 200, sauvegarde);
+    }
     const e = typeof jeu === 'string' ? s.registre.obtenir(jeu) : null;
     if (!e) throw erreurs.introuvable('Jeu introuvable.');
     const sauvegarde = await sauvegardeDuJeu(s, e);

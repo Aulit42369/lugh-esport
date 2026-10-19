@@ -25,9 +25,13 @@ const aAccesAuJeu = (c, jeu) => !!c && !!accesEspace({ ...c, actif: true }, jeu)
 
 export function gerable(par, cible) {
   if (par.admin) return true;
-  if (cible.admin) return false;
+  // Un compte Trésorier tient l'argent de l'association : seul l'Administrateur général y touche.
+  if (cible.admin || cible.tresorier) return false;
   return jeuxDuCompte(cible).every((jeu) => estResponsable(par, jeu));
 }
+
+// Message d'un refus : un compte Trésorier n'est géré que par l'Administrateur général, quels que soient ses jeux.
+const refus = (cible, sinon) => erreurs.interdit(cible.tresorier ? 'Compte Trésorier : seul l’Administrateur général peut le modifier, réinitialiser son mot de passe ou le supprimer.' : sinon);
 
 export function routesComptes(routeur, s) {
   const admin = [exigerConnexion(s), exigerAdmin()];
@@ -67,7 +71,7 @@ export function routesComptes(routeur, s) {
     return propre;
   }
 
-  async function creer({ identifiant, nomAffiche, admin: estAdmin = false, acces }, par) {
+  async function creer({ identifiant, nomAffiche, admin: estAdmin = false, tresorier = false, acces }, par) {
     if ((await s.global.compter('comptes')) >= MAX_COMPTES) throw erreurs.conflit('Nombre maximal de comptes atteint.');
     if ((await s.global.lister('comptes', { identifiant })).length) throw erreurs.conflit('Cet identifiant est déjà pris.');
     const mdpTemporaire = genererMdpTemporaire();
@@ -76,6 +80,7 @@ export function routesComptes(routeur, s) {
       identifiant,
       nomAffiche,
       admin: !!estAdmin,
+      tresorier: !!tresorier,
       acces,
       actif: true,
       doitChangerMdp: true,
@@ -117,13 +122,13 @@ export function routesComptes(routeur, s) {
     const cible = await lire(r.params.id);
     const v = valider(modificationCompte, await r.corps());
     if (!v.ok) throw erreurs.invalide(v.erreurs);
-    const { nomAffiche, actif, admin: estAdmin } = v.valeur;
+    const { nomAffiche, actif, admin: estAdmin, tresorier } = v.valeur;
     const soi = cible._id === r.compteGlobal._id;
     if (soi && (!estAdmin || !actif)) throw erreurs.conflit('Tu ne peux pas retirer ton propre rôle d’Administrateur général ni désactiver ton compte.');
     if (cible.admin && cible.actif !== false && (!estAdmin || !actif)) await verifierAutreAdmin(cible._id);
     const acces = await nettoyerAcces(v.valeur.acces, cible._id);
     const desactive = cible.actif !== false && !actif;
-    Object.assign(cible, { nomAffiche, actif, admin: estAdmin, acces });
+    Object.assign(cible, { nomAffiche, actif, admin: estAdmin, tresorier, acces });
     await s.global.ecrire('comptes', cible);
     if (desactive) await s.sessions.supprimerPourCompte(cible._id);
     await journaliser(r.compteGlobal, desactive ? 'compte désactivé' : 'compte modifié', cible.identifiant, [estAdmin ? 'Administrateur général' : '', ...Object.keys(acces)].filter(Boolean).join(', '));
@@ -169,6 +174,7 @@ export function routesComptes(routeur, s) {
     if (existant) {
       if (corps.existant !== true) throw erreurs.conflit('Cet identifiant est déjà pris. Si cette personne a déjà un compte pour un autre jeu, coche « Compte existant ».');
       if (aAccesAuJeu(existant, jeu)) throw erreurs.conflit('Ce compte a déjà accès à ce jeu.');
+      if ((existant.admin || existant.tresorier) && !r.compteGlobal.admin) throw erreurs.interdit('Seul l’Administrateur général donne un accès de jeu à ce compte.');
       existant.acces = { ...(existant.acces || {}), [jeu]: { metiers, membreId: v.valeur.membreId } };
       await s.global.ecrire('comptes', existant);
       await journaliser(r.compteGlobal, 'accès ajouté', existant.identifiant, metiers.join(', '), jeu);
@@ -202,7 +208,7 @@ export function routesComptes(routeur, s) {
     const changeNom = v.valeur.nomAffiche && v.valeur.nomAffiche !== cible.nomAffiche;
     const changeActif = v.valeur.actif !== (cible.actif !== false);
     if ((changeNom || changeActif) && !gerable(r.compteGlobal, cible)) {
-      throw erreurs.interdit('Ce compte a aussi accès à d’autres jeux : seul l’Administrateur général peut changer son nom ou le désactiver.');
+      throw refus(cible, 'Ce compte a aussi accès à d’autres jeux : seul l’Administrateur général peut changer son nom ou le désactiver.');
     }
     if (soi && changeActif) throw erreurs.conflit('Tu ne peux pas désactiver ton propre compte.');
     // Un Administrateur général est Responsable partout : seuls ses autres métiers et son membre lié sont notés.
@@ -220,7 +226,7 @@ export function routesComptes(routeur, s) {
   routeur.post('/api/e/:jeu/comptes/:id/mdp', ...responsable, async (r) => {
     const cible = await cibleDuJeu(r);
     if (cible._id === r.compteGlobal._id) throw erreurs.conflit('Change ton propre mot de passe depuis « Mon compte ».');
-    if (!gerable(r.compteGlobal, cible)) throw erreurs.interdit('Ce compte a aussi accès à d’autres jeux : seul l’Administrateur général peut réinitialiser son mot de passe.');
+    if (!gerable(r.compteGlobal, cible)) throw refus(cible, 'Ce compte a aussi accès à d’autres jeux : seul l’Administrateur général peut réinitialiser son mot de passe.');
     const mdpTemporaire = await reinitialiserMdp(cible);
     await journaliser(r.compteGlobal, 'mot de passe réinitialisé', cible.identifiant, '', r.espace.id);
     envoyerJson(r.res, 200, { compte: profilCompteJeu(cible, r.espace.id, true), mdpTemporaire });
@@ -243,7 +249,7 @@ export function routesComptes(routeur, s) {
   routeur.delete('/api/e/:jeu/comptes/:id', ...responsable, async (r) => {
     const cible = await cibleDuJeu(r);
     if (cible._id === r.compteGlobal._id) throw erreurs.conflit('Tu ne peux pas supprimer ton propre compte.');
-    if (!gerable(r.compteGlobal, cible)) throw erreurs.interdit('Ce compte a aussi accès à d’autres jeux : retire seulement son accès à ce jeu.');
+    if (!gerable(r.compteGlobal, cible)) throw refus(cible, 'Ce compte a aussi accès à d’autres jeux : retire seulement son accès à ce jeu.');
     if (cible.admin) await verifierAutreAdmin(cible._id);
     await s.global.supprimer('comptes', cible._id);
     if (cible.discord?.id) await noterDelie(s.global, cible.discord.id, s.maintenant());

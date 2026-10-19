@@ -408,3 +408,21 @@ test('déclenchement externe (cron) : secret obligatoire, tous les jeux actifs d
     await sansCle.arreter();
   }
 });
+
+test('jeu désactivé : aucune vérification automatique, même quand l’Administrateur général l’ouvre', async () => {
+  const local = await demarrer({ automatismes: true, maintenant: horloge('2026-10-19T09:00:00Z'), jeux: ['valorant', 'lol'] });
+  try {
+    local.claude.repondre = repondreParJeu({ 'League of Legends': () => reponseClaude(plusRecente('lol', '26.21', '2026-10-19')) });
+    const admin = await adminPret(local);
+    await admin.put('/api/admin/jeux/lol', { actif: false });
+    await admin.get('/api/e/lol/donnees');
+    await admin.get('/api/e/lol/export');
+    await pause(60);
+    assert.equal(local.claude.appels.length, 0, 'aucun appel payant pour un jeu désactivé');
+    await admin.put('/api/admin/jeux/lol', { actif: true });
+    await admin.get('/api/e/lol/donnees');
+    await attendreQue(() => local.claude.appels.length === 1);
+  } finally {
+    await local.arreter();
+  }
+});

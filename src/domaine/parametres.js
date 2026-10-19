@@ -26,7 +26,7 @@ export function creerParametres({ global, maintenant = () => new Date() }) {
   };
 }
 
-// Comptes concernés par l'obligation : l'Administrateur général et tout Responsable d'au moins un jeu.
+// Comptes concernés par l'obligation : l'Administrateur général, le Trésorier et tout Responsable d'au moins un jeu.
 export function soumisA2fa(compte) {
-  return !!compte?.admin || Object.values(compte?.acces || {}).some((a) => a?.metiers?.includes('responsable'));
+  return !!compte?.admin || !!compte?.tresorier || Object.values(compte?.acces || {}).some((a) => a?.metiers?.includes('responsable'));
 }

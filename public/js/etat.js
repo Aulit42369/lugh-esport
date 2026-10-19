@@ -173,6 +173,7 @@ export const doc = (coll, id) => etat.donnees[coll]?.get(id) || null;
 export const peut = (perm) => etat.permissions.has(perm);
 export const compte = () => etat.compte;
 export const estAdmin = () => !!etat.compte?.admin;
+export const estTresorier = () => !!etat.compte?.tresorier;
 export const jeux = () => etat.jeux;
 export const jeu = () => etat.jeu;
 export const doitActiver2fa = () => etat.doitActiver2fa;

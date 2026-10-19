@@ -2,6 +2,7 @@
 // mot de passe, double authentification, Discord, thème et installation sur cet appareil, déconnexion.
 
 import { h, vider, champ, saisie, onglets, bouton, toast, modale, messageErreur } from '../ui.js';
+import { lienConfidentialite } from '../composants/confidentialite.js';
 import { api } from '../api.js';
 import { icone } from '../icones.js';
 import * as E from '../etat.js';
@@ -33,6 +34,7 @@ export function rendre(page, params, ctx) {
       ficheDiscord(c),
       formulaireMdp(c),
       ficheAppareil(ctx))));
+  page.append(h('p', { class: 'texte-3 petit section' }, 'Ce que Lugh garde sur toi et tes droits : ', lienConfidentialite(), '.'));
 }
 
 function ficheIdentite(c) {

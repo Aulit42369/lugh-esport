@@ -1,5 +1,6 @@
 // Administration générale (Administrateur général seulement) : vue d'ensemble de la structure, jeux activables, comptes,
-// annonces, bot Discord et état du service. Onglets : #/admin/structure (par défaut), jeux, comptes, annonces, discord, service.
+// administratif de l'association, annonces, bot Discord et état du service. Onglets : #/admin/structure (par défaut), jeux,
+// comptes, administratif (#/admin/administratif/<rubrique>), annonces, discord, service.
 // La gestion d'un seul jeu (ses comptes, Discord, sauvegarde) est dans « Gestion du jeu » (gestion.js).
 
 import { h, etatVide } from '../ui.js';
@@ -11,11 +12,13 @@ import { rendreComptes } from './admin-comptes.js';
 import { rendreAnnonces } from './admin-annonces.js';
 import { rendreService } from './admin-service.js';
 import { rendreDiscord } from './admin-discord.js';
+import { rendreAdministratif } from './admin-administratif.js';
 
 const ONGLETS = [
   { id: 'structure', titre: 'Vue d’ensemble', icone: 'structure', intro: 'Tous les jeux d’un coup d’œil : effectif, prochaines échéances, santé, présence et résultats.', rendre: rendreStructure },
   { id: 'jeux', titre: 'Jeux', icone: 'jeux', intro: 'Active les jeux de la structure : chaque jeu activé a son propre espace, ses comptes et ses données.', rendre: rendreJeux },
   { id: 'comptes', titre: 'Comptes', icone: 'roster', intro: 'Un compte par personne, avec ses métiers dans chaque jeu. Les Responsables gèrent aussi les comptes de leur jeu.', rendre: rendreComptes },
+  { id: 'administratif', titre: 'Administratif', icone: 'balance', intro: 'L’association : obligations légales et veille, livre des comptes, documents types, autorisations des mineurs.', rendre: rendreAdministratif },
   { id: 'annonces', titre: 'Annonces', icone: 'annonce', intro: 'Un message en tête de l’accueil de tous les jeux, ou de certains, et qui l’a lu.', rendre: rendreAnnonces },
   { id: 'discord', titre: 'Discord', icone: 'discord', intro: 'Le bot Discord de la structure : rôles synchronisés avec Lugh, rappels avant les séances et les matchs, comptes liés.', rendre: rendreDiscord },
   { id: 'service', titre: 'Service', icone: 'meta', intro: 'État du serveur, de la méta et de Discord pour chaque jeu, et tout ce qui s’est passé dans la structure.', rendre: rendreService },
@@ -38,5 +41,5 @@ export function rendre(page, params, ctx) {
     h('nav', { class: 'onglets adm-onglets', 'aria-label': 'Rubriques de l’administration générale' },
       ONGLETS.map((o) => h('a', { href: `#/admin/${o.id}`, 'aria-current': o.id === onglet.id ? 'page' : null }, icone(o.icone), o.titre))),
     zone);
-  return onglet.rendre(zone, ctx) || null;
+  return onglet.rendre(zone, ctx, params.slice(1)) || null;
 }

@@ -48,6 +48,7 @@ export const VUES = {
 export const PAGES = {
   jeux: { titre: 'Mes jeux', icone: 'jeux', charger: () => import('./vues/jeux.js') },
   admin: { titre: 'Administration générale', court: 'Administration', icone: 'cadenas', admin: true, charger: () => import('./vues/admin.js') },
+  tresorerie: { titre: 'Comptes de la structure', court: 'Comptes', icone: 'euro', tresorier: true, charger: () => import('./vues/tresorerie.js') },
   compte: { titre: 'Mon compte', icone: 'compte', charger: () => import('./vues/compte.js') },
 };
 
@@ -67,7 +68,7 @@ export function visible(id) {
 
 export function pageVisible(id) {
   const p = PAGES[id];
-  return !!p && (!p.admin || E.estAdmin());
+  return !!p && (!p.admin || E.estAdmin()) && (!p.tresorier || E.estAdmin() || E.estTresorier());
 }
 
 export const titreVue = (id) => valeur(VUES[id]?.titre) || '';
@@ -168,6 +169,7 @@ function piedRail(actif) {
   const c = E.compte();
   return h('div', { class: 'rail__pied' },
     E.estAdmin() ? h('a', { href: '#/admin', class: 'rail__lien', 'aria-current': actif === 'admin' ? 'page' : null }, icone('cadenas'), 'Administration générale') : null,
+    E.estTresorier() && !E.estAdmin() ? lienPage('tresorerie', actif) : null,
     h('a', { href: '#/compte', class: 'rail__compte', 'aria-current': actif === 'compte' ? 'page' : null },
       icone('compte'),
       h('span', {}, c?.nomAffiche || '', h('small', {}, c?.identifiant || ''))));
@@ -192,7 +194,7 @@ export function construireNavigation({ rail, entete, barre, actif, dansJeu }) {
       marque(),
       E.jeux().length ? h('nav', { class: 'rail__groupe', 'aria-label': 'Mes jeux' },
         h('span', { class: 'rail__titre-groupe' }, 'Mes jeux'),
-        E.jeux().map((j) => h('a', { href: `#/${j.id}`, class: 'rail__lien' }, puceJeu(j), j.nom))) : null,
+        E.jeux().map((j) => h('a', { href: `#/${j.id}`, class: 'rail__lien' }, puceJeu(j), j.nom))) : h('span'),
       piedRail(actif));
   }
 
@@ -225,6 +227,7 @@ export function ouvrirMenu(actif) {
       }),
       h('div', { class: 'rail__groupe' },
         E.estAdmin() ? lienPage('admin', actif) : null,
+        E.estTresorier() && !E.estAdmin() ? lienPage('tresorerie', actif) : null,
         lienPage('compte', actif))),
   });
   m.dialogue.addEventListener('click', (e) => {

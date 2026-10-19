@@ -1,5 +1,5 @@
-// Administration générale (Administrateur général) : jeux (activation depuis le catalogue, ajout d'un « Autre jeu »),
-// état du service et journal complet. Les comptes sont dans routes/comptes.js.
+// Administration générale (Administrateur général) : jeux (activation depuis le catalogue, ajout d'un « Autre jeu »,
+// suppression définitive d'un jeu désactivé), état du service et journal complet. Les comptes sont dans routes/comptes.js.
 
 import { envoyerJson, erreurs } from '../http/outils.js';
 import { exigerConnexion, exigerAdmin } from '../auth/acces.js';
@@ -12,7 +12,7 @@ import { estCouleurJeu } from '../../shared/couleurs.js';
 // Identifiants interdits pour un « Autre jeu » : ils servent déjà d'adresses de pages (#/admin, #/planning…).
 const ID_RESERVES = new Set(['admin', 'jeux', 'compte', 'api', 'accueil', 'planning', 'presences', 'dispos', 'match', 'maps',
   'strats', 'bibliotheque', 'adversaires', 'tournois', 'meta', 'scrims', 'partenaires', 'vod', 'progression', 'programme', 'bilan',
-  'roster', 'recrutement', 'gestion', 'reglages', 'structure', 'annonces']);
+  'roster', 'recrutement', 'gestion', 'reglages', 'structure', 'annonces', 'tresorerie']);
 
 // Identifiant d'un « Autre jeu » tiré de son nom : « Marvel Rivals » → « marvelrivals ».
 export function idDepuisNom(nom) {
@@ -92,6 +92,45 @@ export function routesAdmin(routeur, s) {
     if ('actif' in champs) await s.historique.ecrire(r.compteGlobal, champs.actif ? 'jeu réactivé' : 'jeu désactivé', e.doc.nom, '', e.id);
     else await s.historique.ecrire(r.compteGlobal, 'jeu modifié', e.doc.nom, '', e.id);
     envoyerJson(r.res, 200, { jeux: await resumeJeux() });
+  });
+
+  // Suppression définitive d'un jeu désactivé, après avoir tapé son nom. Irréversible : seule une sauvegarde (export,
+  // copie hebdomadaire du Pi) permet de le retrouver. Sont aussi retirés : les accès des comptes à ce jeu, son point
+  // de restauration, et le jeu dans les annonces (une annonce qui ne visait que lui est supprimée, sinon elle
+  // deviendrait une annonce pour tous les jeux). Le journal général garde la trace.
+  routeur.post('/api/admin/jeux/:id/supprimer', ...admin, async (r) => {
+    const e = s.registre.obtenir(r.params.id);
+    if (!e) throw erreurs.introuvable('Jeu introuvable.');
+    if (e.doc.actif !== false) throw erreurs.conflit('Désactive d’abord ce jeu, puis supprime-le.');
+    const { confirmation } = (await r.corps()) || {};
+    const nom = e.def?.nom || e.doc.nom;
+    const norme = (t) => String(t || '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('fr-FR');
+    if (norme(confirmation) !== norme(nom)) throw erreurs.invalide([{ chemin: 'confirmation', message: `tape exactement le nom du jeu : ${nom}` }]);
+
+    const bilan = { acces: 0, sansJeu: 0, annoncesModifiees: 0, annoncesSupprimees: 0 };
+    await s.registre.supprimer(e.id);
+    for (const c of await s.global.lister('comptes')) {
+      if (!c.acces || !Object.hasOwn(c.acces, e.id)) continue;
+      delete c.acces[e.id];
+      await s.global.ecrire('comptes', c);
+      bilan.acces += 1;
+      if (!c.admin && !Object.keys(c.acces).length) bilan.sansJeu += 1;
+    }
+    await s.global.supprimerPlusieurs('restaurations', { jeu: e.id });
+    await s.global.supprimerPlusieurs('autorisations', { jeu: e.id });
+    for (const a of await s.global.lister('annonces')) {
+      if (!a.jeux?.includes(e.id)) continue;
+      const reste = a.jeux.filter((j) => j !== e.id);
+      if (reste.length) {
+        await s.global.ecrire('annonces', { ...a, jeux: reste });
+        bilan.annoncesModifiees += 1;
+      } else {
+        await s.global.supprimer('annonces', a._id);
+        bilan.annoncesSupprimees += 1;
+      }
+    }
+    await s.historique.ecrire(r.compteGlobal, 'jeu supprimé définitivement', nom, `${bilan.acces} accès retiré${bilan.acces > 1 ? 's' : ''}`);
+    envoyerJson(r.res, 200, { bilan, jeux: await resumeJeux() });
   });
 
   routeur.get('/api/admin/journal', ...admin, async (r) => {

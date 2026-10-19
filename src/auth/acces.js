@@ -19,6 +19,7 @@ export function profilCompte(c) {
     identifiant: c.identifiant,
     nomAffiche: c.nomAffiche,
     admin: !!c.admin,
+    tresorier: !!c.tresorier,
     acces: accesPropres(c),
     actif: c.actif !== false,
     doitChangerMdp: !!c.doitChangerMdp,
@@ -109,7 +110,8 @@ export function exigerEspace(services) {
     if (!espace || !acces || (!espace.doc.actif && !r.compteGlobal.admin)) throw erreurs.introuvable('Espace de jeu introuvable.');
     r.espace = espace;
     r.compte = { ...r.compteGlobal, metiers: acces.metiers, membreId: acces.membreId };
-    espace.automatismes?.verifier();
+    // Jeu désactivé ouvert par l'Administrateur général (export, suppression) : ni méta payante ni semaine créée.
+    if (espace.doc.actif !== false) espace.automatismes?.verifier();
   };
 }
 

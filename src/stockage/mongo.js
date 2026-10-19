@@ -14,6 +14,8 @@ export const INDEX = {
     ['journal', { jeu: 1, date: -1 }],
     ['comptes', { identifiant: 1 }, { unique: true }],
     ['annonces', { creeLe: -1 }],
+    ['ecritures', { date: 1 }],
+    ['autorisations', { jeu: 1 }],
     ['restaurations', { jeu: 1 }],
   ],
   jeu: [
@@ -105,6 +107,15 @@ export function creerFabriqueMongo({ uri, Client = MongoClient }) {
       if (!client) throw new Error('Base non connectée');
       if (!bases.has(nom)) bases.set(nom, stockageBase(client.db(nom), nom));
       return bases.get(nom);
+    },
+
+    // Efface une base entière, collection par collection : l'utilisateur Atlas « lecture et écriture » peut supprimer
+    // une collection mais pas une base ; une base sans collection disparaît d'elle-même.
+    async supprimerBase(nom) {
+      if (!client) throw new Error('Base non connectée');
+      const db = client.db(nom);
+      for (const { name } of await db.listCollections({}, { nameOnly: true }).toArray()) await db.collection(name).drop();
+      bases.delete(nom);
     },
 
     async fermer() {
