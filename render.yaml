@@ -1,0 +1,22 @@
+# Blueprint Render : crée le service web de Lugh depuis ce dépôt (Render → New → Blueprint).
+# Aucune valeur secrète n'est écrite ici : Render demande MONGODB_URI, LUGH_ADMIN_ID et LUGH_ADMIN_MDP à la création.
+# La clé API Claude (ANTHROPIC_API_KEY) est facultative : elle s'ajoute plus tard dans Environment.
+services:
+  - type: web
+    name: lugh-esport
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/sante
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: MONGODB_URI
+        sync: false
+      - key: LUGH_ADMIN_ID
+        sync: false
+      - key: LUGH_ADMIN_MDP
+        sync: false

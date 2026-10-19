@@ -1,0 +1,340 @@
+/* Base : remise à zéro, typographie, coquille de l'application (rail, contenu, barre mobile). */
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--papier);
+  color: var(--encre);
+  font-family: var(--police-texte);
+  font-size: var(--t-m);
+  line-height: var(--interligne);
+  font-variant-numeric: lining-nums tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+img, svg { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: var(--surimpression); text-underline-offset: 0.2em; }
+a:hover { color: var(--surimpression-fonce); }
+h1, h2, h3, h4 { margin: 0; line-height: 1.1; }
+h1, h2 { font-family: var(--police-titre); font-weight: 800; letter-spacing: 0.01em; font-variant-numeric: lining-nums tabular-nums; }
+h1 { font-size: var(--t-3xl); }
+h2 { font-size: var(--t-xl); }
+h3 { font-size: var(--t-m); font-weight: 650; }
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; }
+hr { border: 0; border-top: 1px solid var(--trait); margin: var(--e-5) 0; }
+::selection { background: var(--surimpression); color: var(--sur-surimpression); }
+
+:focus-visible {
+  outline: 2px solid var(--surimpression);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+/* La zone principale reçoit le focus à chaque changement de page (lecteurs d'écran) : pas de cadre autour. */
+.principal:focus, .principal:focus-visible { outline: none; }
+
+.visuellement-cache {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Écran d'ouverture : visible tant que le serveur répond (réveil du plan gratuit) ; le texte n'apparaît qu'après un délai. */
+.demarrage { min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: var(--e-3); padding: var(--e-6); text-align: center; }
+.demarrage__titre { margin: 0; color: var(--encre); }
+.demarrage__texte { max-width: 26rem; color: var(--encre-2); animation: apparaitre 1ms 1.5s both; }
+@keyframes apparaitre { from { opacity: 0; } to { opacity: 1; } }
+
+.lien-evitement {
+  position: absolute;
+  left: var(--e-4);
+  top: -4rem;
+  z-index: 50;
+  background: var(--encre);
+  color: var(--papier);
+  padding: var(--e-2) var(--e-4);
+  border-radius: var(--r-champ);
+}
+.lien-evitement:focus { top: var(--e-4); }
+
+/* ——— Coquille ——— */
+.coquille {
+  display: grid;
+  grid-template-columns: var(--largeur-rail) minmax(0, 1fr);
+  min-height: 100dvh;
+}
+.rail {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e-5);
+  padding: var(--e-5) var(--e-4) var(--e-4);
+  border-right: 1px solid var(--trait);
+  background: var(--surface);
+}
+.rail__marque {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  min-height: 2.75rem;
+  color: var(--encre);
+  text-decoration: none;
+  padding: 0 var(--e-2);
+}
+.rail__nom {
+  font-family: var(--police-titre);
+  font-size: var(--t-xl);
+  font-weight: 800;
+  line-height: 1;
+}
+.rail__equipe { font-size: var(--t-xs); color: var(--encre-3); font-stretch: 87.5%; }
+
+/* Sélecteur de jeu : le jeu affiché, et la liste des autres jeux de la personne */
+/* Couleur du jeu (palette de shared/couleurs.js) : navigation.js pose --jeu-sombre et --jeu-clair sur la racine pour le
+   jeu affiché, et sur chaque pastille pour son jeu. Thème sombre par défaut ; sans jeu, rien n'est teinté. */
+:root { --jeu: var(--jeu-sombre, var(--trait-fort)); }
+:root[data-theme='clair'] { --jeu: var(--jeu-clair, var(--trait-fort)); }
+:root[data-jeu] .rail { border-top: 4px solid var(--jeu); }
+:root[data-jeu] .entete-mobile { box-shadow: inset 0 -3px 0 var(--jeu); }
+.puce-jeu {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  min-width: 2.1rem;
+  height: 1.6rem;
+  padding: 0 0.35rem;
+  border-radius: 4px;
+  background: var(--jeu-sombre, var(--encre));
+  color: var(--papier);
+  font-family: var(--police-titre);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.selecteur-jeu {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  width: 100%;
+  min-height: 3.25rem;
+  padding: var(--e-2) var(--e-3);
+  border: 1px solid var(--trait);
+  border-left: 3px solid var(--jeu-sombre, var(--surimpression));
+  border-radius: var(--r-champ);
+  background: var(--papier);
+  color: var(--encre);
+  font: inherit;
+  text-align: left;
+}
+button.selecteur-jeu { cursor: pointer; }
+button.selecteur-jeu:hover { border-color: var(--trait-fort); border-left-color: var(--jeu-sombre, var(--surimpression)); }
+:root[data-theme='clair'] .puce-jeu { background: var(--jeu-clair, var(--encre)); color: #ffffff; }
+:root[data-theme='clair'] .selecteur-jeu, :root[data-theme='clair'] button.selecteur-jeu:hover { border-left-color: var(--jeu-clair, var(--surimpression)); }
+.selecteur-jeu__texte { display: grid; min-width: 0; line-height: 1.2; }
+.selecteur-jeu__texte strong { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.selecteur-jeu__texte small { font-size: var(--t-xs); color: var(--encre-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.selecteur-jeu__fleche { width: 1rem; height: 1rem; margin-left: auto; flex: none; color: var(--encre-3); }
+.selecteur-jeu--compact { width: auto; min-height: 2.5rem; padding: var(--e-1) var(--e-2); border-left-width: 3px; max-width: 46vw; }
+.choix-jeux { display: grid; gap: var(--e-2); }
+.choix-jeu {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-3);
+  border: 1px solid var(--trait);
+  border-radius: var(--r-champ);
+  color: var(--encre);
+  text-decoration: none;
+}
+.choix-jeu:hover { border-color: var(--trait-fort); background: var(--creux); }
+.choix-jeu[aria-current='page'] { border-color: var(--surimpression); background: var(--surimpression-voile); }
+.choix-jeu__texte { display: grid; gap: 2px; min-width: 0; }
+.choix-jeu__texte strong { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); }
+.choix-jeu__texte small { color: var(--encre-3); font-size: var(--t-xs); }
+.rail__lien .puce-jeu { min-width: 1.9rem; height: 1.35rem; font-size: 0.72rem; }
+.entete-mobile__titre {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 650;
+  font-size: var(--t-s);
+  color: var(--encre-2);
+  text-align: center;
+}
+.barre-mobile[hidden] { display: none !important; }
+.rail__groupe { display: grid; gap: 2px; }
+.rail__titre-groupe {
+  font-size: var(--t-xs);
+  color: var(--encre-3);
+  padding: 0 var(--e-3) var(--e-1);
+  font-weight: 600;
+}
+.rail__lien {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  min-height: 2.5rem;
+  padding: 0 var(--e-3);
+  border-radius: var(--r-champ);
+  color: var(--encre-2);
+  text-decoration: none;
+  font-weight: 500;
+}
+.rail__lien svg { width: 1.15rem; height: 1.15rem; flex: none; }
+.rail__lien:hover { background: var(--creux); color: var(--encre); }
+.rail__lien[aria-current='page'] {
+  background: var(--surimpression-voile);
+  color: var(--surimpression);
+  font-weight: 650;
+}
+.rail__badge {
+  margin-left: auto;
+  min-width: 1.4rem;
+  padding: 0 0.4rem;
+  border-radius: var(--r-puce);
+  background: var(--surimpression);
+  color: var(--sur-surimpression);
+  font-size: var(--t-xs);
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.4rem;
+}
+.rail__pied {
+  margin-top: auto;
+  display: grid;
+  gap: var(--e-2);
+  padding-top: var(--e-4);
+  border-top: 1px solid var(--trait);
+}
+.rail__compte {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-2) var(--e-3);
+  border-radius: var(--r-champ);
+  color: var(--encre);
+  text-decoration: none;
+}
+.rail__compte:hover { background: var(--creux); }
+.rail__compte svg { width: 1.25rem; height: 1.25rem; flex: none; }
+.rail__compte small { display: block; color: var(--encre-3); font-size: var(--t-xs); }
+
+.principal {
+  min-width: 0;
+  padding: var(--e-6) var(--e-7) var(--e-8);
+}
+.page { max-width: var(--largeur-contenu); }
+
+.entete-page {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--e-4);
+  margin-bottom: var(--e-6);
+}
+.entete-page__texte { display: grid; gap: var(--e-2); max-width: 46rem; }
+.entete-page__intro { color: var(--encre-2); max-width: 60ch; }
+.entete-page__actions { display: flex; flex-wrap: wrap; gap: var(--e-2); }
+
+.barre-mobile, .entete-mobile { display: none; }
+
+.section { margin-top: var(--e-7); }
+.section:first-child { margin-top: 0; }
+.section__entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--e-3);
+  margin-bottom: var(--e-4);
+}
+.section__aide { color: var(--encre-3); font-size: var(--t-s); }
+
+.grille-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-5); }
+.grille-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e-4); }
+.pile { display: grid; gap: var(--e-4); align-content: start; }
+.pile-s { display: grid; gap: var(--e-2); align-content: start; }
+.rangee { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); }
+.rangee--espace { justify-content: space-between; }
+.texte-2 { color: var(--encre-2); }
+.texte-3 { color: var(--encre-3); }
+.petit { font-size: var(--t-s); }
+.tres-petit { font-size: var(--t-xs); }
+.etroit { font-stretch: 87.5%; }
+.chiffre { font-family: var(--police-titre); font-weight: 800; line-height: 1; }
+
+@media (max-width: 1100px) {
+  .principal { padding: var(--e-5) var(--e-5) var(--e-8); }
+  .grille-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 899px) {
+  .coquille { display: block; }
+  .rail { display: none; }
+  .entete-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-3);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: var(--e-3) var(--e-4);
+    padding-top: max(var(--e-3), env(safe-area-inset-top));
+    background: var(--papier);
+    border-bottom: 1px solid var(--trait);
+  }
+  .entete-mobile .rail__nom { font-size: var(--t-l); }
+  .principal { padding: var(--e-5) var(--e-4) calc(var(--hauteur-barre) + var(--e-7)); }
+  .barre-mobile {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 30;
+    height: calc(var(--hauteur-barre) + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--surface);
+    border-top: 1px solid var(--trait);
+  }
+  .barre-mobile a, .barre-mobile button {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 2px;
+    border: 0;
+    background: none;
+    color: var(--encre-3);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .barre-mobile svg { width: 1.3rem; height: 1.3rem; }
+  .barre-mobile [aria-current='page'] { color: var(--surimpression); }
+  h1 { font-size: var(--t-2xl); }
+  .entete-page { margin-bottom: var(--e-5); }
+  .grille-2, .grille-3 { grid-template-columns: minmax(0, 1fr); }
+  .section { margin-top: var(--e-6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}

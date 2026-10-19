@@ -1,0 +1,137 @@
+/* Performance : scrims et matchs, VOD, progression, chiffres, bilan. */
+/* Ce fichier est importé avant les règles de vues-plus.css : les retouches des courbes y gagnent par spécificité. */
+
+/* ——— Scrims et matchs ——— */
+.tuile { min-width: 0; }
+.tuile .chiffre { overflow-wrap: anywhere; }
+.ligne-resultat { align-items: center; }
+.ligne-resultat__score { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-l); letter-spacing: 0.01em; }
+.ligne-resultat .ligne__titre { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--e-1); }
+/* Classement : la place dans un cercle, comme un poste de course d'orientation. */
+.resultat--place { border-radius: 50%; font-size: var(--t-s); background: none; border: 2px solid var(--trait-fort); color: var(--encre); }
+.resultat--place.resultat--V { background: var(--surimpression); border-color: var(--surimpression); color: var(--sur-surimpression); }
+.resultat--place.resultat--N { border-color: var(--surimpression); color: var(--surimpression); }
+.resultat--place.resultat--D { border-color: var(--trait-fort); color: var(--encre-2); }
+.grille-champs--3 > .champ--double { grid-column: span 2; }
+/* Un champ sans aide ne s'étire pas à la hauteur de son voisin qui en a une. */
+.saisie-scrim .champ, .saisie-chiffres .champ { align-content: start; }
+/* Ligne de résultat : un bouton ouvre le détail ; le lien du partenaire reste à côté (jamais dans le bouton). */
+.ligne-resultat__ouvrir {
+  display: flex; align-items: center; gap: var(--e-3) var(--e-4); flex: 1 1 18rem; min-width: 0;
+  padding: 0; border: 0; background: none; color: inherit; text-align: left;
+}
+.ligne-resultat__ouvrir .ligne__principal { display: grid; gap: 1px; }
+.ligne-resultat__ouvrir:hover .ligne__titre { color: var(--surimpression); }
+.ligne-resultat__ouvrir:focus-visible { outline-offset: 4px; }
+.lien-partenaire { text-decoration: none; }
+
+/* ——— Partenaires de scrim ——— */
+.grille-partenaires { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(21rem, 100%), 1fr)); gap: var(--e-4); align-items: start; }
+.carte-partenaire { display: grid; gap: var(--e-3); border-left: 3px solid var(--trait-fort); scroll-margin: var(--e-6); }
+.carte-partenaire--actif { border-left-color: var(--foret); }
+.carte-partenaire--essai { border-left-color: var(--eau); }
+.carte-partenaire--eviter { border-left-color: var(--brique); }
+.carte-partenaire--cible { box-shadow: 0 0 0 2px var(--surimpression); }
+.carte-partenaire__tete { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--e-3); }
+/* Le tag en monogramme : aucune image d'équipe, seulement ses lettres. */
+.carte-partenaire__tag {
+  display: grid; place-items: center; min-width: 3.25rem; height: 3.25rem; padding: 0 var(--e-2);
+  border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--creux);
+  font-family: var(--police-titre); font-weight: 900; font-size: var(--t-l); letter-spacing: 0.05em; color: var(--encre);
+}
+.carte-partenaire__nom { display: grid; gap: var(--e-1); min-width: 0; }
+.carte-partenaire__nom h2 { font-size: var(--t-xl); overflow-wrap: anywhere; }
+.carte-partenaire__infos dd { overflow-wrap: anywhere; }
+.carte-partenaire__notes { color: var(--encre-2); padding-left: var(--e-3); border-left: 2px solid var(--trait); }
+.fiabilite { display: grid; gap: var(--e-2); padding: var(--e-3); border-radius: var(--r-fiche); background: var(--creux); }
+.fiabilite__titre { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--e-1); }
+.fiabilite__taux { font-size: var(--t-2xl); }
+.fiabilite .jauge__piste { background: var(--surface); }
+.fiabilite--bonne { --c-jauge: var(--foret); }
+.fiabilite--moyenne { --c-jauge: var(--champ); }
+.fiabilite--faible { --c-jauge: var(--brique); }
+.fiabilite--vide { background: none; padding: 0; }
+.carte-partenaire__journal { display: grid; gap: var(--e-2); padding-top: var(--e-3); border-top: 1px solid var(--trait); }
+.carte-partenaire__sous-titre { font-size: var(--t-s); color: var(--encre-2); }
+.journal-incidents { list-style: none; display: grid; gap: 2px; }
+.journal-incidents__ligne { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr) auto; align-items: center; gap: var(--e-2); min-height: 2.25rem; }
+.journal-incidents__date { font-family: var(--police-titre); font-weight: 700; color: var(--encre-2); }
+.journal-incidents__texte { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-1) var(--e-2); min-width: 0; }
+.journal-incidents__plus summary { cursor: pointer; font-size: var(--t-xs); color: var(--encre-3); padding: var(--e-1) 0; }
+.ajout-incident { padding: var(--e-2) var(--e-3); border: 1px dashed var(--trait-fort); border-radius: var(--r-fiche); }
+.ajout-incident summary { display: flex; align-items: center; gap: var(--e-1); cursor: pointer; list-style: none; font-size: var(--t-s); font-weight: 650; color: var(--surimpression); }
+.ajout-incident summary::-webkit-details-marker { display: none; }
+.ajout-incident summary svg { width: 1rem; height: 1rem; }
+.ajout-incident[open] { display: grid; gap: var(--e-3); }
+.ajout-incident .champ { align-content: start; }
+.carte-partenaire__pied { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-2); padding-top: var(--e-3); border-top: 1px solid var(--trait); }
+.suggestions-partenaires { display: grid; gap: var(--e-2); padding: var(--e-4); border: 1px dashed var(--trait-fort); border-radius: var(--r-fiche); }
+
+/* ——— VOD ——— */
+.colonne-vod { padding-top: var(--e-3); border-top: 3px solid var(--trait-fort); }
+.colonne-vod--arevoir { border-top-color: var(--champ); }
+.colonne-vod--encours { border-top-color: var(--eau); }
+.colonne-vod--revue { border-top-color: var(--foret); }
+.carte-vod strong { line-height: 1.3; }
+
+/* ——— Progression ——— */
+.indice-chiffres { display: inline-flex; align-items: baseline; gap: var(--e-1); }
+.indice-chiffres .icone-texte { align-self: center; flex: none; }
+.marche__bloc[title] { cursor: help; }
+
+/* ——— Chiffres : saisie, petites courbes, tableau ——— */
+.saisie-chiffres .champ__aide { line-height: 1.35; }
+.grille-courbes.grille-courbes--perf { grid-template-columns: repeat(var(--colonnes, 4), minmax(0, 1fr)); }
+.courbe.courbe--perf { gap: var(--e-2); }
+.courbe__tete { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--e-2); min-width: 0; }
+.courbe--perf .courbe__titre { min-width: 0; line-height: 1.3; }
+.courbe__valeur { display: grid; justify-items: end; text-align: right; flex: none; max-width: 60%; }
+.courbe__valeur strong { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-xl); line-height: 1; color: var(--encre); }
+.courbe__ecart { font-size: var(--t-xs); color: var(--encre-3); white-space: nowrap; }
+.courbe--perf .courbe__zone { border-radius: var(--r-fiche); }
+.courbe--perf .courbe__zone:focus-visible { outline-offset: 4px; }
+.courbe__reference line { stroke-width: 1.5; }
+.courbe__reference text { font-weight: 650; font-size: 13px; paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.courbe__reference--objectif line { stroke: var(--foret); stroke-dasharray: 5 4; }
+.courbe__reference--objectif text { fill: var(--foret); }
+.courbe__reference--repere line { stroke: var(--encre-3); stroke-dasharray: 2 3; }
+.courbe__reference--repere text { fill: var(--encre-2); }
+.tableau--chiffres th { white-space: normal; vertical-align: bottom; min-width: 4.5rem; line-height: 1.25; }
+.tableau--chiffres td { white-space: nowrap; }
+.tableau__semaine { font-variant-numeric: tabular-nums; }
+
+/* ——— Bilan du mois ——— */
+.bilan__surtitre { font-size: var(--t-xs); font-weight: 700; color: var(--surimpression); letter-spacing: 0.06em; text-transform: uppercase; }
+/* position relative : le texte réservé aux lecteurs d'écran reste dans le tableau défilant (pas de débordement de page). */
+.bilan__ecart { position: relative; display: block; font-size: var(--t-xs); color: var(--encre-3); }
+.bilan-resultats .tableau-bord + .defile { margin-top: var(--e-4); }
+.bilan-objectifs h3 { font-family: var(--police-titre); font-size: var(--t-l); font-weight: 800; }
+.compte-rendu { display: grid; gap: var(--e-2); align-content: start; }
+.compte-rendu__tete { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 0 var(--e-3); }
+.compte-rendu__quand { grid-column: 1 / -1; font-size: var(--t-xs); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--surimpression); }
+.compte-rendu__tete h3 { font-family: var(--police-titre); font-size: var(--t-l); font-weight: 800; }
+.compte-rendu__details { display: grid; grid-template-columns: 5.25rem minmax(0, 1fr); gap: var(--e-1) var(--e-3); margin: 0; font-size: var(--t-s); }
+.compte-rendu__details dt { font-weight: 650; color: var(--encre-3); }
+.compte-rendu__details dd { margin: 0; }
+.compte-rendu__details .compte-rendu__positif { color: var(--foret); }
+.compte-rendu__details .compte-rendu__revoir { color: var(--brique); }
+.tableau--tournois td { vertical-align: top; }
+
+@media (max-width: 1100px) {
+  .grille-courbes.grille-courbes--perf { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 899px) {
+  .grille-champs--3 > .champ--double { grid-column: auto; }
+}
+@media (max-width: 599px) {
+  .grille-courbes.grille-courbes--perf { grid-template-columns: minmax(0, 1fr); }
+  .courbe__valeur strong { font-size: var(--t-l); }
+}
+@media print {
+  .courbe__reference text { stroke: #ffffff; }
+  .bilan__surtitre { color: var(--encre-2); }
+  .bilan-objectifs, .bilan-seances { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tableau--chiffres td { white-space: normal; }
+  .compte-rendu { break-inside: avoid; }
+  .compte-rendu__quand { color: var(--encre-2); }
+}

@@ -1,0 +1,159 @@
+/* Jetons de Lugh : source unique des couleurs, typographies et espacements.
+   Identité « lumière de Lug » : nuit chaude, or et ambre du soleil levant, encre crème ; la lance et les rayons
+   remplacent la carte d'orientation. Les NOMS des jetons sont conservés (les vues n'ont rien à changer) :
+   --surimpression = l'accent (or), --courbe = les tracés décoratifs (ambre, rayons gravés),
+   --foret / --eau / --champ / --brique = états (réussi, info, attention, alerte).
+   Contrastes vérifiés : texte 4,5:1 au moins sur papier, surface et creux, sur les deux thèmes ;
+   bordures fortes 3:1 ; accent sur son voile 4,5:1. */
+
+@font-face {
+  font-family: 'Grenze';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url(/fonts/grenze-latin-700-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Grenze';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 800;
+  src: url(/fonts/grenze-latin-800-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Grenze';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 900;
+  src: url(/fonts/grenze-latin-900-normal.woff2) format('woff2');
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  src: url(/fonts/instrument-sans-latin-standard-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400 700;
+  font-stretch: 75% 100%;
+  src: url(/fonts/instrument-sans-latin-ext-standard-normal.woff2) format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+20A0-20AB, U+20AD-20C0, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Thème sombre par défaut (« nuit de Lug ») : plus reposant pour les longues sessions.
+   Le thème clair (« parchemin ») reste disponible dans Mon compte ; l'impression se fait toujours sur fond blanc. */
+:root {
+  color-scheme: dark;
+  --papier: #0f0c09;
+  --surface: #17120c;
+  --creux: #211a12;
+  --encre: #f6ecd9;
+  --encre-2: #d2c4a8;
+  --encre-3: #a8987c;
+  --trait: #2f261a;
+  --trait-fort: #7d6a50;
+  --courbe: #d3801a;
+  --courbe-pale: #4d3a22;
+  --surimpression: #ffc23d;
+  --surimpression-fonce: #ffd67a;
+  --surimpression-voile: #ffc23d24;
+  --sur-surimpression: #1a1206;
+  --foret: #86c96f;
+  --eau: #7db8ec;
+  --champ: #e6d27a;
+  --champ-encre: #e6d27a;
+  --brique: #f08367;
+  --foret-voile: #86c96f24;
+  --eau-voile: #7db8ec24;
+  --champ-voile: #e6d27a26;
+  --brique-voile: #f0836724;
+  /* Rôles en jeu, par place dans la liste du jeu (doublés d'un symbole : jamais la couleur seule) */
+  --role-1: #f08367;
+  --role-2: #7db8ec;
+  --role-3: #b39cf0;
+  --role-4: #5cc9bd;
+  --role-5: #e3b552;
+  --role-6: #9ad37a;
+  --role-7: #f29ac6;
+  --role-8: #bfb6a6;
+  --ombre-modale: 0 24px 64px -16px #000000c2;
+
+  /* Typographie : titres en Grenze (empattements taillés, OFL), texte en Instrument Sans */
+  --police-titre: 'Grenze', Georgia, 'Times New Roman', serif;
+  --police-texte: 'Instrument Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --t-xs: 0.8rem;
+  --t-s: 0.875rem;
+  --t-m: 1rem;
+  --t-l: 1.25rem;
+  --t-xl: 1.5625rem;
+  --t-2xl: 1.953rem;
+  --t-3xl: 2.441rem;
+  --t-4xl: 3.052rem;
+  --interligne: 1.5;
+
+  /* Espacements (base 4 px) */
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1rem;
+  --e-5: 1.5rem;
+  --e-6: 2rem;
+  --e-7: 3rem;
+  --e-8: 4rem;
+
+  /* Rayons : selon la hiérarchie, jamais un seul pour tout */
+  --r-fiche: 3px;
+  --r-champ: 6px;
+  --r-puce: 999px;
+
+  --largeur-rail: 15rem;
+  --largeur-contenu: 74rem;
+  --hauteur-barre: 4rem;
+  --duree: 180ms;
+}
+
+:root[data-theme='clair'] {
+  color-scheme: light;
+
+  /* Parchemin */
+  --papier: #f7f1e6;
+  --surface: #fffaf1;
+  --creux: #eee5d4;
+  --encre: #1d150c;
+  --encre-2: #4b3f30;
+  --encre-3: #6b5d4b;
+  --trait: #dcd0bb;
+  --trait-fort: #8f7f66;
+  --courbe: #a35f0d;
+  --courbe-pale: #e3cca6;
+  --surimpression: #8c4f00;
+  --surimpression-fonce: #6e3d00;
+  --surimpression-voile: #8c4f001a;
+  --sur-surimpression: #ffffff;
+  --foret: #336b29;
+  --eau: #2a6aa6;
+  --champ: #d9b23c;
+  --champ-encre: #735200;
+  --brique: #b03f26;
+  --foret-voile: #336b2924;
+  --eau-voile: #2a6aa624;
+  --champ-voile: #d9b23c26;
+  --brique-voile: #b03f2624;
+
+  /* Rôles en jeu (doublés d'un symbole : jamais la couleur seule) */
+  --role-1: #b03f26;
+  --role-2: #2a6aa6;
+  --role-3: #6c4fb0;
+  --role-4: #11695f;
+  --role-5: #7a580c;
+  --role-6: #336b29;
+  --role-7: #a8326f;
+  --role-8: #5e5548;
+  --ombre-modale: 0 24px 64px -24px #1d150c59;
+}

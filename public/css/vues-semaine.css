@@ -1,0 +1,226 @@
+/* Semaine : accueil, planning, présences, disponibilités, programme. */
+
+/* ——— Accueil : en-tête (jeu affiché + nom de l'équipe) ——— */
+.hero__nom { display: grid; gap: var(--e-1); min-width: 0; }
+.hero__identite h1 { display: grid; gap: 0.2rem; }
+.hero__jeu {
+  display: inline-flex; align-items: center; gap: var(--e-2);
+  font-family: var(--police-texte); font-size: var(--t-xs); font-weight: 700; line-height: 1.2;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--encre-2);
+}
+/* Le poste de contrôle de la course d'orientation, repris du parcours */
+.hero__jeu::before { content: ''; flex: none; width: 0.55rem; height: 0.55rem; border: 2px solid var(--surimpression); border-radius: 50%; }
+.hero__equipe { overflow-wrap: anywhere; }
+
+/* ——— Accueil : premiers pas ——— */
+.premiers-pas__detail { margin-left: auto; padding-left: var(--e-2); font-size: var(--t-xs); color: var(--encre-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ——— Accueil : préparation sans map pool (compo principale, stratbook) ——— */
+.accueil-compo .jauge { margin-bottom: var(--e-3); }
+.accueil-compo__liste { list-style: none; display: grid; border-top: 1px solid var(--trait); }
+.accueil-compo__liste li {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-1) var(--e-3);
+  padding: var(--e-2) 0; border-bottom: 1px solid var(--trait);
+}
+.accueil-compo__liste li:last-child { border-bottom: 0; }
+.accueil-strats .pile-s { margin-top: var(--e-3); gap: 0; }
+.accueil-strats__ligne {
+  display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(4rem, 1fr) 7.5rem; align-items: center; gap: var(--e-3);
+  padding: var(--e-2) 0; border-bottom: 1px solid var(--trait); color: inherit; text-decoration: none;
+}
+.accueil-strats__ligne:last-child { border-bottom: 0; }
+.accueil-strats__ligne:hover .accueil-strats__nom { color: var(--surimpression); }
+.accueil-strats__nom { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-l); line-height: 1.1; }
+.accueil-strats__compte { text-align: right; }
+.accueil-strats__ligne--vide .accueil-strats__nom { color: var(--encre-3); }
+
+/* ——— Présences : l'état de l'appel reste sur une ligne, le titre de la séance passe à la ligne ——— */
+.appel .fiche__titre > div { min-width: 0; }
+.appel .fiche__meta { white-space: nowrap; }
+
+/* ——— Programme individuel : heure des créneaux alignée ——— */
+.programme__quand { min-width: 5.4rem; }
+
+/* ——— Planning : familles de blocs (la couleur double le nom du type, jamais seule) ——— */
+.bloc--f-match { --c-bloc: var(--surimpression); }
+.bloc--f-equipe { --c-bloc: var(--eau); }
+.bloc--f-analyse { --c-bloc: var(--courbe); }
+.bloc--f-perso { --c-bloc: var(--foret); }
+.bloc--f-neutre { --c-bloc: var(--trait-fort); }
+.legende-blocs {
+  list-style: none; display: flex; flex-wrap: wrap; gap: var(--e-2) var(--e-5);
+  margin-top: var(--e-4); font-size: var(--t-xs); color: var(--encre-3);
+}
+.legende-blocs__item { display: inline-flex; align-items: center; gap: var(--e-2); }
+.legende-blocs__item::before {
+  content: ''; flex: none; width: 1rem; height: 0.85rem;
+  border: 1px solid var(--trait); border-left: 3px solid var(--c-bloc, var(--trait-fort)); border-radius: 2px; background: var(--surface);
+}
+.legende-blocs__item--seul::before { border-style: dashed; border-left-style: solid; background: transparent; }
+
+/* ——— Teinte du jeu affiché (définie par la navigation), magenta hors jeu ——— */
+.hero, .match-entete { --teinte-jeu: var(--jeu-sombre, var(--surimpression)); }
+:root[data-theme='clair'] .hero, :root[data-theme='clair'] .match-entete { --teinte-jeu: var(--jeu-clair, var(--surimpression)); }
+.hero__jeu::before { border-color: var(--teinte-jeu); }
+
+/* ——— Accueil : annonces de la structure ——— */
+.annonces-zone:empty { display: none; }
+.annonces-zone { display: grid; gap: var(--e-2); margin-bottom: var(--e-5); }
+.annonces__liste { display: grid; gap: var(--e-2); }
+.annonce {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: var(--e-3);
+  padding: var(--e-3) var(--e-4); border: 1px solid var(--trait); border-left: 3px solid var(--eau); border-radius: var(--r-fiche); background: var(--surface);
+}
+.annonce--importante { border-color: var(--surimpression-voile); border-left-color: var(--surimpression); background: linear-gradient(90deg, var(--surimpression-voile), transparent 70%), var(--surface); }
+.annonce--lue { border-left-color: var(--trait-fort); background: transparent; }
+.annonce__icone { width: 1.25rem; height: 1.25rem; margin-top: 0.1rem; color: var(--eau); }
+.annonce--importante .annonce__icone { color: var(--surimpression); }
+.annonce--lue .annonce__icone { color: var(--encre-3); }
+.annonce__corps { display: grid; gap: var(--e-1); min-width: 0; }
+.annonce__titre { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); }
+.annonce__lu { min-height: 2.75rem; }
+.annonces__lues summary { cursor: pointer; padding: var(--e-1) 0; font-size: var(--t-s); font-weight: 600; color: var(--encre-2); }
+.annonces__lues[open] summary { margin-bottom: var(--e-2); }
+
+/* ——— Accueil : prochain match et prochain tournoi ——— */
+.prochain-match__jour { margin-top: var(--e-3); }
+.prochain-tournoi {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); margin-top: var(--e-3); padding-top: var(--e-3);
+  border-top: 1px solid var(--trait); color: inherit; text-decoration: none; font-size: var(--t-s);
+}
+.fiche__titre + .prochain-tournoi { margin-top: 0; padding-top: 0; border-top: 0; }
+.prochain-tournoi > svg { width: 1.1rem; height: 1.1rem; flex: none; color: var(--courbe); }
+.prochain-tournoi:hover strong { color: var(--surimpression); }
+
+/* ——— Planning : blocs avec actions, marques de conflit et de compte rendu ——— */
+.bloc--actions { gap: 0; }
+.bloc__ouvrir {
+  display: grid; gap: 2px; width: 100%; padding: 0; border: 0; background: none; color: inherit;
+  font: inherit; text-align: left; cursor: pointer;
+}
+.bloc--actions:has(.bloc__ouvrir:hover) { border-color: var(--trait-fort); border-left-color: var(--c-bloc, var(--trait-fort)); }
+.bloc__pied { display: flex; flex-wrap: wrap; gap: var(--e-1); margin-top: var(--e-2); padding-top: var(--e-2); border-top: 1px dashed var(--trait); }
+.bloc__action {
+  display: inline-flex; align-items: center; gap: var(--e-1); min-height: 2rem; padding: 0 var(--e-2);
+  border: 1px dashed var(--trait-fort); border-radius: var(--r-champ); background: none; color: var(--encre-2);
+  font: inherit; font-weight: 600; white-space: nowrap; cursor: pointer;
+}
+.bloc__action svg { width: 0.95rem; height: 0.95rem; flex: none; }
+.bloc__action:hover { color: var(--encre); border-color: var(--encre-3); }
+.bloc__action--fait { border-style: solid; border-color: transparent; background: var(--foret-voile); color: var(--foret); }
+.bloc__action--fait:hover { border-color: var(--foret); color: var(--foret); }
+.bloc__marque {
+  display: inline-flex; align-items: center; gap: 3px; justify-self: start; margin-bottom: 2px; padding: 1px 6px;
+  border-radius: var(--r-puce); font-size: var(--t-xs); font-weight: 700;
+}
+.bloc__marque svg { width: 0.85rem; height: 0.85rem; }
+.bloc__marque--conflit { background: var(--brique-voile); color: var(--brique); }
+.bloc--conflit { border-top-color: var(--brique); border-right-color: var(--brique); border-bottom-color: var(--brique); }
+
+/* ——— Planning : encadré des conflits avec les autres jeux ——— */
+.conflits {
+  display: grid; gap: var(--e-2); margin-bottom: var(--e-4); padding: var(--e-3) var(--e-4);
+  border: 1px solid var(--brique-voile); border-left: 3px solid var(--brique); border-radius: var(--r-fiche); background: var(--surface);
+}
+.conflits__entete { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-1) var(--e-3); }
+.conflits__entete > svg { width: 1.1rem; height: 1.1rem; color: var(--brique); }
+.conflits__entete h2 { font-size: var(--t-l); }
+.conflits__liste { list-style: none; display: grid; gap: var(--e-1); }
+.conflits__ligne { display: flex; align-items: baseline; gap: var(--e-2); font-size: var(--t-s); }
+.conflits__ligne .puce-jeu { flex: none; transform: translateY(0.15em); }
+.conflits__plus summary { cursor: pointer; font-size: var(--t-s); font-weight: 600; color: var(--encre-2); padding: var(--e-1) 0; }
+
+/* ——— Comptes rendus de séance ——— */
+.compte-rendu { display: grid; gap: var(--e-1) 0; margin: 0; font-size: var(--t-s); }
+.compte-rendu dt { color: var(--encre-3); font-size: var(--t-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.compte-rendu dd { margin: 0 0 var(--e-2); }
+.compte-rendu-fiche { display: grid; gap: var(--e-2); align-content: start; border-left: 3px solid var(--foret); }
+.compte-rendu-fiche .fiche__titre { margin-bottom: 0; }
+.compte-rendu-fiche__icone { width: 1.15rem; height: 1.15rem; flex: none; color: var(--foret); }
+
+/* ——— Présences : charge de la semaine ——— */
+.charge { list-style: none; display: grid; border-top: 1px solid var(--trait); }
+.charge__ligne {
+  display: grid; grid-template-columns: minmax(6rem, 1fr) minmax(10rem, 2fr) 6.5rem 9rem minmax(10rem, 1.6fr); align-items: center; gap: var(--e-2) var(--e-4);
+  padding: var(--e-3) 0; border-bottom: 1px solid var(--trait); font-size: var(--t-s);
+}
+.charge__nom { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-l); }
+.charge__chiffre strong { font-family: var(--police-titre); font-size: var(--t-l); }
+.charge__etat { display: inline-flex; align-items: center; gap: var(--e-1); color: var(--encre-3); }
+.charge__etat svg { width: 1rem; height: 1rem; flex: none; color: var(--foret); }
+.charge__etat--alerte { color: var(--brique); font-weight: 650; }
+.charge__etat--alerte svg { color: var(--brique); }
+
+/* ——— Jour de match : pensé pour le téléphone (cibles de 44 px et plus, gros caractères) ——— */
+.match-entete {
+  position: relative; display: grid; gap: var(--e-2); padding: var(--e-5); border: 1px solid var(--trait);
+  border-top: 4px solid var(--teinte-jeu); border-radius: var(--r-fiche); background: var(--surface);
+}
+.match-entete__haut { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-2); }
+.match-entete__etiquette {
+  display: inline-flex; align-items: center; gap: var(--e-2); font-size: var(--t-xs); font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--teinte-jeu);
+}
+.match-entete__etiquette svg { width: 1.1rem; height: 1.1rem; }
+.match__theme { min-height: 2.75rem; }
+.match__theme[aria-pressed='true'] { border-color: var(--surimpression); color: var(--surimpression); }
+.match-entete__nom { font-size: var(--t-4xl); line-height: 0.95; overflow-wrap: anywhere; }
+.match-entete__tag { color: var(--encre-3); font-size: var(--t-2xl); }
+.match-entete__quand { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-xl); line-height: 1.15; }
+.match__choix { min-height: 2.75rem; margin-top: var(--e-2); }
+.match__bandeau { margin-bottom: var(--e-3); }
+.match-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--e-2); margin: var(--e-4) 0; }
+.match__action { min-height: 3rem; font-size: var(--t-m); white-space: normal; text-align: center; }
+.match__action svg { width: 1.2rem; height: 1.2rem; }
+.match-grille { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--e-4); align-items: start; }
+.match-col { display: grid; gap: var(--e-4); align-content: start; min-width: 0; }
+.match-carte { display: grid; gap: var(--e-3); align-content: start; }
+.match-carte > h2, .match-carte .fiche__titre { margin-bottom: 0; }
+.match-compte { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-l); color: var(--teinte-jeu, var(--surimpression)); }
+.match-coches { list-style: none; display: grid; }
+.match-coche {
+  display: flex; align-items: center; gap: var(--e-3); min-height: 3rem; padding: var(--e-2) 0;
+  border-bottom: 1px solid var(--trait); font-size: var(--t-m); cursor: pointer;
+}
+.match-coches li:last-child .match-coche, .match-coches > .match-coche:last-child { border-bottom: 0; }
+li.match-coche { cursor: default; }
+.match-coche input { width: 1.6rem; height: 1.6rem; flex: none; accent-color: var(--foret); }
+.match-coche--fait > span:last-of-type { color: var(--encre-2); }
+.match-coche__etat { width: 1.5rem; height: 1.5rem; flex: none; color: var(--foret); }
+.match-coche__vide { width: 1.4rem; height: 1.4rem; flex: none; border: 2px solid var(--trait-fort); border-radius: 50%; }
+.match-plan__texte { font-size: var(--t-m); line-height: 1.5; }
+.match-regles summary, .match-map__entete { cursor: pointer; }
+.match-regles summary { font-size: var(--t-s); font-weight: 600; color: var(--encre-2); }
+.match-maps { display: grid; gap: var(--e-2); }
+.match-map { border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--creux); }
+.match-map__entete { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); min-height: 3rem; padding: var(--e-2) var(--e-3); }
+.match-map__nom { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-xl); margin-right: auto; }
+.match-map__corps { display: grid; gap: var(--e-3); padding: 0 var(--e-3) var(--e-3); }
+.match-compo { list-style: none; display: grid; gap: var(--e-1); }
+.match-compo li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-1) var(--e-3); min-height: 2.25rem; }
+.match-compo__joueur { font-weight: 650; }
+.match-notes { display: grid; gap: 2px 0; margin: 0; font-size: var(--t-s); }
+.match-notes dt { color: var(--encre-3); font-size: var(--t-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.match-notes dd { margin: 0 0 var(--e-2); }
+.match-liste { display: grid; gap: var(--e-1); }
+.match-liste__titre { font-size: var(--t-xs); font-weight: 700; color: var(--encre-3); text-transform: uppercase; letter-spacing: 0.06em; }
+
+@media (max-width: 899px) {
+  .accueil-strats__ligne { grid-template-columns: minmax(0, 1fr) auto; }
+  .accueil-strats__ligne .jauge { grid-column: 1 / -1; grid-row: 2; }
+  .charge__ligne { grid-template-columns: minmax(0, 1fr) auto auto; }
+  .charge__heures, .charge__etat { grid-column: 1 / -1; }
+  /* Jour de match sur téléphone : une colonne, la checklist d'abord. */
+  .match-grille { grid-template-columns: minmax(0, 1fr); }
+  .match-col { display: contents; }
+  .match-checklist { order: 1; }
+  .match-plan { order: 2; }
+  .match-compo-carte { order: 3; }
+  .match-adversaire { order: 4; }
+  .match-entete { padding: var(--e-4); }
+  .match-entete__nom { font-size: var(--t-3xl); }
+}
+@media (max-width: 599px) {
+  .annonce { grid-template-columns: auto minmax(0, 1fr); }
+  .annonce__lu { grid-column: 2; justify-self: start; }
+}

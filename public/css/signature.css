@@ -1,0 +1,195 @@
+/* Signature visuelle de Lugh : le soleil levant gravé (fonds des cartes, de l'accueil et de la connexion),
+   l'écran de connexion, l'en-tête de l'accueil d'un jeu et le parcours de la semaine.
+
+   Les fonds .topo sont toujours produits par composants/topo.js (un <svg class="topo …">) : ici, ses tracés de
+   courbes de niveau sont masqués et l'élément peint à la place le motif gravé du soleil levant
+   (/icones/motif-soleil.svg, utilisé comme masque : il prend la couleur du thème). Même échelle partout
+   (100 rem de large, soleil posé en bas au centre) pour que les traits gardent la même finesse. */
+
+.topo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background-color: var(--courbe-pale);
+  -webkit-mask: url(/icones/motif-soleil.svg) 50% 100% / 100rem auto no-repeat;
+  mask: url(/icones/motif-soleil.svg) 50% 100% / 100rem auto no-repeat;
+  opacity: 0.45;
+}
+.topo path, .topo__courbe, .topo__maitresse { display: none; }
+/* Grands fonds (en-tête de l'accueil, connexion) : les rayons s'affirment un peu plus. */
+.hero__fond, .accueil__fond { opacity: 0.75; }
+
+/* Mes jeux et catalogue de l'administration : le poste de course d'orientation de chaque carte devient
+   un petit soleil rayonnant (disque et douze rayons, couleur --soleil), qui tourne d'un cran au survol. */
+.carte-jeu__terrain .carte-jeu__poste, .adm-modele .adm-modele__poste {
+  --soleil: var(--surimpression);
+  border: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--soleil) 0 30%, transparent 32%),
+    repeating-conic-gradient(from -3deg, var(--soleil) 0 6deg, transparent 6deg 30deg);
+  box-shadow: none;
+  -webkit-mask: radial-gradient(circle, #000 0 30%, transparent 32% 42%, #000 44% 70%, transparent 71%);
+  mask: radial-gradient(circle, #000 0 30%, transparent 32% 42%, #000 44% 70%, transparent 71%);
+}
+.carte-jeu:hover .carte-jeu__terrain .carte-jeu__poste, .carte-jeu:focus-visible .carte-jeu__terrain .carte-jeu__poste {
+  background:
+    radial-gradient(circle, var(--soleil) 0 30%, transparent 32%),
+    repeating-conic-gradient(from -3deg, var(--soleil) 0 6deg, transparent 6deg 30deg);
+  box-shadow: none;
+  transform: translate(-50%, -50%) rotate(15deg);
+}
+.carte-jeu--inactif .carte-jeu__terrain .carte-jeu__poste, .adm-modele.adm-modele--inactif .adm-modele__poste { --soleil: var(--encre-3); }
+.adm-modele .adm-modele__poste { width: 1.7rem; height: 1.7rem; }
+@media (prefers-reduced-motion: no-preference) {
+  .carte-jeu__terrain .carte-jeu__poste { transition: transform var(--duree); }
+}
+
+/* ——— Accueil (connexion) ——— */
+.accueil {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--e-5) var(--e-4);
+  overflow: hidden;
+  isolation: isolate;
+  background: radial-gradient(70rem 40rem at 50% 100%, color-mix(in srgb, var(--surimpression) 10%, transparent), transparent 70%), var(--papier);
+}
+.accueil__fond { z-index: -1; }
+.accueil__panneau {
+  width: min(26rem, 100%);
+  display: grid;
+  gap: var(--e-5);
+  padding: var(--e-6);
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  border-top: 3px solid var(--surimpression);
+  border-radius: 6px;
+  box-shadow: var(--ombre-modale);
+}
+.accueil__marque { display: grid; gap: var(--e-3); justify-items: start; }
+.accueil__sous { color: var(--encre-2); font-weight: 600; }
+/* Devise de la structure : la voix des titres, dans l'or de l'écusson. */
+.accueil__devise { margin: 0; font-family: var(--police-titre); font-weight: 700; font-size: var(--t-l); letter-spacing: 0.01em; color: var(--surimpression); text-wrap: balance; }
+.accueil h1 { font-size: var(--t-2xl); }
+
+/* ——— En-tête de l'accueil d'un jeu ——— */
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  gap: var(--e-5);
+  padding: var(--e-6);
+  border: 1px solid var(--trait);
+  border-radius: var(--r-fiche);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surimpression) 5%, var(--surface)), var(--surface) 60%);
+}
+.hero__fond { z-index: -1; }
+.hero__tete {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--e-5);
+}
+.hero__identite { display: flex; align-items: center; gap: var(--e-4); min-width: 0; }
+.hero__identite h1 { font-size: var(--t-2xl); }
+.hero__tag {
+  font-family: var(--police-titre);
+  font-weight: 900;
+  font-size: 3.6rem;
+  line-height: 0.85;
+  color: var(--surimpression);
+  letter-spacing: 0.01em;
+}
+.hero__prochain {
+  display: grid;
+  gap: 2px;
+  min-width: 15rem;
+  max-width: 24rem;
+  padding: var(--e-3) var(--e-4);
+  border-left: 3px solid var(--surimpression);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+}
+.hero__etiquette { font-size: var(--t-xs); font-weight: 650; color: var(--surimpression); }
+.hero__quand { font-family: var(--police-titre); font-size: var(--t-xl); font-weight: 800; line-height: 1.1; }
+.hero__parcours { display: grid; gap: var(--e-2); }
+.hero__parcours h2 { font-size: var(--t-l); }
+
+/* ——— Parcours de la semaine : la course du soleil, en or ——— */
+.parcours__carte { width: 100%; height: auto; overflow: visible; }
+.parcours__jour line { stroke: var(--trait); stroke-dasharray: 2 5; }
+.parcours__jour text { fill: var(--encre-3); font-size: 13px; font-weight: 600; font-family: var(--police-texte); }
+.parcours__trace {
+  fill: none;
+  stroke: var(--surimpression);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: tracer 1.4s cubic-bezier(.6, .05, .3, 1) 0.15s forwards;
+}
+@keyframes tracer { to { stroke-dashoffset: 0; } }
+.parcours__depart, .parcours__arrivee { fill: none; stroke: var(--surimpression); stroke-width: 3; }
+.parcours__poste circle { fill: var(--surface); stroke: var(--surimpression); stroke-width: 3; }
+.parcours__numero { fill: var(--surimpression); font-family: var(--police-titre); font-weight: 800; font-size: 15px; }
+.parcours__heure { fill: var(--encre-2); font-family: var(--police-titre); font-weight: 700; font-size: 15px; }
+.parcours__titre { fill: var(--encre); font-family: var(--police-texte); font-weight: 600; font-size: 13px; }
+.parcours__poste--passe { opacity: 0.42; }
+.parcours__poste--prochain circle, .parcours__poste--en-cours circle { fill: var(--surimpression); }
+.parcours__poste--prochain .parcours__numero, .parcours__poste--en-cours .parcours__numero { fill: var(--sur-surimpression); }
+.parcours__poste--prochain .parcours__titre { fill: var(--surimpression); }
+.parcours__poste--prochain circle { animation: reperer 1.6s ease-out 1.5s 2; transform-box: fill-box; transform-origin: center; }
+@keyframes reperer { 0% { stroke-width: 3; } 40% { stroke-width: 9; stroke-opacity: 0.35; } 100% { stroke-width: 3; } }
+
+.parcours__liste { display: none; list-style: none; gap: 0; padding: var(--e-2) var(--e-3); border-radius: var(--r-fiche); background: color-mix(in srgb, var(--surface) 90%, transparent); }
+.parcours__etape {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2rem 5.5rem minmax(0, 1fr);
+  align-items: center;
+  gap: var(--e-2);
+  padding: var(--e-2) 0;
+}
+.parcours__etape:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: calc(1rem - 1.5px);
+  top: calc(50% + 0.9rem);
+  height: calc(100% - 1.8rem);
+  border-left: 3px solid var(--surimpression);
+}
+.parcours__pastille {
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 3px solid var(--surimpression);
+  border-radius: 50%;
+  color: var(--surimpression);
+  font-family: var(--police-titre);
+  font-weight: 800;
+}
+.parcours__quand { font-family: var(--police-titre); font-weight: 700; font-size: var(--t-l); }
+.parcours__etape--passe { opacity: 0.45; }
+.parcours__etape--prochain .parcours__pastille, .parcours__etape--en-cours .parcours__pastille { background: var(--surimpression); color: var(--sur-surimpression); }
+.parcours__etape--prochain { font-weight: 650; }
+
+@media (prefers-reduced-motion: reduce) {
+  .parcours__trace { animation: none; stroke-dashoffset: 0; }
+  .parcours__poste--prochain circle { animation: none; }
+}
+@media (max-width: 700px) {
+  .parcours__carte { display: none; }
+  .parcours__liste { display: grid; }
+}
+@media (max-width: 899px) {
+  .hero { padding: var(--e-4); }
+  .hero__tag { font-size: 2.7rem; }
+  .hero__prochain { min-width: 0; max-width: none; width: 100%; }
+  .accueil__panneau { padding: var(--e-5); }
+}

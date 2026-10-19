@@ -1,0 +1,227 @@
+/* Mises en page propres à chaque rubrique. */
+
+.icone-texte { display: inline-block; width: 0.9em; height: 0.9em; vertical-align: -0.1em; }
+.agent svg { color: var(--c-role, var(--encre-3)); }
+.texte-multi { white-space: pre-line; }
+.sous-titre { margin: var(--e-4) 0 var(--e-2); font-size: var(--t-s); color: var(--encre-2); }
+.liste-puces { padding-left: 1.2rem; display: grid; gap: var(--e-1); }
+.liste-puces li::marker { color: var(--surimpression); }
+.retour { display: inline-flex; align-items: center; gap: var(--e-1); margin-bottom: var(--e-3); font-size: var(--t-s); font-weight: 600; text-decoration: none; }
+.retour svg { width: 1rem; height: 1rem; }
+.barre-outils { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-3); margin-bottom: var(--e-5); }
+.saisie--compacte { width: auto; min-height: 2.25rem; padding: 0.3rem 2rem 0.3rem 0.6rem; font-size: var(--t-s); }
+.details { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--e-2) var(--e-4); margin: 0; font-size: var(--t-s); }
+.details dt { color: var(--encre-3); font-weight: 600; }
+.details dd { margin: 0; }
+.chiffres { display: flex; flex-wrap: wrap; gap: var(--e-5); }
+.chiffres > div, .tableau-bord > div { display: grid; gap: var(--e-1); align-content: start; }
+.chiffre--l { font-size: var(--t-2xl); }
+.chiffre--xl { font-size: var(--t-3xl); }
+.resultat {
+  display: grid; place-items: center; width: 2rem; height: 2rem; flex: none;
+  border-radius: var(--r-fiche); font-family: var(--police-titre); font-weight: 800;
+}
+.resultat--V { background: var(--foret); color: var(--surface); }
+.resultat--D { border: 2px solid var(--brique); color: var(--brique); }
+.resultat--N { background: var(--creux); }
+.btn--actif { color: var(--surimpression); }
+.referentiel { border-top: 1px solid var(--trait); padding-top: var(--e-3); }
+.referentiel summary { cursor: pointer; padding: var(--e-2) 0; }
+.referentiel[open] summary { margin-bottom: var(--e-3); }
+
+/* ——— Accueil ——— */
+.grille-accueil { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--e-5); align-items: start; }
+.pool-ligne {
+  display: grid; grid-template-columns: 6.5rem 6.5rem minmax(4rem, 1fr) 6rem; align-items: center; gap: var(--e-3);
+  padding: var(--e-2) 0; border-bottom: 1px solid var(--trait); color: inherit; text-decoration: none;
+}
+.pool-ligne:last-child { border-bottom: 0; }
+.pool-ligne:hover .pool-ligne__nom { color: var(--surimpression); }
+.pool-ligne__nom { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-l); }
+.pool-ligne__wr { text-align: right; }
+.suggestion {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-3);
+  padding: var(--e-3) var(--e-4); border: 1px solid var(--surimpression-voile); border-left: 3px solid var(--surimpression);
+  border-radius: var(--r-fiche); background: var(--surface);
+}
+.suggestion__texte { display: grid; gap: var(--e-1); flex: 1 1 20rem; }
+.liste-focus { list-style: none; display: grid; gap: var(--e-2); margin-top: var(--e-3); }
+.liste-focus li { display: grid; grid-template-columns: 1rem minmax(0, 1fr) auto; gap: var(--e-2); align-items: start; font-size: var(--t-s); }
+.liste-focus svg { width: 1rem; height: 1rem; color: var(--surimpression); margin-top: 0.15rem; }
+
+/* ——— Planning ——— */
+.nav-semaine { display: flex; align-items: center; gap: var(--e-2); flex-wrap: wrap; }
+.nav-semaine__texte { display: grid; line-height: 1.2; min-width: 10rem; text-align: center; }
+.nav-semaine__texte strong { font-family: var(--police-titre); font-size: var(--t-l); }
+.nav-semaine__texte span { font-size: var(--t-xs); color: var(--encre-3); }
+.planning-resume { margin-bottom: var(--e-3); }
+.note-semaine { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--e-3); padding: var(--e-3) var(--e-4); margin-bottom: var(--e-4); background: var(--creux); border-radius: var(--r-fiche); font-size: var(--t-s); }
+.agenda { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--e-2); }
+.agenda__jour { display: grid; align-content: start; gap: var(--e-2); min-width: 0; padding: var(--e-2); border-radius: var(--r-fiche); background: var(--creux); }
+.agenda__jour--aujourdhui { box-shadow: inset 0 3px 0 var(--surimpression); }
+.agenda__titre { display: flex; justify-content: space-between; align-items: baseline; gap: var(--e-1); padding: 0 var(--e-1); font-size: var(--t-s); }
+.agenda__date { color: var(--encre-3); font-weight: 500; font-size: var(--t-xs); }
+.agenda__vide { color: var(--encre-3); font-size: var(--t-xs); padding: 0 var(--e-1); }
+.bloc {
+  display: grid; gap: 2px; width: 100%; padding: var(--e-2); text-align: left;
+  border: 1px solid var(--trait); border-left: 3px solid var(--c-bloc, var(--trait-fort)); border-radius: var(--r-fiche);
+  background: var(--surface); color: var(--encre); font-size: var(--t-xs);
+}
+button.bloc:hover { border-color: var(--trait-fort); border-left-color: var(--c-bloc, var(--trait-fort)); }
+.bloc__heure { font-family: var(--police-titre); font-weight: 700; font-size: var(--t-s); }
+.bloc__titre { font-weight: 650; font-size: var(--t-s); line-height: 1.25; }
+.bloc__meta { color: var(--encre-3); font-stretch: 87.5%; }
+.bloc--individuel { border-style: dashed; border-left-style: solid; background: transparent; }
+/* Couleurs des blocs : par famille, quel que soit le jeu (vues-semaine.css). */
+.ebauches { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: var(--e-3); }
+.ebauche { position: relative; display: grid; gap: var(--e-1); padding: var(--e-4); border: 1px solid var(--trait); border-radius: var(--r-fiche); cursor: pointer; }
+.ebauche input { position: absolute; top: var(--e-4); right: var(--e-4); accent-color: var(--surimpression); }
+.ebauche:has(input:checked) { border-color: var(--surimpression); box-shadow: inset 0 0 0 1px var(--surimpression); }
+.ebauche__nom { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-l); }
+
+/* ——— Disponibilités ——— */
+.dispo-colonnes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-5); align-items: start; }
+.dispo-colonnes .fiche { display: grid; gap: var(--e-3); }
+.dispo-grille { display: grid; grid-template-columns: 2.4rem repeat(7, minmax(0, 1fr)); gap: 3px; user-select: none; }
+.dispo-grille__jour { text-align: center; font-size: var(--t-xs); font-weight: 650; color: var(--encre-2); }
+.dispo-grille__heure { font-size: var(--t-xs); color: var(--encre-3); text-align: right; padding-right: 4px; line-height: 1.7rem; }
+.dispo-grille__case { height: 1.7rem; border: 1px solid var(--trait); border-radius: 3px; background: var(--papier); padding: 0; }
+button.dispo-grille__case:hover { border-color: var(--surimpression); }
+.dispo-grille__case[aria-pressed='true'] { background: var(--surimpression); border-color: var(--surimpression); }
+.dispo-grille__case--synthese {
+  display: grid; place-items: center; font-size: var(--t-xs); font-weight: 700; color: var(--encre-2);
+  background: color-mix(in srgb, var(--eau) calc(var(--part) * 55%), var(--papier));
+}
+.dispo-grille__case--complet { background: var(--surimpression); border-color: var(--surimpression); color: var(--sur-surimpression); }
+.cases-membres { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: var(--e-2); }
+.membre-rempli { display: grid; grid-template-columns: 1rem minmax(0, 1fr) auto; align-items: center; gap: var(--e-2); padding: var(--e-2) var(--e-3); border: 1px solid var(--trait); border-radius: var(--r-fiche); font-size: var(--t-s); }
+.membre-rempli svg { width: 1rem; height: 1rem; color: var(--encre-3); }
+.membre-rempli--ok svg { color: var(--foret); }
+.membre-rempli__note { grid-column: 2 / -1; }
+
+/* ——— Maps ——— */
+.veto { display: flex; flex-wrap: wrap; gap: var(--e-3) var(--e-6); margin-bottom: var(--e-5); padding: var(--e-4) var(--e-5); border-left: 3px solid var(--surimpression); background: var(--surface); }
+.veto > div { display: grid; }
+.veto strong { font-family: var(--police-titre); font-size: var(--t-l); }
+.grille-maps { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: var(--e-4); }
+.carte-map { position: relative; isolation: isolate; overflow: hidden; display: grid; gap: var(--e-3); align-content: start; }
+.carte-map__fond { z-index: -1; opacity: 0.8; }
+.carte-map__tete { display: flex; justify-content: space-between; align-items: center; gap: var(--e-2); }
+.carte-map__tete h2 { font-size: var(--t-2xl); }
+.carte-map__agents { display: flex; flex-wrap: wrap; gap: 4px; min-height: 1.8rem; }
+.compo { list-style: none; display: grid; gap: var(--e-2); margin-top: var(--e-3); }
+.compo li { display: flex; justify-content: space-between; align-items: center; gap: var(--e-2); }
+.compo-pro { display: grid; gap: var(--e-2); padding-bottom: var(--e-3); border-bottom: 1px solid var(--trait); }
+.compo-pro:last-child { border-bottom: 0; padding-bottom: 0; }
+.compo-pro__agents { display: flex; flex-wrap: wrap; gap: 4px; }
+.compo-editeur { border: 1px solid var(--trait); border-radius: var(--r-fiche); padding: var(--e-3) var(--e-4) var(--e-4); margin: 0; display: grid; gap: var(--e-3); min-width: 0; }
+.compo-editeur legend { font-weight: 650; font-size: var(--t-s); padding: 0 var(--e-1); }
+.compo-editeur__ligne { display: grid; grid-template-columns: 1.4rem minmax(0, 1fr) minmax(0, 1fr); gap: var(--e-2); align-items: center; }
+.plan-cote { display: grid; gap: var(--e-1); margin-top: var(--e-3); }
+.plan-cote h3 { color: var(--encre-2); font-size: var(--t-s); }
+
+/* ——— Stratbook ——— */
+.strat { display: grid; gap: var(--e-2); padding: var(--e-3) var(--e-4); border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); }
+.strat__ouvrir { display: grid; gap: 2px; padding: 0; border: 0; background: none; text-align: left; }
+.strat__type { font-size: var(--t-xs); font-weight: 650; color: var(--surimpression); }
+.strat__nom { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-l); line-height: 1.15; }
+.strat__ouvrir:hover .strat__nom { color: var(--surimpression); }
+.etapes { padding-left: 1.4rem; display: grid; gap: var(--e-2); }
+.etapes li::marker { font-family: var(--police-titre); font-weight: 800; color: var(--surimpression); }
+
+/* ——— Scrims ——— */
+.tableau-bord { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--e-5); padding: var(--e-5); border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); }
+.ligne--bouton { width: 100%; border: 0; border-bottom: 1px solid var(--trait); background: none; text-align: left; color: inherit; }
+.ligne--bouton:hover .ligne__titre { color: var(--surimpression); }
+
+/* ——— VOD ——— */
+.colonnes-vod { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e-4); align-items: start; }
+.colonne-vod__titre { font-size: var(--t-l); }
+.carte-vod { display: grid; gap: var(--e-1); }
+.grille-vod { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(16rem, 1fr); gap: var(--e-5); align-items: start; }
+.grille-vod aside { display: grid; gap: var(--e-3); position: sticky; top: var(--e-4); }
+.chronologie { list-style: none; display: grid; }
+.chronologie__note { display: grid; grid-template-columns: 4.2rem minmax(0, 1fr) auto; gap: var(--e-3); padding: var(--e-3) 0; border-top: 1px solid var(--trait); }
+.chronologie__temps { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-l); color: var(--surimpression); }
+.chronologie__action { display: flex; gap: var(--e-1); align-items: flex-start; font-weight: 600; font-size: var(--t-s); }
+.chronologie__action svg { width: 1rem; height: 1rem; flex: none; color: var(--surimpression); margin-top: 0.15rem; }
+
+/* ——— Progression ——— */
+.profil-paliers { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); align-items: end; gap: 3px; padding-top: var(--e-4); }
+.marche { display: grid; gap: var(--e-2); align-content: end; }
+.marche__joueurs { list-style: none; display: grid; gap: 2px; font-size: var(--t-xs); font-weight: 650; }
+.marche__joueurs a { color: var(--encre); text-decoration: none; padding: 1px 6px; border-radius: var(--r-puce); background: var(--surface); border: 1px solid var(--trait); display: inline-block; }
+.marche__bloc {
+  position: relative; display: grid; align-content: start; gap: 2px;
+  min-height: calc(3.5rem + var(--n) * 1.6rem); padding: var(--e-2);
+  background: color-mix(in srgb, var(--courbe-pale) calc(20% + var(--n) * 10%), var(--papier));
+  border-top: 3px solid var(--courbe);
+}
+.marche__num { font-family: var(--police-titre); font-weight: 900; font-size: var(--t-2xl); line-height: 1; }
+.marche__nom { font-weight: 650; font-size: var(--t-s); line-height: 1.2; }
+.marche__rangs { font-size: var(--t-xs); color: var(--encre-2); font-stretch: 87.5%; }
+.marche--cible .marche__bloc { border-top-color: var(--surimpression); }
+.marche__drapeau { justify-self: start; margin-top: var(--e-1); padding: 0 6px; border-radius: var(--r-puce); background: var(--surimpression); color: var(--sur-surimpression); font-size: var(--t-xs); font-weight: 700; }
+.objectifs { list-style: none; display: grid; }
+.objectif { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--e-2) var(--e-4); padding: var(--e-3) 0; border-top: 1px solid var(--trait); }
+.objectif__texte { display: grid; gap: 2px; flex: 1 1 16rem; }
+.objectif__titre { font-weight: 600; display: flex; gap: var(--e-1); align-items: flex-start; }
+.objectif__etoile { width: 1rem; height: 1rem; color: var(--surimpression); flex: none; margin-top: 0.2rem; }
+.objectif--atteint .objectif__titre { color: var(--foret); }
+.objectif__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); }
+.entete-joueur { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--e-4); }
+.entete-joueur h2 { font-size: var(--t-2xl); }
+.entete-joueur__jauge { flex: 1 1 16rem; display: grid; gap: var(--e-2); justify-items: start; }
+.entete-joueur__jauge .jauge { width: 100%; }
+
+/* ——— Programme ——— */
+.routine { list-style: none; counter-reset: etape; display: grid; gap: var(--e-3); }
+.routine li { counter-increment: etape; display: grid; grid-template-columns: 2rem 4rem minmax(0, 1fr); gap: var(--e-2); align-items: start; }
+.routine li::before { content: counter(etape); display: grid; place-items: center; width: 1.8rem; height: 1.8rem; border: 3px solid var(--surimpression); border-radius: 50%; color: var(--surimpression); font-family: var(--police-titre); font-weight: 800; }
+.routine__duree { font-family: var(--police-titre); font-weight: 700; padding-top: 0.15rem; }
+.conseil { margin-top: var(--e-4); padding: var(--e-3) var(--e-4); border-left: 3px solid var(--courbe); background: var(--creux); font-size: var(--t-s); }
+
+/* ——— Roster ——— */
+.identite-equipe { display: flex; gap: var(--e-5); align-items: center; padding: var(--e-5); border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); }
+.identite-equipe__tag { font-family: var(--police-titre); font-weight: 900; font-size: 4rem; line-height: 0.8; color: var(--surimpression); }
+.grille-membres { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: var(--e-3); }
+.carte-membre { display: grid; gap: var(--e-2); align-content: start; text-align: left; color: inherit; cursor: pointer; }
+.carte-membre:hover { border-color: var(--trait-fort); border-left-color: var(--c-liseret); }
+.carte-membre__pseudo { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-xl); line-height: 1; }
+.carte-membre--vide .carte-membre__pseudo { color: var(--encre-3); }
+
+/* ——— Méta ——— */
+.bande-patch { display: flex; flex-wrap: wrap; gap: var(--e-4) var(--e-6); align-items: center; padding: var(--e-4) var(--e-5); border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); }
+.bande-patch__numero { display: grid; }
+.bande-patch__numero .chiffre { font-size: var(--t-4xl); color: var(--surimpression); }
+.grille-agents { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: var(--e-2); }
+.agent-meta { display: grid; gap: var(--e-2); align-content: start; padding: var(--e-3); border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); }
+.agent-meta > .rangee > svg { width: 0.95rem; height: 0.95rem; color: var(--c-role); }
+
+/* ——— Admin ——— */
+.tableau--droits td.num svg { width: 1rem; height: 1rem; color: var(--foret); margin-left: auto; }
+.ligne--inactive td { opacity: 0.55; }
+.journal { list-style: none; display: grid; gap: var(--e-2); max-height: 28rem; overflow-y: auto; }
+.journal li { display: grid; gap: 1px; padding-bottom: var(--e-2); border-bottom: 1px solid var(--trait); }
+.menu-mobile { display: grid; gap: var(--e-4); }
+
+@media (max-width: 1100px) {
+  .agenda { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .grille-accueil, .dispo-colonnes, .grille-vod { grid-template-columns: minmax(0, 1fr); }
+  .grille-vod aside { position: static; }
+}
+@media (max-width: 899px) {
+  .agenda { grid-template-columns: minmax(0, 1fr); }
+  .colonnes-vod { grid-template-columns: minmax(0, 1fr); }
+  .pool-ligne { grid-template-columns: minmax(0, 1fr) auto; }
+  .pool-ligne .jauge { grid-column: 1 / -1; }
+  .pool-ligne__wr { grid-column: 1 / -1; text-align: left; }
+  .profil-paliers { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: var(--e-4); }
+  .identite-equipe { flex-direction: column; align-items: flex-start; padding: var(--e-4); }
+  .compo-editeur__ligne { grid-template-columns: 1.4rem minmax(0, 1fr); }
+  .compo-editeur__ligne select:last-child { grid-column: 2; }
+  .tableau-bord { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: var(--e-4); gap: var(--e-4); }
+  .chiffre--xl { font-size: var(--t-2xl); }
+  .chronologie__note { grid-template-columns: 3.4rem minmax(0, 1fr) auto; }
+  .veto { padding: var(--e-3) var(--e-4); }
+}

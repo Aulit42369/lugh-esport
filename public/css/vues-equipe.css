@@ -1,0 +1,187 @@
+/* Équipe : roster, recrutement, compte, choix du jeu, connexion. */
+
+/* ——— Connexion : marque Lugh ———
+   Les vrais styles de la marque sont dans identite.css. Ce repli n'a aucune priorité (:where) : il ne sert que si
+   identite.css n'est pas chargé, et cède devant n'importe laquelle de ses règles. */
+:where(.accueil) :where(.marque) { display: inline-flex; align-items: center; gap: var(--e-3); color: var(--encre); }
+:where(.accueil) :where(.marque__symbole) { width: clamp(2.75rem, 12vw, 3.5rem); height: clamp(2.75rem, 12vw, 3.5rem); flex: none; }
+:where(.accueil) :where(.marque__texte) {
+  display: inline-flex; align-items: baseline; gap: 0.16em;
+  font-family: var(--police-titre); font-size: clamp(2.6rem, 11vw, 3.4rem); line-height: 0.85; white-space: nowrap;
+}
+:where(.accueil) :where(.marque__texte) { font-weight: 700; }
+.accueil .accueil__marque { gap: var(--e-3); justify-items: start; }
+.accueil .champ__aide { text-wrap: balance; }
+.accueil .sans-coupure { white-space: nowrap; }
+
+/* ——— Mes jeux : une feuille de carte par jeu, son relief et son poste à pointer ——— */
+.grille-jeux { display: grid; grid-template-columns: repeat(auto-fill, minmax(16.5rem, 1fr)); gap: var(--e-4); }
+.carte-jeu {
+  display: grid; grid-template-rows: auto 1fr; overflow: hidden;
+  border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface);
+  color: var(--encre); text-decoration: none; transition: border-color var(--duree);
+}
+.carte-jeu:hover { border-color: var(--trait-fort); color: var(--encre); }
+.carte-jeu__terrain { position: relative; isolation: isolate; overflow: hidden; height: 8.5rem; border-bottom: 1px solid var(--trait); background: var(--papier); }
+.carte-jeu__fond { z-index: -1; }
+.carte-jeu__poste {
+  position: absolute; width: 2.6rem; height: 2.6rem; transform: translate(-50%, -50%);
+  border: 3px solid var(--surimpression); border-radius: 50%;
+  transition: background-color var(--duree), box-shadow var(--duree);
+}
+.carte-jeu:hover .carte-jeu__poste, .carte-jeu:focus-visible .carte-jeu__poste { background: var(--surimpression-voile); box-shadow: 0 0 0 6px var(--surimpression-voile); }
+.carte-jeu__code { position: absolute; left: var(--e-4); bottom: var(--e-3); height: 2.1rem; min-width: 3rem; padding: 0 0.6rem; font-size: 1.15rem; }
+.carte-jeu__corps { display: grid; gap: var(--e-2); align-content: start; padding: var(--e-4) var(--e-5) var(--e-5); }
+.carte-jeu__nom { font-size: var(--t-2xl); line-height: 1; overflow-wrap: anywhere; text-wrap: balance; }
+.carte-jeu:hover .carte-jeu__nom { color: var(--surimpression); }
+.carte-jeu__metiers { color: var(--encre-2); font-size: var(--t-s); }
+.carte-jeu--inactif { border-style: dashed; }
+.carte-jeu--inactif .carte-jeu__terrain { opacity: 0.55; filter: grayscale(1); }
+.carte-jeu--inactif .carte-jeu__poste { border-color: var(--encre-3); border-style: dashed; }
+.jeux-aide { margin-top: var(--e-5); }
+
+/* Aucun jeu : une carte vierge, sans poste */
+.jeux-vide {
+  position: relative; isolation: isolate; overflow: hidden; display: grid; align-items: center; min-height: 17rem;
+  padding: var(--e-6); border: 1px dashed var(--trait-fort); border-radius: var(--r-fiche); background: var(--surface);
+}
+.jeux-vide__fond { z-index: -1; opacity: 0.8; }
+.jeux-vide__texte {
+  display: grid; gap: var(--e-3); justify-items: start; max-width: 34rem; padding: var(--e-5);
+  border-left: 3px solid var(--surimpression); background: color-mix(in srgb, var(--surface) 90%, transparent);
+}
+
+/* ——— Mon compte ——— */
+.grille-compte { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--e-5); align-items: start; }
+.compte-identite { display: grid; gap: var(--e-4); justify-items: start; }
+.compte-identite__tete { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2) var(--e-3); }
+.compte-identite__nom { font-size: var(--t-3xl); line-height: 1; overflow-wrap: anywhere; }
+.compte-jeux .puce-jeu { width: 3rem; }
+.compte-jeux__fleche { width: 1rem; height: 1rem; margin-left: auto; flex: none; color: var(--encre-3); }
+.compte-jeux__admin { margin-top: var(--e-3); }
+.compte-aide { margin-top: var(--e-2); }
+
+/* ——— Fenêtres du roster et du recrutement ———
+   Un champ avec une aide (identifiant en jeu, chaîne Twitch…) ne doit pas étirer les menus de sa rangée. */
+.champs-alignes { align-items: start; }
+.avis-choix { justify-self: start; }
+
+/* ——— Roster ——— */
+/* Liseret de la carte : couleur du rôle en jeu (classe role--rN posée sur la carte), sinon trait neutre. */
+.carte-membre { --c-liseret: var(--c-role, var(--trait-fort)); }
+.carte-membre__id { overflow-wrap: anywhere; }
+.details--jetons { align-items: center; }
+.details--jetons dd { display: flex; flex-wrap: wrap; gap: 4px; }
+
+/* ——— Recrutement ——— */
+.recrutement-colonne { align-content: start; }
+.recrutement-colonne__titre { font-size: var(--t-l); }
+/* Toute la carte ouvre la candidature ; le lien Twitch reste cliquable au-dessus. */
+.candidat { position: relative; display: grid; gap: var(--e-2); justify-items: start; }
+.candidat:hover { border-color: var(--trait-fort); }
+.candidat__ouvrir {
+  padding: 0; border: 0; background: none; color: inherit; text-align: left; cursor: pointer;
+  font-family: var(--police-titre); font-size: var(--t-l); font-weight: 800; line-height: 1.1; overflow-wrap: anywhere;
+}
+.candidat__ouvrir::after { content: ''; position: absolute; inset: 0; border-radius: var(--r-fiche); }
+.candidat__ouvrir:focus-visible { outline: none; }
+.candidat__ouvrir:focus-visible::after { outline: 2px solid var(--surimpression); outline-offset: 2px; }
+.candidat:hover .candidat__ouvrir { color: var(--surimpression); }
+.candidat__lien { position: relative; z-index: 1; font-size: var(--t-xs); }
+
+/* ——— Mon compte : agenda personnel ——— */
+.agenda-perso { display: grid; gap: var(--e-2); justify-items: start; margin-top: var(--e-5); padding-top: var(--e-1); border-top: 1px solid var(--trait); }
+.agenda-perso .sous-titre { margin: var(--e-3) 0 0; }
+.agenda-perso__lien { white-space: normal; text-align: left; height: auto; min-height: 2.5rem; padding: var(--e-2) var(--e-4); }
+
+/* ——— Double authentification (Mon compte, connexion, activation obligatoire) ——— */
+.titre-icone { display: flex; align-items: center; gap: var(--e-2); }
+.titre-icone svg { width: 1.3rem; height: 1.3rem; flex: none; color: var(--surimpression); }
+.compte-2fa { display: grid; gap: var(--e-3); }
+.compte-2fa .fiche__titre { margin-bottom: 0; }
+.compte-2fa__alerte { display: flex; align-items: center; gap: var(--e-2); color: var(--champ-encre); font-weight: 600; }
+.compte-2fa__alerte svg { width: 1rem; height: 1rem; flex: none; }
+.accueil__panneau.accueil__panneau--large { width: min(38rem, 100%); }
+
+/* Bouton qui se lit comme un lien (basculer vers un code de secours, revenir, se déconnecter). */
+.lien-bouton {
+  justify-self: start; padding: 0; border: 0; background: none; cursor: pointer;
+  color: var(--surimpression); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 0.2em;
+}
+.lien-bouton:hover { color: var(--surimpression-fonce); }
+.champ-code .lien-bouton { margin-top: var(--e-1); font-size: var(--t-s); }
+.saisie--code { max-width: 13rem; font-size: var(--t-xl); font-weight: 650; letter-spacing: 0.3em; font-variant-numeric: tabular-nums; }
+.saisie--code.saisie--secours { letter-spacing: 0.08em; }
+
+/* Les trois étapes de l'activation : des postes reliés par le trait du parcours, comme sur une carte de course. */
+.etapes-2fa { list-style: none; counter-reset: etape; display: grid; gap: var(--e-5); margin: 0; padding: 0; }
+.etapes-2fa > li {
+  position: relative; counter-increment: etape;
+  display: grid; grid-template-columns: 2rem minmax(0, 1fr); column-gap: var(--e-3); row-gap: var(--e-2); align-items: start;
+}
+.etapes-2fa > li > * { grid-column: 2; min-width: 0; }
+.etapes-2fa > li::before {
+  content: counter(etape); grid-column: 1; grid-row: 1 / span 2;
+  display: grid; place-items: center; width: 1.9rem; height: 1.9rem; border: 3px solid var(--surimpression); border-radius: 50%;
+  background: var(--surface); color: var(--surimpression); font-family: var(--police-titre); font-weight: 800;
+}
+.etapes-2fa > li:not(:last-child)::after {
+  content: ''; position: absolute; left: calc(0.95rem - 1.5px); top: 2.1rem; bottom: calc(-1 * var(--e-5) + 0.2rem);
+  border-left: 3px solid var(--surimpression); opacity: 0.45;
+}
+.etapes-2fa h3 { font-size: var(--t-m); line-height: 1.3; padding-top: 0.3rem; }
+.cle-2fa { display: flex; flex-wrap: wrap; gap: var(--e-4); align-items: flex-start; }
+.qr-2fa { flex: none; width: 10.5rem; height: 10.5rem; border-radius: 6px; }
+.cle-2fa__texte { flex: 1 1 14rem; }
+.cle-2fa__cle {
+  display: block; padding: var(--e-2) var(--e-3); border-radius: var(--r-champ); background: var(--creux);
+  font-family: var(--police-texte); font-size: var(--t-m); font-weight: 650; letter-spacing: 0.08em; word-spacing: 0.25em;
+  overflow-wrap: anywhere; user-select: all;
+}
+.activation-2fa__code { gap: var(--e-3); }
+
+/* Codes de secours : un cadre en tirets, comme tout secret montré une seule fois. */
+.codes-2fa { display: grid; gap: var(--e-4); }
+.codes-2fa__liste {
+  list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-2) var(--e-4);
+  margin: 0; padding: var(--e-4); border: 2px dashed var(--surimpression); border-radius: var(--r-fiche);
+}
+.codes-2fa__liste li { text-align: center; font-size: var(--t-l); font-weight: 650; letter-spacing: 0.08em; font-variant-numeric: tabular-nums; user-select: all; }
+.codes-2fa__fin { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-3); padding-top: var(--e-4); border-top: 1px solid var(--trait); }
+.bandeau-2fa {
+  display: flex; align-items: center; gap: var(--e-2); padding: var(--e-3) var(--e-4); border-radius: var(--r-fiche);
+  background: var(--foret-voile); color: var(--encre); font-size: var(--t-s); font-weight: 600;
+}
+.bandeau-2fa svg { width: 1.1rem; height: 1.1rem; flex: none; color: var(--foret); }
+
+@media (max-width: 899px) {
+  .grille-compte { grid-template-columns: minmax(0, 1fr); }
+  .compte-identite__nom { font-size: var(--t-2xl); }
+  .carte-jeu__terrain { height: 7rem; }
+  .carte-jeu__corps { padding: var(--e-3) var(--e-4) var(--e-4); }
+  .jeux-vide { padding: var(--e-4); min-height: 14rem; }
+  .jeux-vide__texte { padding: var(--e-4); }
+}
+
+/* Téléphone : chaque jeu devient une ligne, le relief en vignette à gauche (plus de jeux visibles d'un coup). */
+@media (max-width: 599px) {
+  .grille-jeux { grid-template-columns: minmax(0, 1fr); gap: var(--e-3); }
+  .carte-jeu { grid-template-columns: 6.5rem minmax(0, 1fr); grid-template-rows: none; }
+  .carte-jeu__terrain { height: auto; min-height: 6.5rem; border-bottom: 0; border-right: 1px solid var(--trait); }
+  .carte-jeu__poste { width: 2rem; height: 2rem; }
+  .carte-jeu__code { left: var(--e-2); bottom: var(--e-2); height: 1.7rem; min-width: 0; padding: 0 0.4rem; font-size: 0.9rem; }
+  .carte-jeu__corps { align-content: center; gap: var(--e-1); padding: var(--e-3) var(--e-4); }
+  .carte-jeu__nom { font-size: var(--t-xl); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carte-jeu__poste { transition: none; }
+}
+
+/* Liaison Discord : le code se lit d'un coup d'œil, la commande se recopie telle quelle. */
+.code-liaison {
+  margin: 0; padding: var(--e-3) var(--e-4); border: 2px dashed var(--surimpression); border-radius: var(--r-fiche);
+  font-size: var(--t-l); font-weight: 700; letter-spacing: 0.14em; font-variant-numeric: tabular-nums; text-align: center; user-select: all;
+  overflow-wrap: anywhere;
+}
+.code-liaison__commande { color: var(--encre-3); letter-spacing: 0; font-weight: 500; }

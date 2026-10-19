@@ -1,0 +1,65 @@
+/* Impression et PDF (bilan du mois, fiche de rôles) : papier blanc, encre noire, sans navigation ni boutons. */
+
+:root,
+:root[data-theme='clair'] {
+  color-scheme: light;
+  --papier: #ffffff;
+  --surface: #ffffff;
+  --creux: #f1f2ec;
+  --encre: #141816;
+  --encre-2: #3d4440;
+  --encre-3: #5d655f;
+  --trait: #d3d7cd;
+  --trait-fort: #9aa196;
+  --courbe: #b5652a;
+  --courbe-pale: #e6d3c0;
+  --surimpression: #b4237a;
+  --surimpression-fonce: #8e1a60;
+  --surimpression-voile: #b4237a14;
+  --sur-surimpression: #ffffff;
+  --foret: #3e7d3a;
+  --foret-voile: #3e7d3a17;
+  --eau: #2b74b0;
+  --eau-voile: #2b74b017;
+  --champ: #e9b53c;
+  --champ-encre: #7a5500;
+  --champ-voile: #e9b53c2e;
+  --brique: #b8432c;
+  --brique-voile: #b8432c17;
+  --role-1: #b8432c;
+  --role-2: #2b74b0;
+  --role-3: #6f55ad;
+  --role-4: #17827b;
+  --role-5: #9b7414;
+  --role-6: #3e7d3a;
+  --role-7: #b4237a;
+  --role-8: #5b635d;
+}
+
+@page { margin: 12mm 14mm; }
+
+html, body { background: #ffffff; color: var(--encre); }
+body { font-size: 10.5pt; }
+
+.rail, .entete-mobile, .barre-mobile, .toasts, .lien-evitement, .sans-impression,
+.entete-page__actions, .barre-outils, .filtres, .retour, dialog, button.btn, a.btn { display: none !important; }
+
+.coquille { display: block; }
+.principal { padding: 0; }
+.page { max-width: none; }
+.entete-page { margin-bottom: 6mm; }
+h1 { font-size: 22pt; }
+h2 { font-size: 14pt; }
+.section { margin-top: 7mm; }
+.section--insecable, .fiche, .tableau tr, .courbe { break-inside: avoid; }
+h2, h3 { break-after: avoid; }
+
+.fiche, .tableau-bord { border-color: var(--trait); box-shadow: none; }
+.defile { overflow: visible; }
+.grille-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5mm; }
+.grille-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4mm; }
+.tableau-bord { grid-template-columns: repeat(5, minmax(0, 1fr)); padding: 4mm; gap: 4mm; }
+.chiffre--xl { font-size: 20pt; }
+
+a { color: inherit; text-decoration: none; }
+.icone-texte { display: none; }

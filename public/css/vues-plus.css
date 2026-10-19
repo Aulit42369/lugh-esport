@@ -1,0 +1,112 @@
+@import url('vues-semaine.css');
+@import url('vues-jeu.css');
+@import url('vues-perf.css');
+@import url('vues-equipe.css');
+@import url('vues-admin.css');
+
+/* Rubriques d'organisation : présences, adversaires et veto, bibliothèque, recrutement, chiffres, premiers pas. */
+
+.texte-positif { color: var(--foret); }
+.lien-tracker { white-space: nowrap; }
+.parcours__liste--vide { display: block; color: var(--encre-3); font-size: var(--t-s); background: none; padding: 0; }
+.grille-service { align-items: start; }
+
+/* ——— Accueil : premiers pas ——— */
+.premiers-pas { border-left: 3px solid var(--surimpression); }
+.premiers-pas__liste { list-style: none; display: grid; gap: var(--e-2); margin-bottom: var(--e-3); }
+.premiers-pas__liste li { display: flex; align-items: center; gap: var(--e-3); font-size: var(--t-s); }
+.premiers-pas__liste svg { width: 1.15rem; height: 1.15rem; flex: none; color: var(--foret); }
+.premiers-pas__fait { color: var(--encre-3); }
+/* Poste à pointer : le cercle de contrôle de la course d'orientation */
+.premiers-pas__puce { width: 1.15rem; height: 1.15rem; flex: none; border: 2px solid var(--surimpression); border-radius: 50%; }
+.marche__drapeau--equipe { background: var(--eau); color: var(--papier); }
+
+/* ——— Présences ——— */
+.appel { display: grid; gap: var(--e-3); align-content: start; }
+.appel .fiche__titre { margin-bottom: 0; }
+.appel__liste { list-style: none; display: grid; }
+.appel__ligne {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-2) var(--e-3);
+  padding: var(--e-2) 0; border-top: 1px solid var(--trait);
+}
+.appel__nom { font-weight: 600; min-width: 0; }
+.onglets--compact { padding: 2px; }
+.onglets--compact button { min-height: 2rem; min-width: 2.2rem; justify-content: center; padding: 0 var(--e-2); font-family: var(--police-titre); font-weight: 800; font-size: var(--t-m); }
+.onglets .choix--present { background: var(--foret); color: var(--papier); box-shadow: none; }
+.onglets .choix--retard { background: var(--champ); color: #1d2320; box-shadow: none; }
+.onglets .choix--excuse { background: var(--eau); color: var(--papier); box-shadow: none; }
+.onglets .choix--absent { background: var(--brique); color: var(--papier); box-shadow: none; }
+
+/* ——— Adversaires et veto ——— */
+.carte-adversaire { display: grid; gap: var(--e-2); align-content: start; justify-items: start; }
+.carte-adversaire h2 { font-size: var(--t-2xl); }
+.carte-adversaire > .rangee { width: 100%; }
+.carte-adversaire:hover h2 { color: var(--surimpression); }
+.veto-etapes { list-style: none; display: grid; gap: 3px; margin-bottom: var(--e-3); }
+.veto-etape {
+  display: grid; grid-template-columns: 4.2rem 3rem minmax(0, 1fr); align-items: baseline; gap: 0 var(--e-2);
+  padding: var(--e-2) var(--e-3); border-left: 3px solid var(--trait-fort); border-radius: var(--r-fiche); background: var(--creux);
+}
+.veto-etape > .texte-3 { grid-column: 3; }
+.veto-etape strong { font-family: var(--police-titre); font-size: var(--t-l); font-weight: 800; }
+.veto-etape__qui { font-size: var(--t-xs); font-weight: 700; color: var(--encre-3); }
+.veto-etape__action { font-family: var(--police-titre); font-weight: 800; }
+.veto-etape--nous { border-left-color: var(--surimpression); background: var(--surimpression-voile); }
+.veto-etape--nous .veto-etape__qui { color: var(--surimpression); }
+.veto-etape--decisive { border-left-color: var(--courbe); }
+.veto-etape--ban .veto-etape__action { color: var(--brique); }
+.veto-etape--pick .veto-etape__action { color: var(--foret); }
+.veto-etape--decisive .veto-etape__action { color: var(--courbe); }
+
+/* ——— Bibliothèque ——— */
+.grille-biblio { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: var(--e-3); }
+.carte-biblio { display: grid; gap: var(--e-2); align-content: start; }
+
+/* ——— Recrutement ——— */
+.colonnes-recrutement { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--e-4); align-items: start; }
+.liste-avis { list-style: none; display: grid; }
+.liste-avis li { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); padding: var(--e-2) 0; border-top: 1px solid var(--trait); }
+
+/* ——— Chiffres : petites courbes ——— */
+.grille-courbes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--e-3); margin: var(--e-4) 0; }
+.courbe { margin: 0; display: grid; gap: var(--e-1); align-content: start; padding: var(--e-3); border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); }
+.courbe__titre { font-size: var(--t-s); font-weight: 650; color: var(--encre-2); }
+.courbe__vide { padding: var(--e-4) 0; }
+.courbe__zone { position: relative; touch-action: pan-y; }
+.courbe__svg { width: 100%; height: auto; overflow: visible; }
+.courbe__svg text { font-family: var(--police-texte); font-size: 14px; }
+.courbe__ligne { fill: none; stroke: var(--surimpression); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.courbe__point { fill: var(--surimpression); stroke: var(--surface); stroke-width: 2; }
+.courbe__grille line { stroke: var(--trait); stroke-width: 1; }
+.courbe__grille text, .courbe__axe { fill: var(--encre-3); }
+.courbe__seuil line { stroke: var(--foret); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.courbe__seuil text { fill: var(--foret); font-weight: 650; }
+.courbe__repere { stroke: var(--encre-3); stroke-width: 1; stroke-dasharray: 2 3; }
+.courbe__bulle {
+  position: absolute; top: -0.25rem; transform: translate(-50%, -100%); z-index: 2; pointer-events: none;
+  padding: 2px 8px; border-radius: 4px; background: var(--encre); color: var(--papier);
+  font-size: var(--t-xs); font-weight: 600; white-space: nowrap;
+}
+
+/* ——— Stratbook ——— */
+.etapes--serrees { gap: 2px; font-size: var(--t-s); color: var(--encre-2); }
+
+/* ——— Méta : import manuel ——— */
+.import-meta summary { cursor: pointer; }
+.import-meta[open] summary { margin-bottom: var(--e-3); }
+.import-meta > * + * { margin-top: var(--e-3); }
+
+@media (max-width: 1100px) {
+  .grille-courbes, .colonnes-recrutement { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 599px) {
+  .grille-courbes, .colonnes-recrutement { grid-template-columns: minmax(0, 1fr); }
+  .veto-etape { grid-template-columns: 3.6rem 2.6rem minmax(0, 1fr); padding: var(--e-2); }
+}
+
+/* ——— Accueil : nouveautés repliées ——— */
+.plus-de-nouvelles summary { cursor: pointer; color: var(--encre-2); font-weight: 600; padding: var(--e-1) 0; }
+.plus-de-nouvelles[open] summary { margin-bottom: var(--e-2); }
+.appel--avenir { border-style: dashed; background: transparent; }
+.fiche > p + .journal { margin-top: var(--e-3); }
+.ligne > svg { width: 1.25rem; height: 1.25rem; flex: none; color: var(--encre-3); }

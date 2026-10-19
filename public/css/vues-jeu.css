@@ -1,0 +1,153 @@
+/* Jeu : maps et compos, stratbook, bibliothèque, adversaires, méta. */
+
+/* ——— Repères de camp : symboles de course d'orientation en surimpression (départ, arrivée, poste) ——— */
+.repere { width: 1em; height: 1em; flex: none; fill: none; stroke: var(--surimpression); stroke-width: 2.4; stroke-linejoin: round; overflow: visible; }
+.camp { display: inline-flex; align-items: center; gap: 0.4em; }
+.camp .repere { width: 0.85rem; height: 0.85rem; }
+.legende-camp { display: flex; align-items: center; gap: var(--e-2); }
+.legende-camp .repere { width: 1rem; height: 1rem; }
+.marge-haut { margin-top: var(--e-3); }
+.grille-champs--haut { align-items: start; }
+.grille-listes { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: var(--e-3); align-items: start; }
+.rangee--haut { align-items: flex-start; }
+.rangee--serree { gap: 3px; }
+
+/* ——— Maps et compos ——— */
+.carte-map__nom { display: grid; gap: 2px; min-width: 0; }
+.carte-map__nom h2 { overflow-wrap: anywhere; }
+.carte-map__mode { font-size: var(--t-xs); font-weight: 650; color: var(--courbe); letter-spacing: 0.04em; text-transform: uppercase; }
+.carte-map__camps { list-style: none; display: grid; gap: 4px; font-size: var(--t-s); }
+.carte-map__camps li { display: grid; grid-template-columns: 1rem minmax(0, 1fr) auto; align-items: center; gap: var(--e-2); }
+.carte-map__camps .repere { width: 0.9rem; height: 0.9rem; }
+.rangee--curseur { flex-wrap: nowrap; gap: var(--e-3); }
+.rangee--curseur .curseur { flex: 1; min-width: 0; }
+.rangee--curseur output { min-width: 3.2rem; text-align: right; font-size: var(--t-l); }
+.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: var(--e-3) var(--e-5); }
+.plans .plan-cote { margin-top: 0; padding-top: var(--e-3); border-top: 1px solid var(--trait); }
+.compo__libres { justify-content: flex-start; }
+.chiffres--fiche { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-4); }
+.fiche__titre--souple { flex-wrap: wrap; }
+.grille--haut { align-items: start; }
+
+/* ——— Stratbook ——— */
+.colonnes-strats { display: grid; grid-template-columns: repeat(var(--n, 2), minmax(0, 1fr)); gap: var(--e-5); align-items: start; }
+.grille-strats { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: var(--e-3); align-items: start; }
+.strat .camp.puce { padding-left: 0.45rem; }
+.cases--colonne { display: grid; gap: var(--e-2); }
+.cases--colonne .case { align-items: flex-start; }
+.cases--colonne .case input { margin-top: 0.2rem; }
+
+/* ——— Bibliothèque ——— */
+.carte-biblio__titre { min-width: 0; overflow-wrap: anywhere; line-height: 1.3; padding-top: 0.3rem; }
+.carte-biblio .camp.puce { padding-left: 0.45rem; }
+
+/* ——— Adversaires ——— */
+/* Règles du jeu (bans d'opérateurs, fearless draft, choix des maps) : un encart de légende, au trait des courbes de niveau. */
+.regles-jeu {
+  display: grid; gap: var(--e-2); margin-bottom: var(--e-5); padding: var(--e-4) var(--e-5);
+  border: 1px solid var(--trait); border-left: 3px solid var(--courbe); border-radius: var(--r-fiche); background: var(--creux);
+}
+.regles-jeu__tete { display: flex; align-items: center; gap: var(--e-2); }
+.regles-jeu__tete svg { width: 1.1rem; height: 1.1rem; flex: none; color: var(--courbe); }
+.regles-jeu h2 { font-size: var(--t-l); }
+.regles-jeu p { max-width: 90ch; color: var(--encre-2); }
+/* Case à cocher de taille fixe, alignée sur la première ligne quand le libellé passe à la ligne. */
+.checklist-match .case { align-items: flex-start; }
+.checklist-match .case input { margin-top: 0.2rem; }
+.fiche__titre--serre { margin: var(--e-2) 0 0; }
+.fiche__titre--serre .sous-titre { margin: 0; }
+.jetons-choisis { display: flex; flex-wrap: wrap; gap: var(--e-2); }
+.jeton-choisi { display: inline-flex; align-items: center; gap: 2px; border-radius: var(--r-champ); background: var(--creux); }
+.jeton-choisi .agent { background: none; }
+.jeton-choisi__retirer { display: grid; place-items: center; width: 1.6rem; height: 1.6rem; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--encre-3); }
+.jeton-choisi__retirer:hover { color: var(--brique); background: var(--brique-voile); }
+.jeton-choisi__retirer svg { width: 0.85rem; height: 0.85rem; }
+
+/* ——— Méta ——— */
+.bande-patch__numero { min-width: 0; }
+.bande-patch__numero--long .chiffre, .bande-patch__numero--tres-long .chiffre { max-width: 20rem; line-height: 1.1; overflow-wrap: break-word; }
+.bande-patch__numero--long .chiffre { font-size: var(--t-2xl); }
+.bande-patch__numero--tres-long .chiffre { font-size: var(--t-xl); }
+.bande-patch__texte { flex: 1 1 18rem; min-width: 0; }
+.bande-patch__etat { flex: 0 1 20rem; justify-items: start; }
+.groupe-role { display: grid; gap: var(--e-3); padding-top: var(--e-3); border-top: 2px solid var(--c-role, var(--trait-fort)); }
+.groupe-role__titre { display: flex; align-items: baseline; gap: var(--e-2); font-family: var(--police-titre); font-size: var(--t-l); font-weight: 800; }
+.groupe-role__titre svg { width: 0.85rem; height: 0.85rem; align-self: center; color: var(--c-role, var(--encre-3)); }
+.grille-persos { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: var(--e-2); }
+.perso-meta {
+  display: grid; gap: var(--e-1); align-content: start; padding: var(--e-3);
+  border: 1px solid var(--trait); border-left: 3px solid var(--c-role, var(--trait-fort)); border-radius: var(--r-fiche); background: var(--surface);
+}
+.persos-stables { font-size: var(--t-s); color: var(--encre-2); line-height: 1.75; }
+.persos-stables__nom { white-space: nowrap; }
+.persos-stables__sep { color: var(--encre-3); }
+.circuit { display: grid; gap: var(--e-2); margin-top: var(--e-4); padding-top: var(--e-3); border-top: 1px solid var(--trait); }
+.avertissements-meta { margin-top: var(--e-5); }
+
+/* ——— Tournois ——— */
+.rappels-tournois { display: grid; gap: var(--e-2); margin-bottom: var(--e-6); }
+.rappels-tournois__titre { font-size: var(--t-l); margin-bottom: var(--e-1); }
+.rappels-tournois .alerte { width: 100%; border: 0; text-align: left; font: inherit; cursor: pointer; }
+.rappels-tournois .alerte:hover { outline: 1px solid var(--trait-fort); }
+/* Parcours : chaque tournoi est un poste (cercle daté) relié au suivant par le trait de surimpression. */
+.parcours-tournois { list-style: none; display: grid; gap: var(--e-4); }
+.etape-tournoi { position: relative; display: grid; grid-template-columns: 3.6rem minmax(0, 1fr); gap: var(--e-4); align-items: start; }
+.etape-tournoi:not(:last-child)::before {
+  content: ''; position: absolute; left: calc(1.8rem - 1.5px); top: 3.6rem; bottom: calc(-1 * var(--e-4));
+  border-left: 3px solid var(--surimpression); opacity: 0.55;
+}
+.etape-tournoi__poste {
+  display: grid; place-items: center; align-content: center; width: 3.6rem; height: 3.6rem; margin-top: var(--e-2);
+  border: 3px solid var(--surimpression); border-radius: 50%; background: var(--papier); color: var(--surimpression); line-height: 1;
+}
+.etape-tournoi__jour { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-xl); }
+.etape-tournoi__mois { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+.etape-tournoi--urgent .etape-tournoi__poste { background: var(--surimpression); color: var(--sur-surimpression); }
+/* En cours : double cercle, le symbole d'arrivée. */
+.etape-tournoi--encours .etape-tournoi__poste { box-shadow: 0 0 0 3px var(--papier), 0 0 0 6px var(--surimpression); }
+.carte-tournoi { display: grid; gap: var(--e-3); align-content: start; min-width: 0; }
+.carte-tournoi:focus { outline: none; }
+.carte-tournoi:focus-visible { outline: 2px solid var(--surimpression); outline-offset: 2px; }
+.carte-tournoi--urgent { border-color: var(--surimpression); box-shadow: inset 3px 0 0 var(--surimpression); }
+.carte-tournoi--a-traiter { box-shadow: inset 3px 0 0 var(--eau); }
+.carte-tournoi--reperee { animation: reperer-tournoi 1.6s ease-out; }
+@keyframes reperer-tournoi { 0% { outline: 4px solid var(--surimpression); outline-offset: 4px; } 100% { outline: 4px solid transparent; outline-offset: 10px; } }
+.carte-tournoi__tete { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--e-3); }
+.carte-tournoi__titre { display: grid; gap: 2px; min-width: 0; }
+.carte-tournoi__titre h3 { font-family: var(--police-titre); font-size: var(--t-xl); font-weight: 800; line-height: 1.1; overflow-wrap: anywhere; }
+.carte-tournoi__actions { padding-top: var(--e-1); }
+.echeance {
+  display: flex; align-items: flex-start; gap: var(--e-2); padding: var(--e-2) var(--e-3);
+  border-radius: var(--r-fiche); background: var(--creux); color: var(--encre-2); font-size: var(--t-s); font-weight: 600;
+}
+.echeance svg { width: 1rem; height: 1rem; flex: none; margin-top: 0.15rem; }
+.echeance--bientot, .echeance--passee { background: var(--champ-voile); color: var(--champ-encre); }
+.echeance--urgent { background: var(--brique-voile); color: var(--brique); }
+.echeance--info { background: var(--eau-voile); color: var(--eau); }
+.roster-tournoi { list-style: none; display: flex; flex-wrap: wrap; gap: 4px; }
+.membre-tournoi {
+  display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.55rem 0.15rem 0.45rem;
+  border-radius: var(--r-champ); background: var(--creux); font-size: var(--t-s); font-weight: 600;
+}
+.membre-tournoi svg { width: 0.8rem; height: 0.8rem; color: var(--c-role, var(--encre-3)); }
+.membre-tournoi abbr { text-decoration: none; font-size: var(--t-xs); font-weight: 650; color: var(--encre-3); }
+.resultat-tournoi { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--e-2) var(--e-3); }
+.resultat-tournoi__place { font-family: var(--police-titre); font-weight: 900; font-size: var(--t-2xl); line-height: 1; color: var(--surimpression); }
+.grille-tournois { display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: var(--e-3); align-items: start; }
+.tournois-abandonnes { border-top: 1px solid var(--trait); padding-top: var(--e-3); }
+.tournois-abandonnes summary { cursor: pointer; padding: var(--e-2) 0; }
+.tournois-abandonnes[open] summary { margin-bottom: var(--e-3); }
+
+@media (prefers-reduced-motion: reduce) {
+  .carte-tournoi--reperee { animation: none; outline: 3px solid var(--surimpression); }
+}
+@media (max-width: 899px) {
+  .colonnes-strats { grid-template-columns: minmax(0, 1fr); }
+  .etape-tournoi { grid-template-columns: 2.9rem minmax(0, 1fr); gap: var(--e-3); }
+  .etape-tournoi__poste { width: 2.9rem; height: 2.9rem; border-width: 2.5px; }
+  .etape-tournoi:not(:last-child)::before { left: calc(1.45rem - 1.5px); top: 3.4rem; }
+  .etape-tournoi__jour { font-size: var(--t-l); }
+  .etape-tournoi__mois { font-size: 0.62rem; }
+  .regles-jeu { padding: var(--e-3) var(--e-4); }
+  .bande-patch__etat { flex-basis: 100%; }
+}

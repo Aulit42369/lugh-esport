@@ -1,0 +1,141 @@
+{
+  "dateRecherche": "2026-10-18",
+  "verifieLe": "2026-10-18T12:00:00.000Z",
+  "saison": "Saison 2026 · Acte 6",
+  "patch": "13.08",
+  "patchDate": "2026-10-13",
+  "mapPool": ["abyss", "bind", "corrode", "haven", "lotus", "summit", "sunset"],
+  "maps": [
+    { "id": "abyss", "nom": "Abyss", "enPool": true, "entreePatch": "", "sortiePatch": "", "noteMeta": "Revenue en 13.04. Champions 2026 (8 cartes) : Sova 100 %, Harbor 81 %, Yoru et Waylay 69 %, Astra 56 %." },
+    { "id": "bind", "nom": "Bind", "enPool": true, "entreePatch": "13.08", "sortiePatch": "", "noteMeta": "Revient en 13.08 (retirée en 12.08). Masters Santiago 2026 (5 cartes) : Viper 90 %, Brimstone 80 %, Yoru et Fade 70 %." },
+    { "id": "corrode", "nom": "Corrode", "enPool": true, "entreePatch": "13.08", "sortiePatch": "", "noteMeta": "Revient en 13.08 (retirée en 12.05) et retouchée : chemins défenseurs vers A/B, mid, zone de plant A. Masters Santiago 2026 : Viper 86 %." },
+    { "id": "haven", "nom": "Haven", "enPool": true, "entreePatch": "", "sortiePatch": "", "noteMeta": "Champions 2026 (9 cartes) : Neon 83 %, Sova 78 %, Omen 72 %, Chamber 56 %, Phoenix 50 %." },
+    { "id": "lotus", "nom": "Lotus", "enPool": true, "entreePatch": "", "sortiePatch": "", "noteMeta": "Champions 2026 (14 cartes) : Omen 100 %, Fade et Viper 75 % ; double contrôleur Omen + Viper dominant." },
+    { "id": "summit", "nom": "Summit", "enPool": true, "entreePatch": "", "sortiePatch": "", "noteMeta": "Nouvelle carte (13.00). La plus jouée à Champions 2026 (17 cartes) : Neon et Fade 82 %, Chamber 68 %, Sage 53 %." },
+    { "id": "sunset", "nom": "Sunset", "enPool": true, "entreePatch": "", "sortiePatch": "", "noteMeta": "Revenue en 13.00. Champions 2026 (11 cartes) : Omen 100 %, Neon 77 %, Fade 73 %, Chamber 64 %." },
+    { "id": "ascent", "nom": "Ascent", "enPool": false, "entreePatch": "", "sortiePatch": "13.08", "noteMeta": "Sortie du pool en 13.08 (revenue en 12.08). Champions 2026 (13 cartes) : Omen et Sova 100 %." },
+    { "id": "breeze", "nom": "Breeze", "enPool": false, "entreePatch": "", "sortiePatch": "", "noteMeta": "Hors pool depuis 13.04 (remplacée par Abyss)." },
+    { "id": "fracture", "nom": "Fracture", "enPool": false, "entreePatch": "", "sortiePatch": "", "noteMeta": "Hors pool depuis 13.00 (entrée en 12.05)." },
+    { "id": "icebox", "nom": "Icebox", "enPool": false, "entreePatch": "", "sortiePatch": "", "noteMeta": "Hors pool compétitif actuel." },
+    { "id": "pearl", "nom": "Pearl", "enPool": false, "entreePatch": "", "sortiePatch": "", "noteMeta": "Hors pool depuis 13.00." },
+    { "id": "split", "nom": "Split", "enPool": false, "entreePatch": "", "sortiePatch": "13.08", "noteMeta": "Sortie du pool en 13.08. Champions 2026 (10 cartes) : Viper 100 %, Omen 90 %, Neon 75 %." }
+  ],
+  "agents": [
+    { "id": "jett", "nom": "Jett", "role": "duelliste", "annee": 2020, "dernierChangement": null },
+    { "id": "phoenix", "nom": "Phoenix", "role": "duelliste", "annee": 2020, "dernierChangement": null },
+    { "id": "raze", "nom": "Raze", "role": "duelliste", "annee": 2020, "dernierChangement": null },
+    { "id": "reyna", "nom": "Reyna", "role": "duelliste", "annee": 2020, "dernierChangement": null },
+    { "id": "yoru", "nom": "Yoru", "role": "duelliste", "annee": 2021, "dernierChangement": null },
+    { "id": "neon", "nom": "Neon", "role": "duelliste", "annee": 2022, "dernierChangement": null },
+    { "id": "iso", "nom": "Iso", "role": "duelliste", "annee": 2023, "dernierChangement": null },
+    { "id": "waylay", "nom": "Waylay", "role": "duelliste", "annee": 2025, "dernierChangement": null },
+    { "id": "sova", "nom": "Sova", "role": "initiateur", "annee": 2020, "dernierChangement": null },
+    { "id": "breach", "nom": "Breach", "role": "initiateur", "annee": 2020, "dernierChangement": null },
+    { "id": "skye", "nom": "Skye", "role": "initiateur", "annee": 2020, "dernierChangement": null },
+    { "id": "kayo", "nom": "KAY/O", "role": "initiateur", "annee": 2021, "dernierChangement": null },
+    { "id": "fade", "nom": "Fade", "role": "initiateur", "annee": 2022, "dernierChangement": null },
+    { "id": "gekko", "nom": "Gekko", "role": "initiateur", "annee": 2023, "dernierChangement": null },
+    { "id": "tejo", "nom": "Tejo", "role": "initiateur", "annee": 2025, "dernierChangement": null },
+    { "id": "brimstone", "nom": "Brimstone", "role": "controleur", "annee": 2020, "dernierChangement": null },
+    { "id": "omen", "nom": "Omen", "role": "controleur", "annee": 2020, "dernierChangement": null },
+    { "id": "viper", "nom": "Viper", "role": "controleur", "annee": 2020, "dernierChangement": null },
+    { "id": "astra", "nom": "Astra", "role": "controleur", "annee": 2021, "dernierChangement": null },
+    { "id": "harbor", "nom": "Harbor", "role": "controleur", "annee": 2022, "dernierChangement": null },
+    { "id": "clove", "nom": "Clove", "role": "controleur", "annee": 2024, "dernierChangement": null },
+    { "id": "miks", "nom": "Miks", "role": "controleur", "annee": 2026, "dernierChangement": null },
+    { "id": "cypher", "nom": "Cypher", "role": "sentinelle", "annee": 2020, "dernierChangement": null },
+    { "id": "sage", "nom": "Sage", "role": "sentinelle", "annee": 2020, "dernierChangement": null },
+    { "id": "killjoy", "nom": "Killjoy", "role": "sentinelle", "annee": 2020, "dernierChangement": { "patch": "13.08", "type": "ajustement", "resume": "Alarmbot : effets visuels et sonores de destruction ajoutés quand une porte mobile le détruit (aucune valeur modifiée)." } },
+    { "id": "chamber", "nom": "Chamber", "role": "sentinelle", "annee": 2021, "dernierChangement": null },
+    { "id": "deadlock", "nom": "Deadlock", "role": "sentinelle", "annee": 2023, "dernierChangement": null },
+    { "id": "vyse", "nom": "Vyse", "role": "sentinelle", "annee": 2024, "dernierChangement": null },
+    { "id": "veto", "nom": "Veto", "role": "sentinelle", "annee": 2025, "dernierChangement": null }
+  ],
+  "compsPro": {
+    "abyss": [
+      { "agents": ["neon", "waylay", "sova", "astra", "harbor"], "usage": "25 % des compos (4/16) à Champions 2026, 2 victoires", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" },
+      { "agents": ["jett", "yoru", "sova", "astra", "harbor"], "usage": "19 % des compos (3/16) à Champions 2026, 2 victoires", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" },
+      { "agents": ["waylay", "yoru", "sova", "omen", "harbor"], "usage": "13 % des compos (2/16) à Champions 2026, 2 victoires", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" }
+    ],
+    "bind": [
+      { "agents": ["raze", "yoru", "fade", "brimstone", "viper"], "usage": "30 % des compos (3/10) à Masters Santiago 2026 (mars), 2 victoires – dernières données VCT internationales sur Bind", "evenement": "VCT 2026 Masters Santiago", "source": "https://www.vlr.gg/event/matches/2760/valorant-masters-santiago-2026" },
+      { "agents": ["waylay", "yoru", "fade", "astra", "viper"], "usage": "20 % des compos (2/10) à Masters Santiago 2026 (mars), 1 victoire (Gentle Mates)", "evenement": "VCT 2026 Masters Santiago", "source": "https://www.vlr.gg/event/matches/2760/valorant-masters-santiago-2026" }
+    ],
+    "corrode": [
+      { "agents": ["waylay", "fade", "omen", "viper", "vyse"], "usage": "36 % des compos (5/14) à Masters Santiago 2026 (mars), 3 victoires (Paper Rex) – avant les retouches 13.08", "evenement": "VCT 2026 Masters Santiago", "source": "https://www.vlr.gg/event/matches/2760/valorant-masters-santiago-2026" },
+      { "agents": ["neon", "yoru", "fade", "omen", "viper"], "usage": "21 % des compos (3/14) à Masters Santiago 2026 (mars), 3 victoires sur 3 (Nongshim RedForce, vainqueur)", "evenement": "VCT 2026 Masters Santiago", "source": "https://www.vlr.gg/event/matches/2760/valorant-masters-santiago-2026" },
+      { "agents": ["iso", "waylay", "skye", "astra", "viper"], "usage": "14 % des compos (2/14) à Masters Santiago 2026 (mars), 0 victoire (G2 Esports)", "evenement": "VCT 2026 Masters Santiago", "source": "https://www.vlr.gg/event/matches/2760/valorant-masters-santiago-2026" }
+    ],
+    "haven": [
+      { "agents": ["neon", "phoenix", "sova", "omen", "cypher"], "usage": "17 % des compos (3/18) à Champions 2026, 1 victoire", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" },
+      { "agents": ["neon", "phoenix", "sova", "omen", "chamber"], "usage": "17 % des compos (3/18) à Champions 2026, 1 victoire (NRG)", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" }
+    ],
+    "lotus": [
+      { "agents": ["neon", "fade", "omen", "viper", "chamber"], "usage": "36 % des compos (10/28) à Champions 2026, 3 victoires", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" },
+      { "agents": ["raze", "skye", "omen", "viper", "vyse"], "usage": "14 % des compos (4/28) à Champions 2026, 3 victoires (G2 Esports)", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" },
+      { "agents": ["raze", "yoru", "fade", "omen", "vyse"], "usage": "11 % des compos (3/28), 2 victoires (Paper Rex) – ex æquo avec Neon, Skye, Omen, Viper, Chamber", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" }
+    ],
+    "summit": [
+      { "agents": ["neon", "fade", "harbor", "sage", "chamber"], "usage": "24 % des compos (8/34) à Champions 2026, 5 victoires", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" },
+      { "agents": ["neon", "fade", "omen", "sage", "chamber"], "usage": "18 % des compos (6/34) à Champions 2026, 4 victoires", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" },
+      { "agents": ["neon", "phoenix", "fade", "harbor", "chamber"], "usage": "9 % des compos (3/34), 2 victoires (Team Vitality) – ex æquo avec Neon, Sova, KAY/O, Brimstone, Cypher (NRG)", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" }
+    ],
+    "sunset": [
+      { "agents": ["waylay", "yoru", "fade", "omen", "cypher"], "usage": "18 % des compos (4/22) à Champions 2026, 1 victoire", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" },
+      { "agents": ["neon", "sova", "omen", "sage", "chamber"], "usage": "14 % des compos (3/22) à Champions 2026, 2 victoires (LOUD)", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" },
+      { "agents": ["neon", "fade", "omen", "viper", "chamber"], "usage": "9 % des compos (2/22), 2 victoires (Karmine Corp) – ex æquo avec 2 variantes (Sage ou Yoru au lieu de Viper)", "evenement": "VALORANT Champions 2026 – Shanghai", "source": "https://www.vlr.gg/event/matches/2766/valorant-champions-2026" }
+    ]
+  },
+  "tendances": [
+    "Omen incontournable : 77 % des compos à Champions 2026, 100 % sur Lotus, Sunset et Ascent ; Viper en 2e contrôleur sur Lotus et Split.",
+    "Neon reste la duelliste n°1 (63 % des compos à Champions 2026) malgré les nerfs du 12.09 ; Riot envisage un nouveau nerf (AMA, fin septembre).",
+    "Fade (51 %) et Chamber (50 %) sont les piliers ; sur Summit, la double sentinelle Sage + Chamber apparaît dans 16 compos sur 34.",
+    "Aucun équilibrage chiffré des agents de 13.04 à 13.08 ; nouveau fusil Warden (2 900 crédits) en 13.06 ; derniers buffs/nerfs : 13.00 à 13.02.",
+    "Hush, 9e duelliste (Chine), jouable le 27 oct. (13.09) ; Bind et Corrode reviennent sans données pro depuis mars : méta à reconstruire."
+  ],
+  "premier": null,
+  "incertitudes": [
+    "Grande finale de Champions 2026 (LOUD – Team Vitality, 18 oct.) pas encore publiée lors de la recherche : stats et compos calculées sur 82 cartes, hors finale.",
+    "Champions 2026 s'est joué sur l'ancien pool (avec Ascent et Split, sans Bind ni Corrode) et en 13.05 au moins pour une partie des matchs.",
+    "Bind et Corrode : compos tirées de Masters Santiago 2026 (mars, ancien patch ; Corrode avant ses retouches 13.08). Les cartes de Bind du début de VCT Stage 1 n'ont pas été compilées.",
+    "Premier, étape V26A6 : aucune date, aucun format ni seuil officiel trouvé (notes 13.08 sans section Premier). Pour mémoire, V26A5 : 5 semaines, playoffs les 19–20 sept., seuil de 450 points.",
+    "Hush (jouable le 27 oct., 13.09) : kit non officialisé, seuls des leaks circulent ; numérotation 30e/31e agent incohérente selon les médias. Absente de « agents » car pas encore jouable.",
+    "13.04 à 13.08 : seulement des correctifs (ex. 13.05 : dissipation des fumées d'Astra/Brimstone/Clove/Miks/Omen, Cyber Cage de Cypher, Saturate de Waylay), non comptés comme équilibrage.",
+    "Les patchs 13.07 et 13.03 n'existent pas d'après le wiki officiel : la numérotation passe de 13.06 à 13.08.",
+    "Nerf de Neon envisagé par Riot (AMA de fin septembre), sans patch ni date annoncés.",
+    "Années de sortie 2025 (Tejo, Waylay, Veto) déduites des patchs de sortie (10.00, 10.04, 11.08) ; mois exacts non vérifiés.",
+    "Compos compilées depuis les 57 fiches de match vlr.gg (non listées une à une : limite de 30 sources) ; taux de pick par carte recoupés à l'identique avec vlr.gg."
+  ],
+  "sources": [
+    "https://playvalorant.com/en-us/news/game-updates/valorant-patch-notes-13-08/",
+    "https://wiki.playvalorant.com/en-us/Patch_Notes/13.08",
+    "https://playvalorant.com/en-us/news/game-updates/valorant-patch-notes-13-06/",
+    "https://playvalorant.com/en-us/news/game-updates/valorant-patch-notes-13-05/",
+    "https://playvalorant.com/en-us/news/game-updates/valorant-patch-notes-13-04/",
+    "https://wiki.playvalorant.com/en-us/Patch_Notes",
+    "https://wiki.playvalorant.com/en-us/Patch_Notes/13.00",
+    "https://wiki.playvalorant.com/en-us/Patch_Notes/13.01",
+    "https://wiki.playvalorant.com/en-us/Patch_Notes/13.02",
+    "https://wiki.playvalorant.com/en-us/Patch_Notes/12.05",
+    "https://wiki.playvalorant.com/en-us/Patch_Notes/12.08",
+    "https://playvalorant.com/en-us/news/",
+    "https://www.strafe.com/articles/read/valorant-active-map-pool/",
+    "https://www.strafe.com/articles/read/all-valorant-agents-released-to-date/",
+    "https://www.strafe.com/articles/read/valorant-act-start-end-dates/",
+    "https://www.oneesports.gg/valorant/valorant-agents-abilities-release-dates/",
+    "https://www.sheepesports.com/kr/articles/valorant-list-of-agents/en",
+    "https://wiki.playvalorant.com/en-us/Hush",
+    "https://www.thespike.gg/valorant/news/riot-games-unveils-hush-valorant-s-new-duelist-from-china/9035",
+    "https://www.sheepesports.com/en/articles/riot-games-reveals-agent-31-hush-as-valorant-s-new-duelist/en",
+    "https://www.vlr.gg/event/agents/2766/valorant-champions-2026",
+    "https://www.vlr.gg/event/matches/2766/valorant-champions-2026",
+    "https://www.vlr.gg/754737/loud-vs-team-vitality-valorant-champions-2026-gf",
+    "https://www.vlr.gg/event/agents/2760/valorant-masters-santiago-2026",
+    "https://www.vlr.gg/event/matches/2760/valorant-masters-santiago-2026",
+    "https://esports.gg/guides/valorant/champions-shanghai-2026-hub/",
+    "https://www.thespike.gg/valorant/news/valorant-devs-reveal-another-round-of-neon-nerfs-is-coming/8931",
+    "https://www.thespike.gg/valorant/news/vct-stage-2-2026-agent-pick-rate-pacific-emea-americas/8814",
+    "https://www.thespike.gg/valorant/news/vct-2026-stage-1-map-stats-how-each-region-approached-the-map-pool-differently/8159",
+    "https://www.thespike.gg/valorant/news/from-haven-to-bind-the-best-team-on-every-map-at-masters-santiago/7788"
+  ]
+}

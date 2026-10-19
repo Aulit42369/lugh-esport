@@ -1,0 +1,309 @@
+/* Composants : boutons, puces, fiches, formulaires, tableaux, jauges, modales, notifications. */
+
+/* ——— Boutons ——— */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  min-height: 2.5rem;
+  padding: 0 var(--e-4);
+  border: 1px solid var(--trait-fort);
+  border-radius: var(--r-champ);
+  background: var(--surface);
+  color: var(--encre);
+  font-weight: 600;
+  font-size: var(--t-s);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--duree), border-color var(--duree);
+}
+.btn svg { width: 1rem; height: 1rem; flex: none; }
+.btn:hover { border-color: var(--encre-2); background: var(--creux); color: var(--encre); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn--principal { background: var(--surimpression); border-color: var(--surimpression); color: var(--sur-surimpression); }
+.btn--principal:hover { background: var(--surimpression-fonce); border-color: var(--surimpression-fonce); color: var(--sur-surimpression); }
+.btn--danger { color: var(--brique); border-color: var(--brique); }
+.btn--danger:hover { background: var(--brique-voile); color: var(--brique); border-color: var(--brique); }
+.btn--discret { border-color: transparent; background: none; color: var(--encre-2); padding: 0 var(--e-2); }
+.btn--discret:hover { background: var(--creux); border-color: transparent; }
+.btn--icone { width: 2.5rem; padding: 0; }
+.btn--petit { min-height: 2rem; padding: 0 var(--e-3); font-size: var(--t-xs); }
+.btn[aria-busy='true'] { opacity: 0.7; cursor: progress; }
+
+/* ——— Puces ——— */
+.puce {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.6rem;
+  padding: 0 0.65rem;
+  border-radius: var(--r-puce);
+  border: 1px solid var(--trait);
+  background: var(--surface);
+  color: var(--encre-2);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.puce svg { width: 0.85rem; height: 0.85rem; }
+a.puce { text-decoration: none; }
+a.puce:hover { border-color: var(--surimpression); color: var(--surimpression); }
+.puce--positif { background: var(--foret-voile); border-color: transparent; color: var(--foret); }
+.puce--attention { background: var(--champ-voile); border-color: transparent; color: var(--champ-encre); }
+.puce--negatif { background: var(--brique-voile); border-color: transparent; color: var(--brique); }
+.puce--info { background: var(--eau-voile); border-color: transparent; color: var(--eau); }
+.puce--accent { background: var(--surimpression-voile); border-color: transparent; color: var(--surimpression); }
+.puce--plein { background: var(--encre); color: var(--papier); border-color: var(--encre); }
+
+/* Rôle en jeu : symbole + couleur + nom */
+.role { display: inline-flex; align-items: center; gap: 0.35rem; font-size: var(--t-s); font-weight: 600; color: var(--encre-2); }
+.role svg { width: 0.95rem; height: 0.95rem; flex: none; }
+.role--r1 { --c-role: var(--role-1); }
+.role--r2 { --c-role: var(--role-2); }
+.role--r3 { --c-role: var(--role-3); }
+.role--r4 { --c-role: var(--role-4); }
+.role--r5 { --c-role: var(--role-5); }
+.role--r6 { --c-role: var(--role-6); }
+.role--r7 { --c-role: var(--role-7); }
+.role--r8 { --c-role: var(--role-8); }
+.role--r0 { --c-role: var(--encre-3); }
+.role svg { color: var(--c-role, var(--encre-3)); }
+
+.agent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.55rem 0.15rem 0.35rem;
+  border-radius: var(--r-champ);
+  background: var(--creux);
+  font-size: var(--t-s);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.agent svg { width: 0.8rem; height: 0.8rem; }
+.agent--vide { background: none; border: 1px dashed var(--trait-fort); color: var(--encre-3); font-weight: 500; }
+
+/* ——— Fiches ——— */
+.fiche {
+  background: var(--surface);
+  border: 1px solid var(--trait);
+  border-radius: var(--r-fiche);
+  padding: var(--e-5);
+}
+.fiche--serree { padding: var(--e-4); }
+.fiche > h2 { margin-bottom: var(--e-3); }
+.fiche--liseret { border-left: 3px solid var(--c-liseret, var(--trait-fort)); }
+.fiche__titre { display: flex; align-items: baseline; justify-content: space-between; gap: var(--e-3); margin-bottom: var(--e-3); }
+.fiche__meta { color: var(--encre-3); font-size: var(--t-xs); font-stretch: 87.5%; }
+a.fiche { display: block; color: inherit; text-decoration: none; transition: border-color var(--duree); }
+a.fiche:hover { border-color: var(--trait-fort); }
+
+.liste-lignes { display: grid; border-top: 1px solid var(--trait); }
+.ligne {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--e-3) var(--e-4);
+  padding: var(--e-3) 0;
+  border-bottom: 1px solid var(--trait);
+}
+.ligne__principal { flex: 1 1 14rem; min-width: 0; }
+.ligne__titre { font-weight: 600; }
+.ligne__sous { color: var(--encre-3); font-size: var(--t-s); }
+a.ligne { color: inherit; text-decoration: none; }
+a.ligne:hover .ligne__titre { color: var(--surimpression); }
+
+/* ——— Formulaires ——— */
+.formulaire { display: grid; gap: var(--e-4); }
+.grille-champs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-4); }
+.grille-champs--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.champ { display: grid; gap: var(--e-1); min-width: 0; }
+.champ--large { grid-column: 1 / -1; }
+.champ__label { font-size: var(--t-s); font-weight: 600; color: var(--encre-2); }
+.champ__aide { font-size: var(--t-xs); color: var(--encre-3); }
+.champ__erreur { font-size: var(--t-xs); color: var(--brique); font-weight: 600; }
+.saisie {
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--trait-fort);
+  border-radius: var(--r-champ);
+  background: var(--papier);
+  color: var(--encre);
+}
+.saisie:hover { border-color: var(--encre-3); }
+.saisie:focus-visible { outline-offset: 0; border-color: var(--surimpression); }
+textarea.saisie { min-height: 6rem; resize: vertical; line-height: 1.45; }
+select.saisie { padding-right: 2rem; }
+.saisie[aria-invalid='true'] { border-color: var(--brique); }
+.case { display: inline-flex; align-items: center; gap: var(--e-2); font-size: var(--t-s); cursor: pointer; }
+.case input { flex: none; width: 1.1rem; height: 1.1rem; accent-color: var(--surimpression); }
+.cases { display: flex; flex-wrap: wrap; gap: var(--e-2) var(--e-4); }
+.curseur { width: 100%; accent-color: var(--surimpression); }
+
+.liste-editable { display: grid; gap: var(--e-2); }
+.liste-editable__ligne { display: grid; grid-template-columns: 1.6rem minmax(0, 1fr) auto; align-items: center; gap: var(--e-2); }
+.liste-editable__num { font-family: var(--police-titre); font-weight: 800; color: var(--surimpression); text-align: center; }
+
+/* ——— Onglets ——— */
+.onglets {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--r-champ);
+  background: var(--creux);
+}
+.onglets button, .onglets a {
+  min-height: 2.1rem;
+  padding: 0 var(--e-3);
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--encre-2);
+  font-size: var(--t-s);
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.onglets [aria-pressed='true'], .onglets [aria-current='page'] { background: var(--surface); color: var(--encre); box-shadow: 0 0 0 1px var(--trait); }
+
+.filtres { display: flex; flex-wrap: wrap; gap: var(--e-3); align-items: flex-end; margin-bottom: var(--e-5); }
+.filtres .champ { min-width: 9rem; }
+
+/* ——— Tableaux ——— */
+.defile { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tableau { width: 100%; border-collapse: collapse; font-size: var(--t-s); }
+.tableau th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--encre-3);
+  font-size: var(--t-xs);
+  padding: var(--e-2) var(--e-3);
+  border-bottom: 1px solid var(--trait-fort);
+  white-space: nowrap;
+}
+.tableau td { padding: var(--e-3); border-bottom: 1px solid var(--trait); vertical-align: middle; }
+.tableau tr:last-child td { border-bottom: 0; }
+.tableau .num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ——— Jauges ——— */
+.jauge { display: grid; gap: var(--e-1); }
+.jauge__piste { height: 6px; border-radius: 3px; background: var(--creux); overflow: hidden; }
+.jauge__barre { height: 100%; border-radius: 3px; background: var(--c-jauge, var(--surimpression)); }
+.jauge__legende { display: flex; justify-content: space-between; font-size: var(--t-xs); color: var(--encre-3); }
+
+/* Forme récente : carré plein = victoire, carré vide = défaite */
+.forme { display: inline-flex; gap: 3px; }
+.forme span { width: 0.7rem; height: 0.7rem; border-radius: 2px; }
+.forme .V { background: var(--foret); }
+.forme .D { border: 2px solid var(--brique); }
+.forme .N { background: var(--trait-fort); }
+
+/* ——— États vides et alertes ——— */
+.vide {
+  display: grid;
+  justify-items: start;
+  gap: var(--e-3);
+  padding: var(--e-5);
+  border: 1px dashed var(--trait-fort);
+  border-radius: var(--r-fiche);
+  color: var(--encre-2);
+}
+.alerte {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--r-fiche);
+  background: var(--creux);
+  color: var(--encre);
+  text-decoration: none;
+  font-size: var(--t-s);
+}
+.alerte svg { width: 1.1rem; height: 1.1rem; }
+.alerte--attention { background: var(--champ-voile); }
+.alerte--attention svg { color: var(--champ-encre); }
+.alerte--urgent { background: var(--brique-voile); }
+.alerte--urgent svg { color: var(--brique); }
+.alerte--info svg { color: var(--eau); }
+a.alerte:hover { color: var(--encre); outline: 1px solid var(--trait-fort); }
+.bandeau {
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--r-fiche);
+  background: var(--eau-voile);
+  font-size: var(--t-s);
+}
+
+/* ——— Modales ——— */
+.modale {
+  width: min(40rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--encre);
+  box-shadow: var(--ombre-modale);
+}
+.modale--large { width: min(56rem, calc(100vw - 2rem)); }
+.modale::backdrop { background: #10161480; }
+.modale[open] { animation: ouverture 160ms ease-out; }
+@keyframes ouverture { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.modale__corps { display: grid; gap: var(--e-5); padding: var(--e-5); overflow-y: auto; max-height: calc(100dvh - 11rem); }
+.modale__entete { display: flex; align-items: center; justify-content: space-between; gap: var(--e-3); padding: var(--e-4) var(--e-5); border-bottom: 1px solid var(--trait); }
+.modale__entete h2 { font-size: var(--t-xl); }
+.modale__pied { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--e-2); padding: var(--e-4) var(--e-5); border-top: 1px solid var(--trait); }
+.modale__pied .btn--danger { margin-right: auto; }
+
+/* ——— Notifications ——— */
+.toasts {
+  position: fixed;
+  right: var(--e-4);
+  bottom: var(--e-4);
+  z-index: 60;
+  display: grid;
+  gap: var(--e-2);
+  width: min(24rem, calc(100vw - 2rem));
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--r-champ);
+  background: var(--encre);
+  color: var(--papier);
+  font-size: var(--t-s);
+  box-shadow: var(--ombre-modale);
+  animation: ouverture 160ms ease-out;
+}
+.toast svg { width: 1rem; height: 1rem; flex: none; }
+.toast--erreur { background: var(--brique); color: #fff; }
+
+/* ——— Secret à transmettre (mot de passe temporaire) ——— */
+.secret {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--e-3);
+  padding: var(--e-4);
+  border: 2px dashed var(--surimpression);
+  border-radius: var(--r-fiche);
+}
+.secret strong { font-family: var(--police-titre); font-size: var(--t-2xl); letter-spacing: 0.06em; user-select: all; }
+
+/* ——— Tracé « modifié par » ——— */
+.signature { font-size: var(--t-xs); color: var(--encre-3); font-stretch: 87.5%; }
+
+@media (max-width: 899px) {
+  .grille-champs, .grille-champs--3 { grid-template-columns: minmax(0, 1fr); }
+  .modale { width: 100vw; max-width: 100vw; max-height: 100dvh; height: 100dvh; border-radius: 0; border: 0; }
+  .modale__corps { max-height: none; flex: 1; }
+  .modale[open] { display: flex; flex-direction: column; }
+  .toasts { left: var(--e-4); right: var(--e-4); bottom: calc(var(--hauteur-barre) + var(--e-3)); width: auto; }
+  .fiche { padding: var(--e-4); }
+}

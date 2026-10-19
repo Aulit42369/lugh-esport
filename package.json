@@ -1,0 +1,20 @@
+{
+  "name": "lugh-esport",
+  "version": "2.2.0",
+  "description": "Lugh : l'espace privé d'une structure esport, un espace par jeu (roster, planning, maps et compos, stratbook, scrims, VOD, progression, méta mise à jour automatiquement).",
+  "private": true,
+  "type": "module",
+  "main": "src/serveur.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/serveur.js",
+    "local": "node --env-file=.env src/serveur.js",
+    "simulation": "node src/simulation.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "mongodb": "^7.7.0"
+  }
+}

@@ -1,0 +1,98 @@
+/* Identité Lugh : la marque (écusson + lettrage) et l'écran d'ouverture.
+   Chargée après signature.css. Couleurs, polices et espacements : uniquement les jetons de tokens.css
+   (thème sombre par défaut, :root[data-theme='clair'] pour le clair).
+
+   ── Marque : rail, en-tête mobile, connexion ──────────────────────────────────────────────────────
+     <a class="marque" href="#/jeux" aria-label="Lugh, mes jeux">
+       <img class="marque__symbole" src="/icones/marque-symbole-petit.svg" alt="" width="36" height="36">
+       <span class="marque__mot"></span>
+     </a>
+   • L'écusson garde ses couleurs (or, ambre, filet nuit) : il se lit sur les deux thèmes. En dessous de 48 px,
+     la version simplifiée (marque-symbole-petit.svg) ; au-dessus, l'écusson complet (marque-symbole.svg).
+   • Le lettrage « LUGH » (marque-mot.svg) sert de MASQUE : il prend la couleur de --encre, crème sur la nuit,
+     encre sombre sur le parchemin. Un seul fichier pour les deux thèmes. Le nom accessible est porté par
+     l'élément parent (aria-label) : le lettrage est décoratif.
+   • Tailles : --marque-taille = hauteur du lettrage (rail : 1,5 rem). .marque--grande : connexion (2,75 rem).
+     .marque--pile : écusson au-dessus du lettrage. L'écusson mesure 1,5 × la hauteur du lettrage.
+   • Fichiers hors application (dossier marque/ du dépôt, non servi) : logo-fond-sombre.svg, logo-fond-clair.svg. Aucun ne dépend d'une police.
+*/
+
+.marque {
+  --marque-taille: 1.5rem;
+  --marque-mot: url(/icones/marque-mot.svg);
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: calc(var(--marque-taille) * 0.42);
+  color: var(--encre);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.marque__symbole {
+  flex: none;
+  width: calc(var(--marque-taille) * 1.5);
+  height: calc(var(--marque-taille) * 1.5);
+}
+.marque__mot {
+  display: block;
+  flex: none;
+  /* rapport largeur / hauteur du lettrage n° 2 (341 × 117) */
+  width: calc(var(--marque-taille) * 2.915);
+  height: var(--marque-taille);
+  background-color: currentColor;
+  -webkit-mask: var(--marque-mot) center / contain no-repeat;
+  mask: var(--marque-mot) center / contain no-repeat;
+}
+a.marque:hover { color: var(--encre); }
+a.marque:hover .marque__mot { background-color: var(--surimpression-fonce); }
+.marque--grande { --marque-taille: 2.75rem; }
+.marque--pile { flex-direction: column; gap: calc(var(--marque-taille) * 0.3); }
+.marque--pile .marque__symbole { width: calc(var(--marque-taille) * 2.3); height: calc(var(--marque-taille) * 2.3); }
+/* Anciennes classes de texte : plus utilisées, masquées si un vieux gabarit les rend encore. */
+.marque__texte { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+@media (forced-colors: active) {
+  .marque__mot { background-color: CanvasText; }
+}
+
+/* ——— Écran d'ouverture ———
+   L'écusson se lève dans ses rayons : le soleil s'ouvre, la lance monte, puis les rayons respirent lentement
+   tant que le serveur se réveille. Le message garde son délai de 1,5 s (base.css). SVG en ligne,
+   aucune police, couleurs par classes (thème sombre comme clair). */
+.demarrage {
+  position: relative;
+  overflow: hidden;
+  gap: var(--e-5);
+  background:
+    radial-gradient(60rem 36rem at 50% 38%, color-mix(in srgb, var(--surimpression) 9%, transparent), transparent 70%),
+    var(--papier);
+}
+.demarrage__titre { line-height: 0; }
+.demarrage__carte {
+  width: min(80vw, 26rem);
+  max-width: none;
+  height: auto;
+  overflow: visible;
+}
+.demarrage__rayons {
+  fill: var(--courbe);
+  opacity: 0.55;
+  transform-box: view-box;
+  transform-origin: 200px 108px;
+  animation: identite-lever 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) both, identite-respirer 4.5s ease-in-out 1.4s infinite alternate;
+}
+.demarrage__rayons path + path { fill: none; stroke: var(--courbe); }
+.demarrage__lance { animation: identite-lance 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s both; }
+.demarrage__lettres { fill: var(--encre); animation: apparaitre-doux 0.9s ease-out 0.5s both; }
+@keyframes identite-lever { from { opacity: 0; transform: scale(0.6); } to { opacity: 0.55; transform: none; } }
+@keyframes identite-respirer { from { opacity: 0.55; transform: none; } to { opacity: 0.8; transform: scale(1.04); } }
+@keyframes identite-lance { from { transform: translateY(16px); } to { transform: none; } }
+@keyframes apparaitre-doux { from { opacity: 0; } to { opacity: 1; } }
+.demarrage__texte { position: relative; }
+
+@media (prefers-reduced-motion: reduce) {
+  .demarrage__rayons, .demarrage__lance, .demarrage__lettres { animation: none; }
+}
+@media (max-width: 899px) {
+  .demarrage { gap: var(--e-4); padding: var(--e-5) var(--e-4); }
+}
