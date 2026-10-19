@@ -158,7 +158,7 @@ Le recrutement (candidats et avis) n'est visible que des métiers qui donnent le
 
 ## Mise à jour du code
 
-Dézippe le nouveau zip, toujours complet. Dépose son contenu dans le dépôt en trois envois, comme à l'installation : contenu de `envoi-1`, puis de `envoi-2`, puis de `envoi-3`, toujours à la racine. Render redéploie tout seul. Les données ne bougent pas, elles sont dans Atlas.
+Chaque mise à jour arrive dans **un seul dossier** `Lugh-<version>-a-envoyer` : seulement les fichiers qui ont changé, déjà rangés dans leurs sous-dossiers. Sur GitHub, à la racine du dépôt : *Add file → Upload files*, ouvre le dossier, sélectionne tout son contenu (*Ctrl+A*), glisse-le dans la page, puis *Commit changes*. Les fichiers non livrés restent tels quels. Render redéploie tout seul. Les données ne bougent pas, elles sont dans Atlas. Le zip complet (en trois envois) ne sert que pour une installation de zéro.
 
 ---
 
