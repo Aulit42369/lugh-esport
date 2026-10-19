@@ -99,16 +99,20 @@ export function creerNotifications({
       return {
         configure: !!r.webhook,
         apercu: apercuWebhook(r.webhook),
+        retire: !r.webhook && r.retire === true, // enlevé à la main : le bot ne le rebranche pas tout seul
         evenements: Object.fromEntries(EVENEMENTS_DISCORD.map((e) => [e.id, r.evenements?.[e.id] !== false])),
       };
     },
     async enregistrer({ webhook, supprimer = false, evenements = {} }) {
       const r = await lireReglages();
-      const suivant = { _id: 'discord', webhook: r.webhook || '', evenements: {} };
-      if (supprimer) suivant.webhook = '';
-      else if (webhook) {
+      const suivant = { _id: 'discord', webhook: r.webhook || '', evenements: {}, retire: r.retire === true };
+      if (supprimer) {
+        suivant.webhook = '';
+        suivant.retire = true;
+      } else if (webhook) {
         if (!MOTIF_WEBHOOK.test(webhook)) throw new Error('Adresse de webhook Discord invalide : copie-la depuis Discord → Paramètres du salon → Intégrations → Webhooks.');
         suivant.webhook = webhook;
+        suivant.retire = false;
       }
       for (const e of EVENEMENTS_DISCORD) suivant.evenements[e.id] = evenements[e.id] !== false;
       await stockage.ecrire('reglages', suivant);

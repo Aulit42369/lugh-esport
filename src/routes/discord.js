@@ -71,8 +71,17 @@ export function routesDiscord(routeur, s) {
     const liaisons = (await s.global.lister('comptes', {}, { tri: { creeLe: 1 } }))
       .filter((c) => c.discord?.id)
       .map((c) => ({ compteId: c._id, identifiant: c.identifiant, nomAffiche: c.nomAffiche, actif: c.actif !== false, pseudo: c.discord.pseudo, lieLe: c.discord.lieLe }));
+    // Jeux actifs et leur salon Discord : le bot branche lui-même le webhook des jeux qui n'en ont pas.
+    const jeux = [];
+    for (const d of s.registre.liste().filter((x) => x.actif !== false)) {
+      const e = s.registre.obtenir(d._id);
+      if (e) {
+        const p = await e.notifications.reglagesPublics();
+        jeux.push({ id: e.id, nom: e.def.nom, configure: p.configure, retire: p.retire });
+      }
+    }
     envoyerJson(r.res, 200, {
-      configure: !!s.config.cleBot, reglages, etat, liaisons, delais: DELAIS_RAPPEL, annonces: await s.annoncesDiscord.etat(),
+      configure: !!s.config.cleBot, reglages, etat, liaisons, delais: DELAIS_RAPPEL, annonces: await s.annoncesDiscord.etat(), jeux,
     });
   });
 

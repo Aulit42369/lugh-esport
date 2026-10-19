@@ -46,7 +46,7 @@ Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été dépl
 
 ### 2. GitHub : le code
 1. Crée un dépôt **privé** nommé `lugh-esport`.
-2. Dézippe le zip livré et ouvre le dossier `Lugh-2.2.0`. GitHub accepte 100 fichiers au plus par envoi : le zip est déjà rangé en **trois dossiers**, `envoi-1`, `envoi-2` et `envoi-3`. Pour chacun, dans l'ordre : sur GitHub, à la **racine** du dépôt, *Add file → Upload files* ; ouvre le dossier sur ton PC, sélectionne tout ce qu'il contient (*Ctrl+A*), glisse-le dans la page, puis *Commit changes*.
+2. Dézippe le zip livré et ouvre le dossier `Lugh-2.3.0`. GitHub accepte 100 fichiers au plus par envoi : le zip est déjà rangé en **trois dossiers**, `envoi-1`, `envoi-2` et `envoi-3`. Pour chacun, dans l'ordre : sur GitHub, à la **racine** du dépôt, *Add file → Upload files* ; ouvre le dossier sur ton PC, sélectionne tout ce qu'il contient (*Ctrl+A*), glisse-le dans la page, puis *Commit changes*.
    - `envoi-1` : `public` (sans ses vues) et `shared`, 94 fichiers.
    - `envoi-2` : `src`, `test`, `marque`, `licences` et les fichiers de la racine, 82 fichiers. Les fichiers qui commencent par un point (`.gitignore`, `.node-version`, `.env.example`) sont cachés sous Windows : *Affichage → Éléments masqués*.
    - `envoi-3` : `public/js/vues`, 51 fichiers. Il complète le dossier `public` du premier envoi.
@@ -85,6 +85,7 @@ Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été dépl
 3. Contrôle : **Administration générale → Service** doit afficher « Clé API Claude : configurée ». Chaque jeu peut couper sa vérification automatique dans ses Réglages.
 
 ### 6. Facultatif : notifications Discord (un salon par jeu)
+Avec le bot Discord de la structure (section 8), **rien à faire** : il crée le salon et branche le webhook de chaque jeu tout seul. Sinon, à la main :
 1. Dans Discord : paramètres du salon → *Intégrations* → *Webhooks* → *Nouveau webhook* → *Copier l'URL*.
 2. Dans Lugh, dans le jeu : **Gestion du jeu → Notifications Discord** → colle l'adresse → choisis les événements → *Enregistrer* → *Envoyer un test*.
 
@@ -99,7 +100,9 @@ Rôles Discord synchronisés avec les métiers de Lugh, rappels avant les séanc
 2. Render → *Environment* → ajoute `LUGH_CLE_BOT` avec cette clé → *Save Changes*. La même clé va dans le fichier `.env` du bot.
 3. Contrôle : **Administration générale → Discord** affiche « Jamais vu », puis « En ligne » dès que le bot a démarré. Chacun lie ensuite son compte depuis **Mon compte → Discord**. Il obtient un code, le tape avec `/lier` sur Discord, puis confirme son pseudo Discord dans Lugh.
 
-4. Annonces : l'installateur du serveur affiche aussi une adresse « Annonces de la structure ». Colle-la dans **Administration générale → Discord → Annonces sur Discord** → *Enregistrer* → *Envoyer un test*. Chaque nouvelle annonce part alors aussi dans #annonces (case décochable ; une annonce importante y mentionne @everyone).
+4. Webhooks : le bot branche lui-même le webhook de chaque jeu et celui des annonces là où Lugh n'en a pas (il ne remplace jamais une adresse collée à la main, et ne rebranche pas un webhook que tu as retiré). Chaque nouvelle annonce part alors aussi dans #annonces (case décochable ; une annonce importante y mentionne @everyone).
+
+5. **Nouveau jeu** : active-le dans **Administration générale → Jeux**. À sa synchronisation suivante (ou tout de suite avec `/synchro` sur Discord), le bot crée son rôle, sa catégorie `🎮 NOM DU JEU`, ses salons et son webhook, et met à jour #bienvenue. L'onglet **Discord → Jeux sur Discord** montre où en est chaque jeu. Le bot ne supprime jamais rien : un jeu désactivé garde ses salons, à archiver à la main si tu veux. Évite de renommer un jeu dans Lugh une fois installé : le bot créerait un rôle et une catégorie au nouveau nom.
 
 Le bot interroge Lugh toutes les 3 h : l'appli gratuite se réveille environ 8 fois par jour, soit à peu près 90 h par mois sur les 750 h gratuites que Render partage entre tes services.
 

@@ -150,7 +150,7 @@ test('Réglages du jeu réservés au Responsable du jeu', async () => {
 
 test('Discord : adresse vérifiée, secret jamais renvoyé (seulement ses 6 derniers caractères), un webhook par jeu', async () => {
   const vide = (await admin.get('/api/e/valorant/reglages')).json.discord;
-  assert.deepEqual(vide, { configure: false, apercu: '', evenements: { planning: true, scrims: true, matchs: true, meta: true, absences: true } });
+  assert.deepEqual(vide, { configure: false, apercu: '', retire: false, evenements: { planning: true, scrims: true, matchs: true, meta: true, absences: true } });
   for (const mauvais of ['https://exemple.com/hook', 'http://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyz', 'https://discord.com/api/webhooks/abc/def', 'javascript:alert(1)']) {
     const r = await admin.put('/api/e/valorant/reglages/discord', { webhook: mauvais });
     assert.equal(r.statut, 400, mauvais);
@@ -161,7 +161,7 @@ test('Discord : adresse vérifiée, secret jamais renvoyé (seulement ses 6 dern
   const ok = await admin.put('/api/e/valorant/reglages/discord', { webhook: WEBHOOK, evenements: { absences: false } });
   assert.equal(ok.statut, 200);
   assert.deepEqual(ok.json.discord, {
-    configure: true, apercu: `…${WEBHOOK.slice(-6)}`, evenements: { planning: true, scrims: true, matchs: true, meta: true, absences: false },
+    configure: true, apercu: `…${WEBHOOK.slice(-6)}`, retire: false, evenements: { planning: true, scrims: true, matchs: true, meta: true, absences: false },
   });
   const secret = WEBHOOK.split('/').at(-1).slice(0, 20);
   for (const chemin of ['/api/e/valorant/reglages', '/api/e/valorant/donnees', '/api/e/valorant/sync?rev=0', '/api/e/valorant/export', '/api/e/valorant/etat', '/api/admin/etat']) {

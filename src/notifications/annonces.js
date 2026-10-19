@@ -27,15 +27,17 @@ export function creerAnnoncesDiscord({ global, fetchImpl = globalThis.fetch }) {
   }
 
   return {
+    // retire : webhook enlevé à la main, le bot ne le rebranche pas tout seul.
     async etat() {
-      const w = await lire();
-      return { configure: !!w, apercu: apercuWebhook(w) };
+      const p = await global.lire('parametres', ID);
+      const w = p?.webhook || '';
+      return { configure: !!w, apercu: apercuWebhook(w), retire: !w && p?.retire === true };
     },
     async enregistrer({ webhook = '', supprimer = false }) {
       if (!supprimer && !MOTIF_WEBHOOK.test(webhook)) {
         throw new Error('Adresse de webhook Discord invalide : celle affichée par l’installateur pour les annonces.');
       }
-      await global.ecrire('parametres', { _id: ID, webhook: supprimer ? '' : webhook });
+      await global.ecrire('parametres', { _id: ID, webhook: supprimer ? '' : webhook, retire: supprimer });
       return this.etat();
     },
     async tester(compte) {

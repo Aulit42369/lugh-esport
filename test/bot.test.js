@@ -285,3 +285,48 @@ test('annonces reprises sur Discord : webhook secret, @everyone seulement si imp
     await sim.arreter();
   }
 });
+
+test('webhooks branchés par le bot : seulement là où il n’y en a pas, jamais remplacés, jamais renvoyés', async () => {
+  const { sim } = await preparer();
+  try {
+    const admin = await adminPret(sim);
+    const b = bot(sim);
+    const AUTRE = 'https://discord.com/api/webhooks/987654321098765432/zyxwvutsrqponmlkjihgfedcba_FEDCBA-654321';
+    // LoL a déjà un webhook collé à la main, avec un événement coupé.
+    assert.equal((await admin.put('/api/e/lol/reglages/discord', { webhook: WEBHOOK, evenements: { meta: false } })).statut, 200);
+
+    const s1 = (await b.post('/api/bot/synchro', {})).json;
+    assert.deepEqual(s1.discord.manquants, { jeux: ['valorant'], annonces: true });
+
+    const r = await b.post('/api/bot/webhooks', {
+      jeux: [{ jeu: 'valorant', url: AUTRE }, { jeu: 'lol', url: AUTRE }, { jeu: 'inconnu', url: AUTRE }, { jeu: 'valorant', url: 'https://example.com/x' }],
+      annonces: AUTRE,
+    });
+    assert.equal(r.statut, 200);
+    assert.deepEqual(r.json.jeux.map((x) => x.statut), ['enregistre', 'deja', 'introuvable', 'invalide']);
+    assert.equal(r.json.annonces, 'enregistre');
+    assert.ok(!JSON.stringify(r.json).includes(AUTRE), 'adresse jamais renvoyée');
+    assert.equal((await admin.get('/api/e/lol/reglages')).json.discord.apercu, `…${WEBHOOK.slice(-6)}`, 'webhook manuel gardé');
+    assert.equal((await admin.get('/api/e/lol/reglages')).json.discord.evenements.meta, false);
+    assert.equal((await admin.get('/api/e/valorant/reglages')).json.discord.apercu, `…${AUTRE.slice(-6)}`);
+    assert.equal((await b.post('/api/bot/webhooks', { annonces: WEBHOOK })).json.annonces, 'deja');
+
+    assert.deepEqual((await b.post('/api/bot/synchro', {})).json.discord.manquants, { jeux: [], annonces: false });
+    const vue = (await admin.get('/api/admin/discord')).json;
+    assert.deepEqual(vue.jeux.map((j) => [j.id, j.configure]), [['valorant', true], ['lol', true]]);
+    assert.ok(!JSON.stringify(vue).includes(AUTRE));
+    // Retiré à la main : le bot ne le rebranche pas, jusqu'à ce qu'on en colle un nouveau.
+    await admin.put('/api/e/valorant/reglages/discord', { supprimer: true });
+    await admin.put('/api/admin/discord/annonces', { supprimer: true });
+    assert.deepEqual((await b.post('/api/bot/synchro', {})).json.discord.manquants, { jeux: [], annonces: false });
+    const encore = await b.post('/api/bot/webhooks', { jeux: [{ jeu: 'valorant', url: AUTRE }], annonces: AUTRE });
+    assert.deepEqual([encore.json.jeux[0].statut, encore.json.annonces], ['retire', 'retire']);
+    assert.deepEqual((await admin.get('/api/admin/discord')).json.jeux.find((j) => j.id === 'valorant'), { id: 'valorant', nom: 'Valorant', configure: false, retire: true });
+    await admin.put('/api/e/valorant/reglages/discord', { webhook: AUTRE });
+    assert.equal((await admin.get('/api/e/valorant/reglages')).json.discord.retire, false);
+    assert.equal((await b.post('/api/bot/webhooks', { jeux: 'pas une liste' })).statut, 400);
+    assert.equal((await bot(sim, 'z'.repeat(40)).post('/api/bot/webhooks', { annonces: AUTRE })).statut, 403);
+  } finally {
+    await sim.arreter();
+  }
+});

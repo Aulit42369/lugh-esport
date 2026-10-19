@@ -1,13 +1,14 @@
 // API du bot Discord de Lugh (Raspberry Pi). Authentification par la clé LUGH_CLE_BOT dans l'en-tête Authorization,
 // jamais dans l'adresse ; pas de cookie, donc exemptée de l'en-tête X-Lugh (voir app.js). Le bot ne lit que ce qu'il
 // lui faut : rôles attendus des comptes liés, rappels des prochaines heures, semaine et matchs d'une personne. Il
-// n'écrit que deux choses : une liaison en attente (code à usage unique créé par la personne dans Lugh, qu'elle
-// confirme ensuite dans Lugh) et des absences.
+// n'écrit que trois choses : une liaison en attente (code à usage unique créé par la personne dans Lugh, qu'elle
+// confirme ensuite dans Lugh), des absences, et le webhook Discord d'un jeu (ou des annonces) qui n'en a pas encore.
 
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { envoyerJson, erreurs } from '../http/outils.js';
 import { verifierQuota } from './donnees.js';
 import { sauvegardeDuJeu } from '../domaine/restauration.js';
+import { MOTIF_WEBHOOK } from '../notifications/discord.js';
 import { nouvelId } from '../../shared/validation.js';
 import { accesEspace, peut } from '../../shared/roles.js';
 import { dateCivile, isoCivile, civileDepuisIso, ajouterJours } from '../../shared/temps.js';
@@ -84,6 +85,14 @@ export function routesBot(routeur, s) {
       .filter((c) => c.discord?.id)
       .map((c) => ({ discordId: c.discord.id, nom: c.nomAffiche, ...rolesAttendus(c, jeux) }));
     const rappels = await rappelsAVenir({ espaces, maintenant, fuseau: s.config.fuseau, reglages });
+    // Webhooks qui manquent : le bot crée les salons des jeux et renvoie ces adresses (POST /api/bot/webhooks).
+    // Un webhook retiré à la main n'est pas rebranché.
+    const a = await s.annoncesDiscord.etat();
+    const manquants = { jeux: [], annonces: !a.configure && !a.retire };
+    for (const e of espaces) {
+      const p = await e.notifications.reglagesPublics();
+      if (!p.configure && !p.retire) manquants.jeux.push(e.id);
+    }
     envoyerJson(r.res, 200, {
       maintenant: maintenant.toISOString(),
       reglages,
@@ -91,7 +100,41 @@ export function routesBot(routeur, s) {
       membres,
       delies: delies.map((d) => d.id).filter((id) => !membres.some((m) => m.discordId === id)),
       rappels,
+      discord: { manquants },
     });
+  });
+
+  // ——— Webhooks créés par le bot (salon #lugh-notifs de chaque jeu, #annonces) : enregistrés seulement là où il n'y en
+  // a pas encore. Un webhook collé à la main n'est jamais remplacé. L'adresse n'est jamais renvoyée.
+  routeur.post('/api/bot/webhooks', exigerBot, async (r) => {
+    const corps = (await r.corps(32 * 1024)) || {};
+    const jeux = corps.jeux ?? [];
+    if (!Array.isArray(jeux) || (corps.annonces != null && typeof corps.annonces !== 'string')) throw erreurs.requete();
+    const actifs = espacesActifs();
+    const resultats = [];
+    for (const w of jeux.slice(0, 50)) {
+      const e = actifs.find((x) => x.id === w?.jeu);
+      const jeu = texteCourt(w?.jeu, 40);
+      if (!e) { resultats.push({ jeu, statut: 'introuvable' }); continue; }
+      if (typeof w.url !== 'string' || !MOTIF_WEBHOOK.test(w.url)) { resultats.push({ jeu, statut: 'invalide' }); continue; }
+      const actuel = await e.notifications.reglagesPublics();
+      if (actuel.configure || actuel.retire) { resultats.push({ jeu, statut: actuel.configure ? 'deja' : 'retire' }); continue; }
+      await e.notifications.enregistrer({ webhook: w.url, evenements: actuel.evenements });
+      await e.depot.journaliser(null, 'notifications Discord branchées par le bot');
+      resultats.push({ jeu, statut: 'enregistre' });
+    }
+    let annonces = null;
+    if (corps.annonces) {
+      if (!MOTIF_WEBHOOK.test(corps.annonces)) annonces = 'invalide';
+      else if ((await s.annoncesDiscord.etat()).configure) annonces = 'deja';
+      else if ((await s.annoncesDiscord.etat()).retire) annonces = 'retire';
+      else {
+        await s.annoncesDiscord.enregistrer({ webhook: corps.annonces });
+        await s.historique.ecrire(null, 'webhook des annonces branché par le bot');
+        annonces = 'enregistre';
+      }
+    }
+    envoyerJson(r.res, 200, { jeux: resultats, annonces });
   });
 
   // ——— Liaison : la personne a obtenu un code dans Lugh (Mon compte), elle le tape avec /lier ———

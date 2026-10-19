@@ -45,3 +45,5 @@
 | Rappel calculé en heure du serveur | Render est en UTC, le planning est en heure de Paris | `instantCivil` (domaine/bot.js) convertit, heure d'été comprise (testé le 25/10) |
 | Compte supprimé ou délié : rôles Discord restants | le bot ne voit plus ce compte dans la liste | `noterDelie` garde l'identifiant Discord 14 jours dans `parametres/discord-bot.delies` ; le bot retire les rôles Lugh |
 | Plus de 100 fichiers dans `public` | GitHub web refuse l'envoi | zip rangé en `envoi-1` (public sans vues + shared), `envoi-2` (src, test, racine), `envoi-3` (public/js/vues) |
+| Le bot rebranche un webhook retiré exprès | « manquant » ne distinguait pas « jamais posé » de « retiré » | `retire: true` posé par Retirer, effacé quand on colle une adresse ; la synchro n'annonce comme manquants que les webhooks jamais posés |
+| Jeu renommé dans Lugh après son installation sur Discord | le bot nomme rôle et catégorie d'après le nom du jeu | il en crée de nouveaux au nouveau nom ; renommer à la main l'ancien rôle et l'ancienne catégorie sur Discord, ou ne pas renommer le jeu |

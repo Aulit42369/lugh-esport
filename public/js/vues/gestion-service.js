@@ -96,6 +96,9 @@ function ficheDiscord(reglages, recharger) {
   return h('section', { class: 'fiche pile-s', dataset: { brouillon: cle } },
     h('div', { class: 'fiche__titre' }, h('h2', {}, 'Notifications Discord'), r.configure ? puce(`Webhook …${r.apercu}`, 'positif') : puce('Non configuré')),
     h('p', { class: 'texte-2 petit' }, `${MARQUE.nom} poste dans un salon de ton serveur ce qui se passe dans ${E.jeu().nom}. Aucune mention @everyone, jamais.`),
+    r.configure ? null : h('p', { class: 'texte-3 petit' }, r.retire
+      ? 'Webhook retiré à la main : le bot Discord ne le rebranche pas. Colle une adresse pour réactiver les notifications.'
+      : 'Avec le bot Discord de la structure, rien à faire : il crée le salon #lugh-notifs du jeu et branche ce webhook tout seul.'),
     h('details', { class: 'petit' }, h('summary', {}, 'Où trouver l’adresse du webhook ?'),
       h('ol', { class: 'liste-puces' },
         h('li', {}, 'Dans Discord, ouvre les paramètres du salon voulu (roue dentée).'),

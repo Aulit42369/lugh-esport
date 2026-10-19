@@ -1,5 +1,6 @@
 // Administration générale, onglet Discord : état du bot (dernier contact, serveur, problèmes signalés), réglages
-// des rôles synchronisés et des rappels, annonces reprises sur Discord, sauvegardes sur le Pi, comptes liés. Les réglages s'appliquent à la prochaine synchronisation du bot.
+// des rôles synchronisés et des rappels, jeux branchés sur Discord, annonces reprises sur Discord, sauvegardes sur le Pi,
+// comptes liés. Les réglages s'appliquent à la prochaine synchronisation du bot.
 
 import { h, bouton, toast, confirmer, liste, champ, saisie, caseACocher, messageErreur } from '../ui.js';
 import { api } from '../api.js';
@@ -20,6 +21,7 @@ export function rendreDiscord(zone, ctx) {
 function contenu(d, recharger) {
   return [
     h('div', { class: 'grille-2 section' }, ficheEtat(d), ficheReglages(d)),
+    ficheJeux(d),
     ficheAnnonces(d, recharger),
     ficheLiaisons(d, recharger),
   ];
@@ -93,6 +95,27 @@ function ficheReglages(d) {
     champ('Quand', delai),
     h('fieldset', { class: 'pile-s adm-discord__types' }, h('legend', { class: 'petit texte-2' }, 'Rappels pour'), cases),
     h('div', {}, bouton('Enregistrer', { classe: 'btn--principal', onclick: (e) => enregistrer(e.currentTarget) })));
+}
+
+function etatJeu(j) {
+  if (j.configure) return puce('Notifications branchées', 'positif');
+  if (j.retire) return puce('Webhook retiré à la main');
+  return puce('En attente du bot', 'attention');
+}
+
+// Chaque jeu actif reçoit du bot son rôle, sa catégorie, ses salons et son webhook #lugh-notifs.
+function ficheJeux(d) {
+  const jeux = d.jeux || [];
+  const enAttente = jeux.filter((j) => !j.configure).length;
+  return h('section', { class: 'fiche section pile-s' },
+    h('div', { class: 'fiche__titre' }, h('h2', { class: 'titre-icone' }, icone('jeux'), 'Jeux sur Discord'),
+      jeux.length ? h('span', { class: 'fiche__meta' }, `${jeux.length - enAttente} sur ${jeux.length}`) : null),
+    h('p', { class: 'texte-3 petit' }, 'Le bot crée lui-même ce qui manque pour chaque jeu actif (rôle, catégorie, salons, webhook #lugh-notifs) et branche ici ses notifications, à sa prochaine synchronisation ou tout de suite avec /synchro. Il ne supprime jamais rien : un jeu désactivé garde ses salons. Un webhook retiré à la main n’est pas rebranché ; pour couper seulement certaines notifications, décoche-les dans Gestion du jeu.'),
+    jeux.length
+      ? h('ul', { class: 'liste-lignes' }, jeux.map((j) => h('li', { class: 'rangee rangee--espace' },
+        h('strong', {}, j.nom),
+        etatJeu(j))))
+      : h('p', { class: 'texte-3' }, 'Aucun jeu actif : active-les dans l’onglet Jeux.'));
 }
 
 function ficheLiaisons(d, recharger) {
