@@ -54,6 +54,7 @@ class FausseCollection {
     return { deletedCount: n };
   }
   async countDocuments(filtre) { return [...this.docs.values()].filter((x) => correspond(x, filtre)).length; }
+  async drop() { this.supprimee = true; return true; }
 }
 
 class FauxClient {
@@ -76,6 +77,7 @@ class FauxClient {
         return collections.get(c);
       },
       command: async (cmd) => ({ ok: cmd.ping === 1 ? 1 : 0 }),
+      listCollections: () => ({ toArray: async () => [...collections.keys()].map((name) => ({ name })) }),
     };
   }
 }
@@ -242,4 +244,18 @@ test('l’application sur MongoDB : base générale et une base par jeu, index p
   assert.equal((await second.app.services.registre.obtenir('valorant').depot.lister('membres')).length, membres);
   assert.equal(second.app.services.registre.obtenir('lol').def.modele, 'lol');
   second.app.arreter();
+});
+
+test('suppression d’une base : chaque collection est supprimée (l’utilisateur Atlas n’a pas le droit de supprimer une base)', async () => {
+  const fabrique = creerFabriqueMongo({ uri: 'mongodb://x', Client: FauxClient });
+  await fabrique.init();
+  const client = FauxClient.instances.at(-1);
+  const b = fabrique.base('lugh_lol');
+  await b.ecrire('strats', { _id: 's1' });
+  await b.ecrire('membres', { _id: 'm1' });
+  const collections = [...client.bases.get('lugh_lol').values()];
+  await fabrique.supprimerBase('lugh_lol');
+  assert.equal(collections.length, 2);
+  assert.ok(collections.every((c) => c.supprimee));
+  assert.notEqual(fabrique.base('lugh_lol'), b, 'nouvelle base neuve si le jeu est recréé');
 });

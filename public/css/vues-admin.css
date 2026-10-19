@@ -10,6 +10,8 @@
 .adm-chargement { padding: var(--e-5) 0; }
 .adm-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-1) var(--e-2); }
 .adm-actions__ouvrir { margin-left: auto; }
+.adm-actions__supprimer { color: var(--brique); }
+.adm-actions__supprimer:hover { background: var(--brique-voile); color: var(--brique); }
 .adm-page .fiche .details + p { margin-top: var(--e-3); }
 .adm-page .details dd .puce { white-space: normal; min-height: 0; padding-block: 2px; }
 [aria-busy='true'].adm-modele, [aria-busy='true'].adm-autre__jeu { opacity: 0.6; cursor: progress; }

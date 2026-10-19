@@ -1,6 +1,7 @@
 // Registre des espaces de jeu : la liste des jeux créés (collection « espaces » de la base globale) et, pour
 // chacun, ses services : sa base « lugh_<jeu> », son dépôt, sa définition effective, sa méta, ses notifications,
-// ses automatismes. Un jeu désactivé garde ses données et ses services : seul l'accès est fermé.
+// ses automatismes. Un jeu désactivé garde ses données et ses services : seul l'accès est fermé. Seul un jeu
+// désactivé peut être supprimé définitivement (sa base est effacée, sa place libérée).
 
 import { creerDepot, champsMetier } from '../domaine/depot.js';
 import { creerAutomatismes } from '../domaine/automatismes.js';
@@ -122,6 +123,19 @@ export function creerRegistre({
       await global.ecrire('espaces', e.doc);
       await e.rechargerDefinition();
       return e;
+    },
+
+    // Suppression définitive d'un jeu désactivé. La base est effacée AVANT le jeu de la liste : si tout s'arrête au
+    // milieu, le jeu reste listé (vide ou à moitié) et la suppression peut simplement être relancée.
+    async supprimer(id) {
+      const e = espaces.get(id);
+      if (!e) return false;
+      if (e.doc.actif !== false) throw new Error('Désactive le jeu avant de le supprimer.');
+      e.notifications.arreter();
+      await fabrique.supprimerBase(`${config.base}_${id}`);
+      await global.supprimer('espaces', id);
+      espaces.delete(id);
+      return true;
     },
 
     arreter() {

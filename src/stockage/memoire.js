@@ -114,6 +114,9 @@ export function creerFabriqueMemoire() {
       return bases.get(nom);
     },
     noms: () => [...bases.keys()],
+    async supprimerBase(nom) {
+      bases.delete(nom);
+    },
     async fermer() {},
   };
 }

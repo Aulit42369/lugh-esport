@@ -47,3 +47,5 @@
 | Plus de 100 fichiers dans `public` | GitHub web refuse l'envoi | zip rangé en `envoi-1` (public sans vues + shared), `envoi-2` (src, test, racine), `envoi-3` (public/js/vues) |
 | Le bot rebranche un webhook retiré exprès | « manquant » ne distinguait pas « jamais posé » de « retiré » | `retire: true` posé par Retirer, effacé quand on colle une adresse ; la synchro n'annonce comme manquants que les webhooks jamais posés |
 | Jeu renommé dans Lugh après son installation sur Discord | le bot nomme rôle et catégorie d'après le nom du jeu | il en crée de nouveaux au nouveau nom ; renommer à la main l'ancien rôle et l'ancienne catégorie sur Discord, ou ne pas renommer le jeu |
+| Suppression d'un jeu : `dropDatabase` refusé par Atlas | l'utilisateur « lecture et écriture » n'a pas ce droit | `supprimerBase` supprime chaque collection ; la base vide disparaît seule |
+| Annonce qui ne visait qu'un jeu supprimé | une liste de jeux vide veut dire « tous les jeux » | l'annonce est supprimée avec le jeu |

@@ -85,7 +85,38 @@ function liensJeu(j, ctx) {
   return h('div', { class: 'adm-actions' },
     bouton('Nom et couleur', { classe: 'btn--petit btn--discret', onclick: () => renommer(j, ctx), 'aria-label': `Nom et couleur de ${j.nom}` }),
     h('a', { href: `#/${encodeURIComponent(j.id)}/reglages`, class: 'btn btn--petit btn--discret', 'aria-label': `Réglages du jeu ${j.nom}` }, 'Réglages'),
-    h('a', { href: `#/${encodeURIComponent(j.id)}`, class: 'btn btn--petit adm-actions__ouvrir', 'aria-label': `Ouvrir ${j.nom}` }, 'Ouvrir', icone('droite')));
+    h('a', { href: `#/${encodeURIComponent(j.id)}`, class: 'btn btn--petit adm-actions__ouvrir', 'aria-label': `Ouvrir ${j.nom}` }, 'Ouvrir', icone('droite')),
+    j.actif ? null : bouton('Supprimer…', { classe: 'btn--petit btn--discret adm-actions__supprimer', onclick: () => supprimerJeu(j, ctx), 'aria-label': `Supprimer définitivement ${j.nom}` }));
+}
+
+// Suppression définitive (jeu désactivé seulement) : export proposé d'abord, puis le nom du jeu à taper.
+function supprimerJeu(j, ctx) {
+  const confirmation = saisie({ maxlength: 40, autocomplete: 'off', spellcheck: 'false', placeholder: j.nom });
+  modale({
+    titre: `Supprimer ${j.nom} définitivement ?`,
+    contenu: [
+      h('div', { class: 'alerte alerte--urgent' }, icone('alerte'),
+        h('span', {}, 'Irréversible : toutes les données de ce jeu sont effacées (roster, planning, stratbook, scrims, VOD, méta…). Seul un export permet de les retrouver.')),
+      h('ul', { class: 'liste-puces petit' },
+        h('li', {}, `Les ${j.comptes} compte${j.comptes > 1 ? 's' : ''} qui y ont accès le perdent (les comptes eux-mêmes restent).`),
+        h('li', {}, 'Sa place se libère ; tu pourras le recréer de zéro plus tard.'),
+        h('li', {}, 'Sur Discord, rien n’est supprimé : retire à la main sa catégorie et son rôle.')),
+      h('p', {}, h('a', { href: `/api/e/${encodeURIComponent(j.id)}/export`, class: 'btn', download: '' }, icone('telecharger'), `Exporter ${j.nom} d’abord`)),
+      champ(`Pour confirmer, tape le nom du jeu : ${j.nom}`, confirmation),
+    ],
+    actions: [{ libelle: 'Annuler' }, {
+      libelle: 'Supprimer définitivement',
+      classe: 'btn--danger',
+      action: async () => {
+        if (confirmation.value.trim().toLocaleLowerCase('fr-FR') !== j.nom.toLocaleLowerCase('fr-FR')) throw new Error(`Tape exactement « ${j.nom} ».`);
+        const r = await api('POST', `/api/admin/jeux/${encodeURIComponent(j.id)}/supprimer`, { confirmation: confirmation.value });
+        if (cache && r?.jeux) cache = { ...cache, jeux: r.jeux };
+        const b = r.bilan || {};
+        toast(`${j.nom} supprimé définitivement${b.acces ? ` · ${b.acces} accès retiré${b.acces > 1 ? 's' : ''}` : ''}${b.sansJeu ? ` · ${b.sansJeu} compte${b.sansJeu > 1 ? 's' : ''} sans aucun jeu` : ''}.`, { duree: 8000 });
+        await ctx.recharger();
+      },
+    }],
+  });
 }
 
 function carteModele(m, j, d, ctx) {
