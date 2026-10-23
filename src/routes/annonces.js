@@ -9,7 +9,7 @@ import { aujourdhui } from '../../shared/temps.js';
 
 const MAX_ANNONCES = 100;
 
-const formeAnnonce = objet({
+export const formeAnnonce = objet({
   titre: texte({ max: 80, requis: true }),
   texte: texte({ max: 1500, multi: true, requis: true }),
   jeux: tableau(identifiant(MOTIFS.jeu, { requis: true }), { max: 15 }), // vide = tous les jeux

@@ -113,3 +113,6 @@
   body.impression-document .adm-onglets { display: none !important; }
   body.impression-document .admv-papier { max-width: none; padding: 0; box-shadow: none; background: #fff; }
 }
+/* ——— Reprise après sinistre (Identité) ——— */
+.rep-ignoree .ligne__titre { color: var(--encre-3); font-weight: 500; }
+.rep-mdp strong { font-family: var(--police-titre); font-size: var(--t-l); letter-spacing: 0.06em; user-select: all; overflow-wrap: anywhere; }
