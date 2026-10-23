@@ -1,6 +1,15 @@
 // Sécurité HTTP : en-têtes, contrôle des écritures (anti-CSRF), limite de débit par adresse.
 
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { erreurs } from './outils.js';
+
+// Comparaison d'un secret reçu (clé du bot, secret du cron) en temps constant : les empreintes ont toujours la même
+// longueur, rien ne fuit par la durée de la comparaison.
+export function egalTempsConstant(a, b) {
+  const ha = createHash('sha256').update(String(a)).digest();
+  const hb = createHash('sha256').update(String(b)).digest();
+  return timingSafeEqual(ha, hb);
+}
 
 const CSP = [
   "default-src 'self'",

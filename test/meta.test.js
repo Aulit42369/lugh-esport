@@ -11,7 +11,8 @@ import { definitionEffective } from '../shared/jeux/definition.js';
 import { validerReglagesJeu } from '../shared/jeux/reglages-jeu.js';
 import { interrogerClaude, extraireJson } from '../src/meta/claude.js';
 import { construireConsigne } from '../src/meta/consigne.js';
-import { creneauPrecedent, doitVerifierMeta, instantParis } from '../src/domaine/automatismes.js';
+import { creneauPrecedent, doitVerifierMeta } from '../src/domaine/automatismes.js';
+import { instantCivil } from '../shared/temps.js';
 import { nouvelId } from '../shared/validation.js';
 import { MARQUE } from '../shared/marque.js';
 
@@ -308,27 +309,27 @@ test('consigne propre à chaque jeu : nom, vocabulaire, rôles, domaines autoris
 // ——— Créneaux du lundi et du jeudi, vérification automatique, cron ———
 
 test('créneaux de la méta : lundi et jeudi 7 h 45 heure de Paris, été comme hiver ; une fois par créneau, 3 essais espacés de 3 h', () => {
-  const c = (iso) => creneauPrecedent(new Date(iso)).toISOString();
+  const c = (iso) => creneauPrecedent(new Date(iso), 'Europe/Paris').toISOString();
   assert.equal(c('2026-10-19T06:00:00Z'), '2026-10-19T05:45:00.000Z', 'lundi, heure d’été');
   assert.equal(c('2026-10-19T05:40:00Z'), '2026-10-15T05:45:00.000Z', 'lundi avant 7 h 45 : jeudi précédent');
   assert.equal(c('2026-10-18T10:00:00Z'), '2026-10-15T05:45:00.000Z', 'dimanche');
   assert.equal(c('2026-10-26T08:00:00Z'), '2026-10-26T06:45:00.000Z', 'lundi, heure d’hiver');
   assert.equal(c('2026-10-29T06:44:00Z'), '2026-10-26T06:45:00.000Z');
   assert.equal(c('2026-10-29T06:45:00Z'), '2026-10-29T06:45:00.000Z', 'jeudi 7 h 45 pile');
-  assert.equal(instantParis(2026, 1, 5, 7, 45).toISOString(), '2026-01-05T06:45:00.000Z');
-  assert.equal(instantParis(2026, 7, 6, 7, 45).toISOString(), '2026-07-06T05:45:00.000Z');
+  assert.equal(instantCivil('2026-01-05', '07:45', 'Europe/Paris').toISOString(), '2026-01-05T06:45:00.000Z');
+  assert.equal(instantCivil('2026-07-06', '07:45', 'Europe/Paris').toISOString(), '2026-07-06T05:45:00.000Z');
 
   const t = new Date('2026-10-19T09:00:00Z');
   const creneau = '2026-10-19T05:45:00.000Z';
-  assert.equal(doitVerifierMeta(null, t), creneau, 'aucune méta : à vérifier');
-  assert.equal(doitVerifierMeta({ derniereVerif: '2026-10-15T08:00:00Z' }, t), creneau);
-  assert.equal(doitVerifierMeta({ derniereVerif: '2026-10-19T06:00:00Z' }, t), null, 'déjà vérifiée depuis le créneau');
+  assert.equal(doitVerifierMeta(null, t, 'Europe/Paris'), creneau, 'aucune méta : à vérifier');
+  assert.equal(doitVerifierMeta({ derniereVerif: '2026-10-15T08:00:00Z' }, t, 'Europe/Paris'), creneau);
+  assert.equal(doitVerifierMeta({ derniereVerif: '2026-10-19T06:00:00Z' }, t, 'Europe/Paris'), null, 'déjà vérifiée depuis le créneau');
   const echec = (n, derniereTentative) => ({ derniereVerif: '2026-10-15T08:00:00Z', derniereTentative, tentatives: { creneau, n } });
-  assert.equal(doitVerifierMeta(echec(1, '2026-10-19T08:00:00Z'), t), null, 'moins de 3 h après un échec');
-  assert.equal(doitVerifierMeta(echec(1, '2026-10-19T05:50:00Z'), t), creneau, '3 h après un échec');
-  assert.equal(doitVerifierMeta(echec(2, '2026-10-19T05:50:00Z'), t), creneau);
-  assert.equal(doitVerifierMeta(echec(3, '2026-10-19T05:50:00Z'), t), null, '3 essais au plus');
-  assert.equal(doitVerifierMeta({ ...echec(3, '2026-10-19T05:50:00Z'), tentatives: { creneau: '2026-10-15T05:45:00.000Z', n: 3 } }, t), creneau, 'compteur remis à zéro au créneau suivant');
+  assert.equal(doitVerifierMeta(echec(1, '2026-10-19T08:00:00Z'), t, 'Europe/Paris'), null, 'moins de 3 h après un échec');
+  assert.equal(doitVerifierMeta(echec(1, '2026-10-19T05:50:00Z'), t, 'Europe/Paris'), creneau, '3 h après un échec');
+  assert.equal(doitVerifierMeta(echec(2, '2026-10-19T05:50:00Z'), t, 'Europe/Paris'), creneau);
+  assert.equal(doitVerifierMeta(echec(3, '2026-10-19T05:50:00Z'), t, 'Europe/Paris'), null, '3 essais au plus');
+  assert.equal(doitVerifierMeta({ ...echec(3, '2026-10-19T05:50:00Z'), tentatives: { creneau: '2026-10-15T05:45:00.000Z', n: 3 } }, t, 'Europe/Paris'), creneau, 'compteur remis à zéro au créneau suivant');
 });
 
 test('vérification automatique : à la première visite d’un jeu après le créneau, nouvel essai 3 h après un échec, coupée par les Réglages', async () => {

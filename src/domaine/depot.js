@@ -125,23 +125,26 @@ export function creerDepot({ stockage, maintenant = () => new Date(), journal = 
       return verrouiller(`${coll}:${id}`, () => ecrire(coll, id, valeur, compte, options));
     },
 
+    // Même verrou que l'enregistrement : une suppression ne passe jamais au milieu d'un enregistrement de la même fiche.
     async supprimer(coll, id, compte) {
-      const existait = await stockage.supprimer(coll, id);
-      if (!existait) return false;
-      const r = allouer();
-      try {
-        await stockage.ecrire('suppressions', {
-          _id: `${coll}:${id}`,
-          coll,
-          id,
-          rev: r,
-          par: compte?._id || 'systeme',
-          _expire: new Date(maintenant().getTime() + RETENTION_SUPPRESSIONS_MS),
-        });
-      } finally {
-        await liberer(r);
-      }
-      return true;
+      return verrouiller(`${coll}:${id}`, async () => {
+        const existait = await stockage.supprimer(coll, id);
+        if (!existait) return false;
+        const r = allouer();
+        try {
+          await stockage.ecrire('suppressions', {
+            _id: `${coll}:${id}`,
+            coll,
+            id,
+            rev: r,
+            par: compte?._id || 'systeme',
+            _expire: new Date(maintenant().getTime() + RETENTION_SUPPRESSIONS_MS),
+          });
+        } finally {
+          await liberer(r);
+        }
+        return true;
+      });
     },
 
     async toutCharger() {

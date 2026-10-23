@@ -1,46 +1,31 @@
 // Automatismes d'un jeu, déclenchés par les visites de ce jeu (Render gratuit dort entre deux visites) :
-// - méta : vérifiée à la première visite après chaque lundi et jeudi 7 h 45 (heure de Paris), si elle est activée ;
+// - méta : vérifiée à la première visite après chaque lundi et jeudi 7 h 45 (fuseau de la config : Paris), si elle est activée ;
 // - planning : la semaine en cours est créée depuis la semaine type si personne ne l'a fait.
 
-import { semaineIso, dateCivile } from '../../shared/temps.js';
+import { semaineIso, dateCivile, isoCivile, instantCivil } from '../../shared/temps.js';
 import { nouvelId } from '../../shared/validation.js';
 
 const JOURS_META = [1, 4]; // lundi, jeudi
-const HEURE_META = { h: 7, m: 45 };
+const HEURE_META = '07:45';
 const INTERVALLE_MS = 60_000;
 const ATTENTE_APRES_ECHEC_MS = 3 * 3600_000;
 const TENTATIVES_MAX = 3;
 
-// Décalage de Paris par rapport à UTC (en minutes) à un instant donné.
-function decalageParis(instant) {
-  const f = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'Europe/Paris', hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit',
-  });
-  const p = Object.fromEntries(f.formatToParts(instant).map((x) => [x.type, x.value]));
-  const local = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute);
-  return Math.round((local - Math.floor(instant.getTime() / 60_000) * 60_000) / 60_000);
-}
-
-export function instantParis(a, m, j, h, mi) {
-  const naif = Date.UTC(a, m - 1, j, h, mi);
-  return new Date(naif - decalageParis(new Date(naif)) * 60_000);
-}
-
-// Dernier créneau (lundi ou jeudi 7 h 45, heure de Paris) passé à l'instant donné.
-export function creneauPrecedent(maintenant = new Date()) {
+// Dernier créneau (lundi ou jeudi 7 h 45, heure du fuseau de la config) passé à l'instant donné.
+export function creneauPrecedent(maintenant, fuseau) {
   for (let i = 0; i < 8; i += 1) {
     const d = new Date(maintenant.getTime() - i * 86_400_000);
-    const { a, m, j } = dateCivile(d, 'Europe/Paris');
+    const { a, m, j } = dateCivile(d, fuseau);
     const jourSemaine = new Date(Date.UTC(a, m - 1, j)).getUTCDay() || 7;
     if (!JOURS_META.includes(jourSemaine)) continue;
-    const creneau = instantParis(a, m, j, HEURE_META.h, HEURE_META.m);
+    const creneau = instantCivil(isoCivile({ a, m, j }), HEURE_META, fuseau);
     if (creneau <= maintenant) return creneau;
   }
   return null;
 }
 
-export function doitVerifierMeta(meta, maintenant = new Date()) {
-  const creneau = creneauPrecedent(maintenant);
+export function doitVerifierMeta(meta, maintenant, fuseau) {
+  const creneau = creneauPrecedent(maintenant, fuseau);
   if (!creneau) return null;
   if (meta?.derniereVerif && new Date(meta.derniereVerif) >= creneau) return null;
   const n = meta?.tentatives?.creneau === creneau.toISOString() ? meta.tentatives.n : 0;
@@ -60,18 +45,24 @@ export function creerAutomatismes({
     if (await stockage.lire('planning', semaine)) return;
     const modele = await stockage.lire('planning', 'modele');
     if (!modele?.blocs?.length) return;
-    await depot.enregistrer('planning', semaine, {
-      blocs: modele.blocs.map((b) => ({ ...b, id: nouvelId('b') })),
-      note: '',
-      ebauche: modele.ebauche || '',
-    }, null);
+    // Révision de base 0 : création seulement. Un coach qui a écrit la semaine entre-temps gagne (refus 409 ignoré).
+    try {
+      await depot.enregistrer('planning', semaine, {
+        blocs: modele.blocs.map((b) => ({ ...b, id: nouvelId('b') })),
+        note: '',
+        ebauche: modele.ebauche || '',
+      }, null, { revBase: 0 });
+    } catch (e) {
+      if (e?.statut === 409) return;
+      throw e;
+    }
     await depot.journaliser(null, 'semaine créée depuis la semaine type', semaine);
   }
 
   async function metaAuto(t) {
     if (!config.claude.cle || actualisation.enCours || definition()?.meta?.auto === false) return;
     const meta = await stockage.lire('meta', 'courante');
-    const creneau = doitVerifierMeta(meta, t);
+    const creneau = doitVerifierMeta(meta, t, config.fuseau);
     if (creneau) actualisation.lancer({ declencheur: 'automatique', creneau });
   }
 

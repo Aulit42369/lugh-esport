@@ -23,6 +23,9 @@ function verifierCondition(valeur, condition) {
   return true;
 }
 
+// Chemin d'une écriture partielle (« lus.c-xxxxxxxxxx ») : des segments sans « . » ni « $ », comme l'exige MongoDB.
+export const MOTIF_CHEMIN = /^[^.$]+(\.[^.$]+)*$/;
+
 export function correspond(doc, filtre = {}) {
   return Object.entries(filtre).every(([champ, condition]) => verifierCondition(doc[champ], condition));
 }
@@ -76,6 +79,25 @@ export function creerStockageMemoire(nomBase = 'memoire') {
       if (!doc || typeof doc._id !== 'string') throw new Error('Document sans _id');
       coll(nom).set(doc._id, structuredClone(doc));
       return structuredClone(doc);
+    },
+    // Écriture partielle atomique : seuls les chemins donnés changent ({ 'lus.c-x': date }), comme $set de MongoDB.
+    // Rien n'est créé si la fiche n'existe pas ; renvoie vrai si elle existait.
+    async modifier(nom, id, champs) {
+      for (const chemin of Object.keys(champs)) if (!MOTIF_CHEMIN.test(chemin)) throw new Error(`Chemin invalide : ${chemin}`);
+      const doc = coll(nom).get(id);
+      if (!doc) return false;
+      for (const [chemin, valeur] of Object.entries(champs)) {
+        const segments = chemin.split('.');
+        const dernier = segments.pop();
+        let cible = doc;
+        for (const seg of segments) {
+          if (cible[seg] === undefined) cible[seg] = {};
+          if (cible[seg] === null || typeof cible[seg] !== 'object') throw new Error(`Chemin invalide : ${chemin}`);
+          cible = cible[seg];
+        }
+        cible[dernier] = structuredClone(valeur);
+      }
+      return true;
     },
     async supprimer(nom, id) {
       return coll(nom).delete(id);

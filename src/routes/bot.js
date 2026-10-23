@@ -4,8 +4,8 @@
 // n'écrit que trois choses : une liaison en attente (code à usage unique créé par la personne dans Lugh, qu'elle
 // confirme ensuite dans Lugh), des absences, et le webhook Discord d'un jeu (ou des annonces) qui n'en a pas encore.
 
-import { createHash, timingSafeEqual } from 'node:crypto';
 import { envoyerJson, erreurs } from '../http/outils.js';
+import { egalTempsConstant } from '../http/securite.js';
 import { verifierQuota } from './donnees.js';
 import { sauvegardeDuJeu } from '../domaine/restauration.js';
 import { sauvegardeStructure, ID_SAUVEGARDE_STRUCTURE } from '../domaine/sauvegarde-structure.js';
@@ -24,12 +24,6 @@ const MOTIF_HEURE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const ESSAIS_LIAISON = 5;
 const FENETRE_LIAISON_MS = 15 * 60_000;
 
-function egal(a, b) {
-  const ha = createHash('sha256').update(String(a)).digest();
-  const hb = createHash('sha256').update(String(b)).digest();
-  return timingSafeEqual(ha, hb);
-}
-
 const texteCourt = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
 export function routesBot(routeur, s) {
@@ -38,7 +32,7 @@ export function routesBot(routeur, s) {
   const exigerBot = async (r) => {
     if (!s.config.cleBot) throw erreurs.indisponible('Bot Discord non configuré (LUGH_CLE_BOT).');
     const recu = String(r.req.headers.authorization || '').replace(/^Bearer\s+/i, '');
-    if (!recu || !egal(recu, s.config.cleBot)) throw erreurs.interdit('Clé du bot invalide.');
+    if (!recu || !egalTempsConstant(recu, s.config.cleBot)) throw erreurs.interdit('Clé du bot invalide.');
   };
 
   const espacesActifs = () => s.registre.liste().filter((d) => d.actif !== false).map((d) => s.registre.obtenir(d._id)).filter(Boolean);

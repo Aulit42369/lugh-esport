@@ -66,10 +66,8 @@ export function routesAnnonces(routeur, s) {
     const a = await s.global.lire('annonces', r.params.id);
     const mesJeux = jeuxDuCompteVisibles(s.registre, r.compteGlobal).map((j) => j.id);
     if (!a || !visePour(a, mesJeux)) throw erreurs.introuvable('Annonce introuvable.');
-    if (!a.lus?.[r.compteGlobal._id]) {
-      a.lus = { ...(a.lus || {}), [r.compteGlobal._id]: s.maintenant().toISOString() };
-      await s.global.ecrire('annonces', a);
-    }
+    // Écriture partielle : deux « lu » simultanés sont gardés tous les deux, et une correction de l'annonce n'est pas annulée.
+    if (!a.lus?.[r.compteGlobal._id]) await s.global.modifier('annonces', a._id, { [`lus.${r.compteGlobal._id}`]: s.maintenant().toISOString() });
     envoyerJson(r.res, 200, { ok: true });
   });
 
@@ -117,9 +115,10 @@ export function routesAnnonces(routeur, s) {
     if (!a) throw erreurs.introuvable('Annonce introuvable.');
     const corps = await r.corps();
     const valeur = controler(corps);
-    const doc = { ...a, ...valeur, modifieLe: s.maintenant().toISOString(), lus: corps.relire === true ? {} : a.lus || {} };
-    await s.global.ecrire('annonces', doc);
-    await s.historique.ecrire(r.compteGlobal, 'annonce modifiée', doc.titre);
+    // Les lectures ne sont réécrites que pour « relire » : un « lu » arrivé pendant la correction reste.
+    const champs = { ...valeur, modifieLe: s.maintenant().toISOString(), ...(corps.relire === true ? { lus: {} } : {}) };
+    await s.global.modifier('annonces', a._id, champs);
+    await s.historique.ecrire(r.compteGlobal, 'annonce modifiée', valeur.titre);
     envoyerJson(r.res, 200, { ok: true });
   });
 

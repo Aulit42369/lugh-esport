@@ -68,7 +68,10 @@ export function routesAuth(routeur, s) {
 
     const jeton = await s.sessions.creer(compte._id, r.req.headers['user-agent']);
     frais.derniereConnexion = s.maintenant().toISOString();
-    await s.global.ecrire('comptes', frais);
+    // Écriture partielle : une modification simultanée du compte par l'admin (accès, désactivation) n'est pas annulée.
+    await s.global.modifier('comptes', frais._id, {
+      derniereConnexion: frais.derniereConnexion, ...(frais.deuxFacteurs ? { deuxFacteurs: frais.deuxFacteurs } : {}),
+    });
     await s.historique.ecrire(frais, secoursUtilise ? 'connexion avec un code de secours' : 'connexion');
     envoyerJson(r.res, 200, { compte: profilCompte(frais) }, { 'Set-Cookie': cookieSession(jeton, s.config) });
   });
