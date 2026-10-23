@@ -60,8 +60,9 @@ Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été dépl
 | Clé | Valeur |
 |---|---|
 | `MONGODB_URI` | la chaîne Atlas de l'étape 1 |
-| `LUGH_ADMIN_ID` | ton identifiant d'Administrateur général, en minuscules (ex. `olivier`) |
+| `LUGH_ADMIN_ID` | ton identifiant d'Administrateur général, en minuscules (ex. `prenom`) |
 | `LUGH_ADMIN_MDP` | un mot de passe provisoire de 10 caractères minimum, sans ton identifiant dedans |
+| `LUGH_CLE_2FA` | conseillée : la clé qui chiffre les clés de double authentification, 64 caractères. Pour la créer : `openssl rand -hex 32` (Git Bash ou Pi), ou `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. **Range-la dans ton gestionnaire de mots de passe et ne la change jamais** : sans elle, plus personne ne peut se connecter avec sa double authentification. Si Render ne la demande pas (service déjà créé) : *Environment* → *Add Environment Variable*. |
 
 4. Clique *Apply* et attends « Live ». Dans *Logs*, tu dois lire : `Lugh prêt sur le port … (mode production, stockage mongo, 0 jeu(x))`.
 
@@ -78,6 +79,7 @@ Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été dépl
    - le mot de passe temporaire ne s'affiche **qu'une fois** : envoie-le en message privé.
 5. Facultatif : **Administration générale → Comptes**, section « Double authentification », interrupteur sur **Exigée**. L'obligation vise l'Administrateur général et les Responsables, qui devront l'activer à leur prochaine connexion. La section liste les comptes qui ne l'ont pas encore activée.
 6. Dans chaque jeu, suis la liste **Premiers pas** de l'Accueil, puis ouvre **Réglages du jeu** pour adapter le modèle : rôles, rangs, chiffres, vocabulaire, couleur du jeu, seuils de charge…
+7. **Administration générale → Service** : compare « Ton adresse vue par Lugh » avec celle d'un site « quelle est mon adresse IP » ouvert sur le même appareil. Si elles diffèrent, la protection contre les essais de mots de passe compte tous les visiteurs ensemble : note la ligne « X-Forwarded-For reçu » et règle `LUGH_PROXY_SAUTS` (voir `PIEGES.md`).
 
 ### 5. Facultatif : méta automatique (clé API Claude)
 1. platform.claude.com → *Billing* : ajoute quelques dollars de crédit. Puis *API Keys* → *Create Key* (nom `lugh`) et copie la clé.
@@ -134,7 +136,8 @@ Le recrutement (candidats et avis) n'est visible que des métiers qui donnent le
 
 1. **Il a ses codes de secours** : il tape un code de secours à la place du code de l'application. Ensuite : *Mon compte → Renouveler les codes*, ou désactiver puis réactiver la double authentification avec le nouveau téléphone.
 2. **Il n'a plus ses codes** : l'Administrateur général ouvre *Administration générale → Comptes → (le compte) → Réinitialiser la double authentification*. La personne se reconnecte avec son seul mot de passe et réactive.
-3. **C'est l'Administrateur général, sans codes de secours** : Render → *Environment* → ajoute `LUGH_REINITIALISER_2FA` avec son identifiant comme valeur → *Save Changes* (le service redémarre). Il se reconnecte avec son mot de passe, réactive la double authentification, puis **supprime aussitôt `LUGH_REINITIALISER_2FA`**. Tant que la variable existe, l'administration affiche un avertissement.
+3. **C'est l'Administrateur général, sans codes de secours** : Render → *Environment* → ajoute `LUGH_REINITIALISER_2FA` avec son identifiant comme valeur → *Save Changes* (le service redémarre). Il se reconnecte avec son mot de passe, réactive la double authentification, puis **supprime aussitôt `LUGH_REINITIALISER_2FA`**. Tant que la variable existe, l'administration affiche un avertissement. Elle ne sert qu'une fois par pose : pour s'en resservir plus tard, la retirer puis la remettre.
+4. **Plus personne ne passe la double authentification d'un coup** (message qui cite `LUGH_CLE_2FA`) : la variable `LUGH_CLE_2FA` a été changée ou retirée dans Render. Remets la valeur d'origine (gestionnaire de mots de passe).
 
 ---
 
@@ -190,15 +193,27 @@ L'association d'abord ; une société (SAS ou SASU) le jour où les revenus devi
 
 **Gestion du jeu → Sauvegarde** :
 - **Exporter** télécharge un fichier JSON du jeu, sans mot de passe ni webhook. Fais-le une fois par mois.
-- **Sauvegarde automatique** (avec le bot Discord) : chaque semaine, l'export de chaque jeu est copié sur le Raspberry Pi (8 semaines gardées). Pour en récupérer une sur ton PC : `scp aulit@192.168.1.26:~/lugh-bot/data/sauvegardes/AAAA-MM-JJ/valorant.json .` (le dossier le plus récent : `ssh aulit@192.168.1.26 ls ~/lugh-bot/data/sauvegardes`), puis *Restaurer* comme ci-dessous.
+- **Sauvegarde automatique** (avec le bot Discord) : chaque semaine, l'export de chaque jeu est copié sur le Raspberry Pi (8 semaines gardées). Pour en récupérer une sur ton PC : `scp UTILISATEUR@ADRESSE-DU-PI:~/lugh-bot/data/sauvegardes/AAAA-MM-JJ/valorant.json .` (le dossier le plus récent : `ssh UTILISATEUR@ADRESSE-DU-PI ls ~/lugh-bot/data/sauvegardes`), puis *Restaurer* comme ci-dessous.
 - **Restaurer** n'accepte qu'une sauvegarde du même jeu, après avoir tapé `RESTAURER`. Les comptes, la méta et Discord ne bougent pas.
-- **Avant chaque restauration, l'état actuel du jeu est gardé automatiquement.** *Annuler la dernière restauration* le remet en place. Il n'y a qu'un seul point, gardé jusqu'à la restauration suivante.
+- **Avant chaque restauration, l'état actuel du jeu est gardé automatiquement.** *Annuler la dernière restauration* le remet en place (il faut taper `ANNULER`). Il n'y a qu'un seul point, gardé jusqu'à la restauration suivante.
+- Les jeux **désactivés** sont aussi sauvegardés chaque semaine sur le Pi. Si la dernière sauvegarde a plus de 8 jours, la **Vue d'ensemble** et **Service** l'affichent en alerte : vérifie que le Pi est allumé.
+
+### Sauvegarde de la structure et reprise après sinistre
+
+**Administration générale → Administratif → Identité → Sauvegarde et reprise après sinistre** :
+- **Télécharger la sauvegarde** : la liste des jeux, les comptes (sans aucun mot de passe), les annonces, le livre des comptes et son historique, les autorisations des mineurs, le suivi des obligations et l'identité. Le bot en range une copie chaque semaine sur le Pi (`_structure.json`).
+- **Reprise après sinistre…** : seulement si la base Atlas a été perdue. Choisis le fichier `_structure.json`, lis l'aperçu (ce qui sera créé, ce qui sera ignoré), tape `RESTAURER`. Lugh ne crée que ce qui manque et ne modifie jamais ce qui existe. Chaque compte recréé reçoit un **mot de passe temporaire, affiché une seule fois** : copie la liste et envoie-les en message privé. Ensuite, restaure chaque jeu avec sa propre sauvegarde, puis chacun réactive sa double authentification et relie Discord.
+
+### Livre des comptes : historique
+Chaque modification ou suppression d'une écriture garde la version d'avant (qui, quand, avant, après). Elle se lit sous les écritures (**Historique des modifications**) et s'exporte en tableur.
 
 ---
 
 ## Mise à jour du code
 
-Chaque mise à jour arrive dans **un seul dossier** `Lugh-<version>-a-envoyer` : seulement les fichiers qui ont changé, déjà rangés dans leurs sous-dossiers. Sur GitHub, à la racine du dépôt : *Add file → Upload files*, ouvre le dossier, sélectionne tout son contenu (*Ctrl+A*), glisse-le dans la page, puis *Commit changes*. Les fichiers non livrés restent tels quels. Render redéploie tout seul. Les données ne bougent pas, elles sont dans Atlas. Le zip complet (en trois envois) ne sert que pour une installation de zéro.
+Pour toi (Olivier) : Claude publie directement sur GitHub, Render redéploie tout seul.
+
+Pour une autre structure : chaque mise à jour arrive dans **un seul dossier** `Lugh-<version>-a-envoyer` : seulement les fichiers qui ont changé, déjà rangés dans leurs sous-dossiers. Sur GitHub, à la racine du dépôt : *Add file → Upload files*, ouvre le dossier, sélectionne tout son contenu (*Ctrl+A*), glisse-le dans la page, puis *Commit changes*. Les fichiers non livrés restent tels quels. Render redéploie tout seul. Les données ne bougent pas, elles sont dans Atlas. Le zip complet (en trois envois) ne sert que pour une installation de zéro.
 
 ---
 

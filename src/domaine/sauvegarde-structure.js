@@ -1,5 +1,6 @@
 // Sauvegarde des données de la structure (hors jeux) : liste des jeux, comptes (sans aucun secret), annonces, identité,
 // suivi des obligations, veille légale, livres des comptes de l'association et de la société (réglages et écritures)
+// avec l'historique de leurs modifications (ecrituresHistorique, gardé dans la sauvegarde mais pas réimporté par la reprise)
 // et autorisations des mineurs. Même rôle que l'export d'un jeu : copie hors de Render et d'Atlas, téléchargée par
 // l'Administrateur général ou rangée chaque semaine sur le Pi par le bot (« _structure »). Relue par la reprise
 // après sinistre (reprise-structure.js).
@@ -36,6 +37,7 @@ export async function sauvegardeStructure(s) {
     })),
     parametres,
     ecritures: await s.global.lister('ecritures', {}, { tri: { date: 1, creeLe: 1 } }),
+    ecrituresHistorique: await s.global.lister('ecrituresHistorique', {}, { tri: { le: 1 } }),
     autorisations: await s.global.lister('autorisations'),
   };
 }

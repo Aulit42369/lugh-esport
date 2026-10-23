@@ -20,6 +20,7 @@
 - 19/10 : 2.4.2 : un jeu désactivé ne lance plus aucune vérification de méta ni semaine type, même ouvert par l'Administrateur général ; 166 tests.
 - 19/10 : 2.5.0 : Administration générale → Administratif (obligations légales et veille au bouton avec validation, livre des comptes et rôle Trésorier, documents types, autorisations des mineurs dans le roster, identité) ; page « Données et confidentialité » ; sauvegarde de la structure (téléchargement et `_structure.json` sur le Pi avec le bot 2.2.1) ; relecture indépendante corrigée (compte Trésorier protégé et soumis à la double authentification, clôture d'un exercice terminé seulement, ouverture cohérente, sources officielles BOFiP, CNIL et service-public) ; 177 tests.
 - 19/10 : 2.6.0 : passage en société prévu dès le départ : forme juridique dans Identité (association, puis société SAS/SASU), sections d'obligations selon la forme (« Passer en société » en « Plus tard », « Gestion de la société »), deux livres des comptes séparés (association, société), indicateur « Prêt pour la société ? », procès-verbal d'AG et convention association–société ; relecture indépendante corrigée (identité fusionnée côté serveur, cessions jamais gratuites, 29 février) ; 181 tests.
+- 23/10 : 2.7.0 : revue L99 du 23/10, « tout » : A jeux désactivés sauvegardés sur le Pi, fichier en échec refait, alerte au-delà de 8 jours ; B sauvegarde de la structure v2 (jeux, comptes sans secret, annonces) et reprise après sinistre ; C écritures partielles atomiques (lu, visites, connexion, correction d'annonce) ; D synchro du navigateur (fiche recréée), verrou de suppression, semaine automatique en création seule ; E `LUGH_REINITIALISER_2FA` réutilisable, RESTAURER / ANNULER vérifiés par le serveur, rappel /synchro ; F adresse vue dans Service, `LUGH_PROXY_SAUTS` ; G plafonds mensuels des vérifications manuelles (méta 10, veille 5) ; H clés 2FA chiffrées (`LUGH_CLE_2FA`) ; I une seule conversion heure civile → UTC, une seule comparaison en temps constant ; J historique du livre des comptes ; K documentation ; L voie A (`OUVRIR-A-UNE-STRUCTURE.md`). 208 tests, parcours navigateur de l'administration sans erreur.
 
 ## En cours
 - Rien.
@@ -30,8 +31,10 @@
 - Créer les comptes et les Responsables, régler chaque jeu (Réglages du jeu) et suivre « Premiers pas ».
 - Vérifier les points incertains notés dans les modèles (pool R6, profils publics, barèmes battle royale) à la première méta de chaque jeu.
 - Exporter une sauvegarde de chaque jeu une fois par mois (Gestion du jeu → Sauvegarde).
-- Restauration automatique de la sauvegarde de la structure (`_structure.json`) : aujourd'hui, à la main.
-- Revue L99 complète avant d'ouvrir Lugh à d'autres structures.
+- Avant de livrer Lugh à une autre structure : suivre `OUVRIR-A-UNE-STRUCTURE.md` (conditions d'usage du nom Lugh à écrire).
+- Vérifier l'adresse vue par Lugh dans Service après le déploiement de la 2.7.0 (`LUGH_PROXY_SAUTS`).
+- Tester une fois dans le navigateur : rappel /synchro (admin-comptes), reprise après sinistre en aperçu sur la base en service (tout doit être « ignoré »).
+- `public/css/vues-admin.css` : 419 lignes, à couper en deux au prochain ajout.
 - Après le premier vrai essai du bot : vérifier les rappels d'une vraie semaine et la synchronisation des rôles.
 
 ## Décisions prises
@@ -56,3 +59,4 @@
 - 19/10 : identité Lugh : écusson (piste C) et lettrage maison n° 2 (mélange New Rocker / Metamorphous) validés.
 - 19/10 : bot Discord : D1 modération, journal et accueil confiés à BOT Aulit (déjà en place) ; D2 le bot Lugh garde la permission Administrateur (choix d'Olivier, risque noté) ; D3 le rôle Discord « Administrateur » suit l'Administrateur général de Lugh (choix d'Olivier, risque noté) ; D4 synchronisation toutes les 3 h pour ménager les heures gratuites de Render.
 - 19/10 : devise « Le soleil se lève avec nous. » ; annonces reprises sur Discord ; sauvegarde hebdomadaire sur le Pi ; pas de réveil externe de Render (l'appli se réveille seule à la première ouverture).
+- 23/10 : ouverture à d'autres structures par la voie A (une installation par structure) ; reprise après sinistre qui ne crée que ce qui manque ; plafonds manuels méta 10 / veille 5 par mois ; historique du livre jamais effacé par Lugh ; mot `ANNULER` pour annuler une restauration.

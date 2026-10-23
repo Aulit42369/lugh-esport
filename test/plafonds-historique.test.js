@@ -108,6 +108,9 @@ test('livre des comptes : chaque écriture modifiée ou supprimée garde sa vers
     assert.match(csv.entetes.get('content-disposition'), /-historique\.csv/);
     assert.match(csv.texte, /Supprimée;.*2026-03-01 · Recette 120,00 €/);
     assert.match(csv.texte, /Modifiée;.*150,00 €.*;2026-03-01 · Recette 120,00 €/);
+    // L'historique part aussi dans la sauvegarde de la structure (Pi, téléchargement).
+    const sauvegarde = (await admin.get('/api/admin/administratif/sauvegarde')).json;
+    assert.deepEqual(sauvegarde.ecrituresHistorique.map((x) => x.action), ['modification', 'suppression']);
   } finally {
     await sim.arreter();
   }
