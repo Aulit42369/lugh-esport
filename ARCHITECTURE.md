@@ -78,7 +78,7 @@ Lugh-2.0.0/
 ├── public/                        application (modules ES, aucune dépendance)
 │   ├── index.html  favicon.svg  manifest.webmanifest  sw.js  robots.txt  icones/ (marque, icônes)  fonts/ (OFL)
 │   ├── css/  tokens.css  base.css  composants.css  signature.css  identite.css  impression.css
-│   │         vues.css  vues-plus.css (+ vues-semaine, vues-jeu, vues-perf, vues-equipe, vues-admin)
+│   │         vues.css  vues-plus.css (+ vues-semaine, vues-jeu, vues-perf, vues-equipe, vues-admin, vues-reglages-jeu, vues-administratif)
 │   └── js/   app.js (coquille, sélecteur de jeu)  navigation.js (pages, couleur du jeu)  api.js  etat.js  jeu.js
 │             routeur.js  theme.js  installation.js  ui.js  icones.js
 │             composants/  topo  parcours  jetons  grille  courbe  sorties  profil

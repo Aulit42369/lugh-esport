@@ -52,6 +52,7 @@
 ## Bot Discord (19/10)
 
 - **Nom de jeu = nom d'un rôle de fonction** (Administrateur, Responsable…) : refusé par Lugh depuis la 2.7.1 (`estNomJeuReserve`, shared/referentiel.js). La liste doit suivre les rôles de `lugh-bot/src/structure.js` si l'un d'eux change.
+- **Deux jeux au même nom ou au même nom court** : refusé par Lugh depuis le 23/10 (`nomJeuDejaPris`, shared/referentiel.js ; casse, accents et espaces ignorés, jeux désactivés compris), à la création, au renommage et dans les Réglages du jeu. Le bot nomme le rôle d'après le nom et la catégorie d'après le nom court : un doublon y serait seulement bloqué et signalé. Un « Autre jeu » dont les 4 lettres du nom court sont prises reçoit un nom court plus long (jusqu'à 12).
 
 
 | Piège | Pourquoi | Ce qu'il faut faire |

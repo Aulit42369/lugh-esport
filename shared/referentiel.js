@@ -178,6 +178,16 @@ export function trouver(liste, id) {
 const NOMS_RESERVES = ['administrateur', 'responsable', 'staff', 'capitaine / igl', 'capitaine', 'igl', 'joueur', 'remplacant', 'invite'];
 const normeNom = (n) => String(n || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, ' ').toLowerCase();
 export const estNomJeuReserve = (nom) => NOMS_RESERVES.includes(normeNom(nom));
+// Nom ou nom court déjà pris par un AUTRE jeu (actif ou désactivé) : le bot nomme le rôle d'après le nom et la catégorie
+// d'après le nom court, et ne fait que bloquer un doublon. Renvoie l'erreur à lever (chemin et message) ou null.
+export function nomJeuDejaPris(jeux, id, { nom = '', court = '' } = {}) {
+  for (const [chemin, valeur, libelleChamp] of [['nom', nom, 'ce nom'], ['court', court, 'ce nom court']]) {
+    if (!normeNom(valeur)) continue;
+    const autre = jeux.find((j) => j._id !== id && normeNom(j[chemin]) === normeNom(valeur));
+    if (autre) return { chemin, message: `${libelleChamp} est déjà celui du jeu « ${autre.nom} » (le bot Discord nomme rôle et catégorie d’après lui) : choisis-en un autre` };
+  }
+  return null;
+}
 export const MESSAGE_NOM_RESERVE = 'ce nom est celui d’un rôle de fonction sur Discord (Administrateur, Responsable, Staff, Capitaine / IGL, Joueur, Remplaçant, Invité) : choisis un autre nom';
 
 export function libelle(liste, id, parDefaut = '') {

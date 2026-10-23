@@ -601,3 +601,36 @@ test('nom de jeu réservé : un nom de rôle de fonction Discord (Administrateur
     await sim.arreter();
   }
 });
+
+test('noms de jeu uniques : un nom ou un nom court déjà pris par un autre jeu (actif ou non, casse et accents ignorés) est refusé', async () => {
+  const sim = await demarrer({ jeux: ['valorant', 'lol'] });
+  try {
+    const admin = await adminPret(sim);
+    assert.equal((await admin.post('/api/admin/jeux', { modele: 'autre', nom: 'Échecs Éclair' })).statut, 201);
+    assert.equal((await admin.put('/api/admin/jeux/echecseclair', { actif: false })).statut, 200);
+    for (const nom of ['echecs   eclair', 'ÉCHECS ÉCLAIR']) {
+      const r = await admin.post('/api/admin/jeux', { modele: 'autre', nom, id: 'autreechecs' });
+      assert.equal(r.statut, 400, nom);
+      assert.match(JSON.stringify(r.json), /déjà celui du jeu « Échecs Éclair »/, 'jeu désactivé compris');
+    }
+    // Nom court tiré du nom : allongé plutôt que refusé (« CHEC » est pris).
+    const snap = await admin.post('/api/admin/jeux', { modele: 'autre', nom: 'Échecs Blitz' });
+    assert.equal(snap.statut, 201);
+    assert.equal(snap.json.jeux.find((j) => j.id === 'echecsblitz').court, 'CHECSBLITZ');
+
+    const renomme = await admin.put('/api/admin/jeux/valorant', { nom: 'league of légends' });
+    assert.equal(renomme.statut, 400);
+    assert.match(JSON.stringify(renomme.json), /ce nom est déjà celui du jeu « League of Legends »/);
+    const court = await admin.put('/api/admin/jeux/valorant', { court: 'lol' });
+    assert.equal(court.statut, 400);
+    assert.match(JSON.stringify(court.json), /ce nom court est déjà/);
+    assert.equal((await admin.put('/api/admin/jeux/valorant', { nom: 'VALORANT', court: 'VAL' })).statut, 200, 'son propre nom passe');
+
+    const reglages = await admin.put('/api/e/valorant/reglages-jeu', { valeur: {}, nom: 'League  of Legends' });
+    assert.equal(reglages.statut, 400);
+    assert.equal((await admin.put('/api/e/valorant/reglages-jeu', { valeur: {}, court: 'LOL' })).statut, 400);
+    assert.equal((await admin.put('/api/e/valorant/reglages-jeu', { valeur: {}, nom: 'Valorant', court: 'val' })).statut, 200);
+  } finally {
+    await sim.arreter();
+  }
+});

@@ -1,0 +1,199 @@
+/* Réglages du jeu, puis écrans moyens et téléphones de toute l'administration, Discord et Service (suite de vues-admin.css, chargée juste après dans vues-plus.css : même ordre de cascade). */
+
+/* ——— Réglages du jeu : le parcours des sections ——— */
+.rgl-modele { display: flex; align-items: baseline; gap: var(--e-1); margin-bottom: var(--e-4); color: var(--encre-2); }
+.rgl-parcours { position: relative; display: grid; gap: var(--e-3); }
+/* Le trait du parcours relie les postes : il n'apparaît qu'entre deux sections. */
+.rgl-parcours::before { content: ''; position: absolute; top: var(--e-5); bottom: var(--e-5); left: calc(1px + var(--e-4) + 1.125rem - 1.5px); border-left: 3px solid var(--surimpression); opacity: 0.55; }
+.rgl-poste { position: relative; z-index: 1; border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); }
+.rgl-poste[open] { border-color: var(--trait-fort); }
+.rgl-poste__titre { display: grid; grid-template-columns: 2.25rem minmax(0, 1fr) auto 0.75rem; align-items: center; gap: var(--e-3); padding: var(--e-3) var(--e-4); cursor: pointer; list-style: none; }
+.rgl-poste__titre::-webkit-details-marker, .rgl-liste__titre::-webkit-details-marker { display: none; }
+.rgl-poste__titre::after, .rgl-liste__titre::after {
+  content: ''; width: 0.5rem; height: 0.5rem; justify-self: center; margin-top: -0.25rem;
+  border-right: 2px solid var(--encre-3); border-bottom: 2px solid var(--encre-3); transform: rotate(45deg);
+  transition: transform var(--duree);
+}
+.rgl-poste[open] > .rgl-poste__titre::after, .rgl-liste[open] > .rgl-liste__titre::after { transform: rotate(-135deg); margin-top: 0.25rem; }
+.rgl-poste__titre:hover .rgl-poste__nom { color: var(--surimpression); }
+.rgl-poste__numero {
+  display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border: 3px solid var(--surimpression); border-radius: 50%;
+  background: var(--surface); color: var(--surimpression); font-family: var(--police-titre); font-weight: 800; font-size: var(--t-l); line-height: 1;
+}
+.rgl-poste--perso .rgl-poste__numero { background: var(--surimpression); color: var(--sur-surimpression); }
+.rgl-poste__textes { display: grid; gap: 1px; min-width: 0; }
+.rgl-poste__nom { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-xl); line-height: 1.1; }
+.rgl-poste__resume { overflow: hidden; color: var(--encre-3); font-size: var(--t-s); text-overflow: ellipsis; white-space: nowrap; }
+.rgl-poste__corps { display: grid; gap: var(--e-4); padding: var(--e-4) var(--e-5) var(--e-5) calc(var(--e-4) + 2.25rem + var(--e-3)); border-top: 1px solid var(--trait); }
+.rgl-poste__intro { max-width: 70ch; }
+.rgl-page .grille-champs { align-items: start; }
+.rgl-page textarea.saisie { min-height: 3.75rem; }
+.rgl-poste__contenu { display: grid; gap: var(--e-4); min-width: 0; }
+.rgl-poste__pied { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--e-3); padding-top: var(--e-3); border-top: 1px dashed var(--trait); }
+.rgl-poste__pied:empty { display: none; }
+/* Champs */
+.rgl-nombre { max-width: 8rem; }
+.rgl-code { width: 5.5rem; font-family: var(--police-titre); font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.rgl-mono, .rgl-element__id, .rgl-objectif__id { font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; }
+.rgl-etroit { max-width: 26rem; }
+.rgl-case-seule { align-self: end; min-height: 2.6rem; display: flex; align-items: center; }
+.rgl-fige { min-height: 2.6rem; display: flex; align-items: center; color: var(--encre-2); font-size: var(--t-s); }
+.rgl-paires { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-4); }
+.rgl-paire {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-2) var(--e-3); min-width: 0; margin: 0;
+  padding: var(--e-3) var(--e-4) var(--e-4); border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--papier);
+}
+.rgl-paire legend { padding: 0 var(--e-1); font-weight: 650; font-size: var(--t-s); }
+.rgl-paire__aide { grid-column: 1 / -1; }
+/* Score */
+.rgl-choix-score { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e-3); min-width: 0; margin: 0; padding: 0; border: 0; }
+.rgl-choix-score legend { margin-bottom: var(--e-2); padding: 0; font-weight: 600; font-size: var(--t-s); color: var(--encre-2); }
+.rgl-carte-choix {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: var(--e-2); padding: var(--e-3);
+  border: 1px solid var(--trait); border-radius: var(--r-champ); background: var(--papier); cursor: pointer;
+}
+.rgl-carte-choix input { margin-top: 0.2rem; accent-color: var(--surimpression); }
+.rgl-carte-choix__texte { display: grid; gap: 2px; }
+.rgl-carte-choix:has(input:checked) { border-color: var(--surimpression); background: var(--surimpression-voile); box-shadow: inset 0 0 0 1px var(--surimpression); }
+.rgl-carte-choix:has(input:disabled) { cursor: not-allowed; opacity: 0.5; }
+.rgl-carte-choix:has(input:checked:disabled) { opacity: 1; }
+.rgl-bareme { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+/* Listes */
+.rgl-listes, .rgl-paliers { display: grid; gap: var(--e-2); }
+.rgl-liste { border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--papier); }
+.rgl-liste[open] { border-color: var(--trait-fort); }
+.rgl-liste__titre { display: grid; grid-template-columns: auto minmax(0, 1fr) auto 0.75rem; align-items: center; gap: var(--e-2) var(--e-3); padding: var(--e-3) var(--e-4); cursor: pointer; list-style: none; font-weight: 650; }
+.rgl-liste__compte { min-width: 0; color: var(--encre-3); font-size: var(--t-s); font-weight: 500; }
+.rgl-liste__corps { display: grid; gap: var(--e-3); padding: 0 var(--e-4) var(--e-4); }
+.rgl-liste__aide { flex: 1 1 20rem; max-width: 70ch; }
+.rgl-elements { list-style: none; display: grid; gap: var(--e-2); }
+.rgl-element { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr) 10rem; align-items: start; gap: var(--e-3); padding: var(--e-3); border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); }
+.rgl-elements--compact .rgl-element { align-items: center; padding: var(--e-2) var(--e-3); }
+.rgl-elements--compact .champ__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.rgl-element__repere { display: grid; place-items: center; min-height: 2.6rem; }
+.rgl-elements:not(.rgl-elements--compact) .rgl-element__repere { margin-top: 1.4rem; }
+.rgl-element__repere .role svg { width: 1.2rem; height: 1.2rem; }
+.rgl-element__num { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-l); color: var(--surimpression); }
+.rgl-element__champs { display: grid; gap: var(--e-3); min-width: 0; }
+.rgl-element__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--e-1) var(--e-2); min-width: 0; }
+.rgl-elements:not(.rgl-elements--compact) .rgl-element__actions { margin-top: 1.4rem; }
+.rgl-element--typesStrat .rgl-element__champs { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+.rgl-element--typesStrat .rgl-element__champs > .champ:last-child { grid-column: 1 / -1; }
+.rgl-element--typesStrat .rgl-camps { min-height: 2.6rem; align-items: center; }
+.rgl-element--typesStrat .rgl-camps legend { margin-bottom: var(--e-1); }
+.rgl-element__id { font-size: var(--t-xs); color: var(--encre-3); }
+.rgl-element--masque { border-style: dashed; background: transparent; }
+.rgl-element--masque .rgl-element__champs, .rgl-element--masque .rgl-element__repere { opacity: 0.55; }
+.rgl-supprimer:hover { color: var(--brique); }
+.rgl-rangee-champs { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--e-3); align-items: end; }
+.rgl-rangee-champs--chiffre { grid-template-columns: minmax(0, 1.6fr) 5rem repeat(3, 6.5rem); }
+.rgl-rangee-champs--domaine { grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); }
+.rgl-rangee-champs .rgl-nombre { max-width: 6.5rem; }
+.rgl-camps { display: flex; flex-wrap: wrap; gap: var(--e-2) var(--e-4); margin: 0; padding: 0; border: 0; min-width: 0; }
+.rgl-camps legend { width: 100%; margin-bottom: var(--e-1); padding: 0; font-size: var(--t-s); font-weight: 600; color: var(--encre-2); }
+.rgl-exercices summary { cursor: pointer; font-size: var(--t-s); font-weight: 600; color: var(--encre-2); }
+.rgl-exercices__champs { display: grid; gap: var(--e-3); margin-top: var(--e-3); }
+.rgl-ajout { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: end; gap: var(--e-2) var(--e-3); padding: var(--e-3); border: 1px dashed var(--trait-fort); border-radius: var(--r-fiche); }
+.rgl-ajout .champ__erreur, .rgl-ajout__aide { grid-column: 1 / -1; }
+.rgl-ajout .champ__erreur:empty { display: none; }
+/* Objectifs et routines */
+.rgl-groupe { display: grid; gap: var(--e-2); }
+.rgl-groupe + .rgl-groupe { margin-top: var(--e-3); }
+.rgl-groupe__titre { font-size: var(--t-s); font-weight: 700; color: var(--encre-2); }
+.rgl-objectifs { list-style: none; display: grid; gap: var(--e-2); }
+.rgl-objectif {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); align-items: start; gap: var(--e-2) var(--e-3);
+  padding: var(--e-3); border-left: 3px solid var(--trait-fort); border-radius: var(--r-fiche); background: var(--surface);
+}
+.rgl-objectif:has(.puce--accent) { border-left-color: var(--surimpression); }
+.rgl-objectif__tete { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); min-height: 1.75rem; }
+.rgl-objectif__id { font-size: var(--t-xs); color: var(--encre-3); }
+.rgl-objectif__etat:empty { display: none; }
+.rgl-objectif__tete .btn { margin-left: auto; }
+.rgl-routine { list-style: none; display: grid; gap: var(--e-2); }
+.rgl-ligne-routine { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) auto; align-items: end; gap: var(--e-3); }
+.rgl-ligne-routine--hebdo { grid-template-columns: minmax(0, 1fr) auto; }
+/* Profil et méta */
+.rgl-verif { color: var(--foret); }
+.rgl-essai-bloc { display: grid; grid-template-columns: minmax(0, 18rem) minmax(0, 1fr); align-items: end; gap: var(--e-3); padding: var(--e-3) var(--e-4); border-radius: var(--r-fiche); background: var(--creux); }
+.rgl-essai { min-height: 2.6rem; display: flex; align-items: center; overflow-wrap: anywhere; color: var(--encre-2); }
+.rgl-sources__apercu { overflow-wrap: anywhere; }
+.rgl-consigne summary { cursor: pointer; font-size: var(--t-s); font-weight: 600; color: var(--encre-2); }
+.rgl-consigne[open] { padding: var(--e-3) var(--e-4); border-radius: var(--r-fiche); background: var(--creux); }
+.rgl-consigne__corps { display: grid; gap: var(--e-3); justify-items: start; margin-top: var(--e-3); }
+/* Erreurs et barre d'enregistrement */
+.rgl-erreurs { display: grid; gap: var(--e-2); margin-top: var(--e-4); padding: var(--e-3) var(--e-4); border: 1px solid var(--brique); border-left-width: 3px; border-radius: var(--r-fiche); background: var(--brique-voile); }
+.rgl-erreurs__titre { display: flex; align-items: center; gap: var(--e-2); font-weight: 700; }
+.rgl-erreurs__titre svg { width: 1.1rem; height: 1.1rem; color: var(--brique); flex: none; }
+.rgl-erreurs__liste { padding-left: 1.2rem; display: grid; gap: var(--e-1); font-size: var(--t-s); }
+.rgl-erreurs__lien { padding: 0; border: 0; background: none; color: var(--encre); font-size: var(--t-s); text-align: left; text-decoration: underline; text-decoration-color: var(--brique); text-underline-offset: 0.2em; cursor: pointer; }
+.rgl-erreurs__lien:hover { color: var(--brique); }
+/* Sans modification, la barre reste à sa place sous le parcours ; avec, elle suit l'écran. */
+.rgl-barre {
+  position: relative; bottom: var(--e-4); z-index: 15; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: var(--e-2) var(--e-4); margin-top: var(--e-5); padding: var(--e-3) var(--e-4);
+  border: 1px solid var(--trait-fort); border-radius: var(--r-champ); background: var(--surface); box-shadow: var(--ombre-modale);
+}
+.rgl-barre--modifie { position: sticky; border-left: 3px solid var(--surimpression); }
+.rgl-barre__etat { display: flex; align-items: center; gap: var(--e-2); font-size: var(--t-s); font-weight: 600; color: var(--encre-2); }
+.rgl-barre--modifie .rgl-barre__etat { color: var(--encre); }
+.rgl-barre__point { flex: none; width: 0.6rem; height: 0.6rem; border-radius: 50%; background: var(--surimpression); animation: rgl-pouls 1.8s ease-out infinite; }
+@keyframes rgl-pouls { 0% { box-shadow: 0 0 0 0 var(--surimpression); } 70%, 100% { box-shadow: 0 0 0 0.45rem transparent; } }
+.rgl-barre__boutons { display: flex; flex-wrap: wrap; gap: var(--e-2); margin-left: auto; }
+/* ——— Écrans moyens et téléphones ——— */
+@media (max-width: 1100px) {
+  .rgl-rangee-champs--chiffre { grid-template-columns: minmax(0, 1fr) 5rem; }
+  .adm-compte { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto; }
+  .adm-compte__etat { grid-column: 2; }
+  .adm-compte__actions { grid-row: 1; grid-column: 3; }
+}
+@media (max-width: 899px) {
+  .adm-bilan, .adm-lectures__colonnes { grid-template-columns: minmax(0, 1fr); }
+  .adm-autre__grille, .adm-ajout__grille, .rgl-paires, .rgl-choix-score, .rgl-objectif, .rgl-bareme { grid-template-columns: minmax(0, 1fr); }
+  .adm-compte { grid-template-columns: minmax(0, 1fr) auto; gap: var(--e-2) var(--e-3); }
+  .adm-compte__qui { grid-column: 1; grid-row: 1; }
+  .adm-compte__actions { grid-column: 2; grid-row: 1; }
+  .adm-compte__acces, .adm-compte__etat { grid-column: 1 / -1; }
+  .adm-compte__note { max-width: 9rem; }
+  .rgl-parcours::before { left: calc(1px + var(--e-3) + 1rem - 1.5px); }
+  .rgl-poste__titre { grid-template-columns: 2rem minmax(0, 1fr) auto; gap: var(--e-2) var(--e-3); padding: var(--e-3); }
+  .rgl-poste__titre::after { display: none; }
+  .rgl-poste__numero { width: 2rem; height: 2rem; font-size: var(--t-m); }
+  .rgl-poste__nom { font-size: var(--t-l); }
+  .rgl-poste__corps { padding: var(--e-4) var(--e-3) var(--e-4); }
+  .rgl-liste__titre { grid-template-columns: minmax(0, 1fr) auto; padding: var(--e-3); }
+  .rgl-liste__titre::after { display: none; }
+  .rgl-liste__compte { grid-column: 1 / -1; grid-row: 2; }
+  .rgl-liste__corps { padding: 0 var(--e-3) var(--e-3); }
+  .rgl-element { grid-template-columns: 1.5rem minmax(0, 1fr); padding: var(--e-3) var(--e-2) var(--e-3) var(--e-2); }
+  .rgl-element__actions, .rgl-elements:not(.rgl-elements--compact) .rgl-element__actions { grid-column: 1 / -1; justify-content: flex-start; margin-top: 0; }
+  .rgl-element--typesStrat .rgl-element__champs { grid-template-columns: minmax(0, 1fr); }
+  .rgl-essai-bloc { grid-template-columns: minmax(0, 1fr); }
+  .rgl-barre { bottom: calc(var(--hauteur-barre) + env(safe-area-inset-bottom) + var(--e-2)); padding: var(--e-2) var(--e-3); }
+  .adm-journal__ligne, .adm-journal--jeux .adm-journal__ligne { grid-template-columns: auto minmax(0, 1fr); }
+  .adm-journal__quand { grid-column: 1 / -1; }
+  .adm-journal--jeux .adm-journal__jeu { grid-column: 1; }
+  .adm-tableau-jeux thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .adm-tableau-jeux, .adm-tableau-jeux tbody, .adm-tableau-jeux tr, .adm-tableau-jeux td { display: block; }
+  .adm-tableau-jeux tr { margin-bottom: var(--e-3); padding: var(--e-3) var(--e-4); border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface); }
+  .adm-tableau-jeux td { display: flex; justify-content: space-between; align-items: baseline; gap: var(--e-3); padding: var(--e-1) 0; border: 0; text-align: right; }
+  .adm-tableau-jeux td::before { content: attr(data-libelle); flex: none; color: var(--encre-3); font-size: var(--t-xs); font-weight: 600; text-align: left; }
+  .adm-tableau-jeux td:first-child { padding-bottom: var(--e-2); }
+  .adm-tableau-jeux td:first-child::before, .adm-tableau-jeux td:last-child::before { content: none; }
+}
+@media (max-width: 599px) {
+  .rgl-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .rgl-ajout { grid-template-columns: minmax(0, 1fr) auto; }
+  .rgl-ajout .champ:nth-of-type(2) { grid-column: 1 / -1; grid-row: 2; }
+  .rgl-ligne-routine { grid-template-columns: 5.5rem minmax(0, 1fr) auto; gap: var(--e-2); }
+  .adm-bilan__chiffres { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--e-3); }
+  .adm-filtres, .adm-filtres .champ { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { .rgl-barre__point { animation: none; } }
+
+/* Discord : cases des rappels sans cadre de fieldset. */
+.adm-discord__types { border: 0; margin: 0; padding: 0; min-width: 0; }
+.adm-discord__ligne { flex-wrap: nowrap; align-items: center; }
+.adm-discord__ligne > div:first-child { flex: 1 1 auto; min-width: 0; }
+/* Service : adresse IP vue par Lugh et X-Forwarded-For brut (peuvent être longs). */
+.adm-adresse code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; padding: 1px 6px; border-radius: 4px; background: var(--creux); color: var(--encre); overflow-wrap: anywhere; }

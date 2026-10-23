@@ -9,7 +9,7 @@ import { completerModele } from '../../shared/jeux/commun.js';
 import { definitionEffective } from '../../shared/jeux/definition.js';
 import { validerReglagesJeu, reglagesVides } from '../../shared/jeux/reglages-jeu.js';
 import { estCouleurJeu } from '../../shared/couleurs.js';
-import { estNomJeuReserve, MESSAGE_NOM_RESERVE } from '../../shared/referentiel.js';
+import { estNomJeuReserve, nomJeuDejaPris, MESSAGE_NOM_RESERVE } from '../../shared/referentiel.js';
 
 const LIMITE_SAUVEGARDE = 15 * 1024 * 1024;
 
@@ -51,6 +51,8 @@ export function routesReglages(routeur, s) {
     const nom = typeof corps.nom === 'string' ? corps.nom.trim().replace(/\s+/g, ' ').slice(0, 40) : '';
     const court = typeof corps.court === 'string' ? corps.court.trim().slice(0, 12) : '';
     if (nom && nom !== e.doc.nom && estNomJeuReserve(nom)) throw erreurs.invalide([{ chemin: 'nom', message: MESSAGE_NOM_RESERVE }]);
+    const pris = nomJeuDejaPris(s.registre.liste(), e.id, { nom, court });
+    if (pris) throw erreurs.invalide([pris]);
     if (corps.couleur !== undefined && !estCouleurJeu(corps.couleur)) throw erreurs.invalide([{ chemin: 'couleur', message: 'couleur inconnue' }]);
     const couleur = corps.couleur || e.doc.couleur;
     // Les réglages d'abord (contrôle de revBase : 409 si quelqu'un a modifié entre-temps), le nom ensuite.

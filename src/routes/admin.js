@@ -9,7 +9,7 @@ import { accesEspace } from '../../shared/roles.js';
 import { MAX_ESPACES } from '../domaine/collections.js';
 import { lireParametresBot, alerteSauvegarde } from '../domaine/bot.js';
 import { estCouleurJeu } from '../../shared/couleurs.js';
-import { estNomJeuReserve, MESSAGE_NOM_RESERVE } from '../../shared/referentiel.js';
+import { estNomJeuReserve, nomJeuDejaPris, MESSAGE_NOM_RESERVE } from '../../shared/referentiel.js';
 import { PLAFONDS_MANUELS } from '../config.js';
 
 const avecAlerte = (reseau) => ({ ...reseau, alerte: alerteReseau(reseau) });
@@ -69,10 +69,16 @@ export function routesAdmin(routeur, s) {
       if (ID_RESERVES.has(id)) throw erreurs.invalide([{ chemin: 'id', message: `« ${id} » est un mot réservé (page de l’application) : choisis un autre identifiant` }]);
       if (Object.hasOwn(MODELES, id)) throw erreurs.conflit(`« ${id} » est réservé au modèle ${MODELES[id].nom} : choisis ce modèle ou un autre identifiant.`);
       if (s.registre.obtenir(id)) throw erreurs.conflit('Un jeu existe déjà avec cet identifiant.');
-      court = nomJeu.replace(/[^A-Za-z0-9]/g, '').slice(0, 4).toUpperCase() || 'JEU';
+      // Nom court tiré du nom : 4 lettres, ou plus long si un autre jeu les a déjà (« Marvel Rivals » puis « Marvel Snap »).
+      const lettres = nomJeu.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+      court = [lettres.slice(0, 4), lettres.slice(0, 12)].find((c) => !nomJeuDejaPris(s.registre.liste(), id, { court: c })) || lettres.slice(0, 4) || 'JEU';
     }
     const avant = s.registre.obtenir(id);
     const existait = !!avant;
+    if (!existait) {
+      const pris = nomJeuDejaPris(s.registre.liste(), id, { nom: nomJeu || MODELES[modele].nom, court: court || MODELES[modele].court || MODELES[modele].nom });
+      if (pris) throw erreurs.invalide([pris]);
+    }
     const etaitInactif = existait && avant.doc.actif === false;
     try {
       const e = await s.registre.creer({ modele, id, nom: nomJeu, court, compte: r.compteGlobal });
@@ -93,6 +99,8 @@ export function routesAdmin(routeur, s) {
     if (typeof corps.nom === 'string' && corps.nom.trim()) champs.nom = corps.nom.trim().replace(/\s+/g, ' ').slice(0, 40);
     if (champs.nom && estNomJeuReserve(champs.nom)) throw erreurs.invalide([{ chemin: 'nom', message: MESSAGE_NOM_RESERVE }]);
     if (typeof corps.court === 'string' && corps.court.trim()) champs.court = corps.court.trim().slice(0, 12);
+    const pris = nomJeuDejaPris(s.registre.liste(), e.id, champs);
+    if (pris) throw erreurs.invalide([pris]);
     if (Number.isInteger(corps.ordre) && corps.ordre >= 0 && corps.ordre <= 99) champs.ordre = corps.ordre;
     if (typeof corps.couleur === 'string' && estCouleurJeu(corps.couleur)) champs.couleur = corps.couleur;
     await s.registre.modifier(e.id, champs);

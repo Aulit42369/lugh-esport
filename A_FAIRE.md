@@ -24,6 +24,7 @@
 - 23/10 : 2.7.0, correctifs de l'audit de sécurité (priorité haute) : « Compte existant » refusé à un Responsable pour un compte sans aucun jeu (il pouvait ensuite réinitialiser son mot de passe ou le supprimer) ; avertissement dans Service quand X-Forwarded-For ne ressemble pas à ce qu'ajoute le proxy (absent, trop court, adresse interne ou non IP), sans changer le calcul ni `LUGH_PROXY_SAUTS` ; 210 tests.
 - 23/10 : 2.7.0, correctifs de l'audit de sécurité (priorités moyenne et basse) : écritures partielles des comptes et corps lu avant la fiche (une requête lente n'annule plus une désactivation, un mot de passe réinitialisé ni une suppression) ; essais de connexion, de mot de passe et de double authentification un par un par identifiant (une rafale ne donne plus ~40 essais au lieu de 5) ; restauration : plafond pour « equipe », doublons regroupés, avis et notes au nom d'autres comptes comptés au journal ; méta neutralisée avant Discord (pas de lien masqué) ; 214 tests.
 - 23/10 : 2.7.1 : version distincte pour ce déploiement ; noms de jeu réservés (Administrateur, Responsable, Staff, Capitaine / IGL, Joueur, Remplaçant, Invité) refusés à la création et au renommage, sinon le bot Discord donnait ce rôle de fonction à tous les membres du jeu (audit du bot Lugh) ; 215 tests.
+- 23/10 : noms de jeu uniques : un nom ou un nom court déjà pris par un autre jeu (actif ou désactivé ; casse, accents et espaces ignorés) est refusé à la création, au renommage par l'Administrateur général et dans les Réglages du jeu (le bot Discord nomme rôle et catégorie d'après eux et ne fait que bloquer un doublon) ; le nom court tiré du nom d'un « Autre jeu » s'allonge s'il est déjà pris ; `vues-admin.css` coupé en deux (`vues-reglages-jeu.css`, même ordre de cascade) ; 216 tests.
 
 ## En cours
 - Rien.
@@ -36,8 +37,6 @@
 - Exporter une sauvegarde de chaque jeu une fois par mois (Gestion du jeu → Sauvegarde).
 - Avant de livrer Lugh à une autre structure : suivre `OUVRIR-A-UNE-STRUCTURE.md` (conditions d'usage du nom Lugh à écrire).
 - Vérifier l'adresse vue par Lugh dans Service après le déploiement de la 2.7.0 (`LUGH_PROXY_SAUTS`).
-- Tester une fois dans le navigateur : rappel /synchro (admin-comptes), reprise après sinistre en aperçu sur la base en service (tout doit être « ignoré »).
-- `public/css/vues-admin.css` : 419 lignes, à couper en deux au prochain ajout.
 - Après le premier vrai essai du bot : vérifier les rappels d'une vraie semaine et la synchronisation des rôles.
 
 ## Décisions prises
