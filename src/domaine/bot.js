@@ -59,6 +59,19 @@ export async function lireParametresBot(global) {
 export const ecrireReglagesBot = (global, reglages) => global.ecrire('parametres', { _id: IDS.reglages, reglages });
 export const ecrireEtatBot = (global, etat) => global.ecrire('parametres', { _id: IDS.etat, etat });
 
+// Sauvegarde du Pi trop vieille (Pi éteint, bot arrêté, disque plein) : seule copie hors d'Atlas, elle doit se voir.
+export const RETARD_SAUVEGARDE_JOURS = 8;
+export function alerteSauvegarde(etat, maintenant, cleBot) {
+  if (!cleBot) return null;
+  if (!etat?.dernierContact) return 'Le bot Discord ne s’est jamais présenté : aucune sauvegarde de Lugh sur le Raspberry Pi.';
+  const le = etat.sauvegarde?.le;
+  const jours = le ? Math.floor((maintenant.getTime() - new Date(le).getTime()) / 86_400_000) : null;
+  if (jours !== null && jours < RETARD_SAUVEGARDE_JOURS) return null;
+  return le
+    ? `Dernière sauvegarde sur le Raspberry Pi il y a ${jours} jours (une par semaine normalement) : le Pi est-il allumé ? Sur le Pi : pm2 status lugh-bot.`
+    : 'Aucune sauvegarde sur le Raspberry Pi pour l’instant : elle se fait à la première synchronisation du bot (voir l’onglet Discord).';
+}
+
 // Un compte délié garde ses rôles Discord tant que le bot ne sait pas qu'il l'était : on le lui signale 14 jours.
 export async function noterDelie(global, discordId, maintenant) {
   const { delies } = await lireParametresBot(global);

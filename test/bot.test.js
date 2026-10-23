@@ -245,6 +245,13 @@ test('sauvegarde hebdomadaire : export complet d’un jeu pour le Pi, date gard�
     await bot(sim).post('/api/bot/synchro', { sauvegarde: { le: '2026-10-21T10:00:00.000Z', jeux: 2, octets: 123456 } });
     const admin = await adminPret(sim);
     assert.deepEqual((await admin.get('/api/admin/discord')).json.etat.sauvegarde, { le: '2026-10-21T10:00:00.000Z', jeux: 2, octets: 123456 });
+    // Un jeu désactivé n'a plus de rôle ni de salon, mais il reste sauvegardé chaque semaine.
+    assert.ok([200, 201].includes((await admin.post('/api/admin/jeux', { modele: 'lol' })).statut));
+    assert.equal((await admin.put('/api/admin/jeux/lol', { actif: false })).statut, 200);
+    const synchro = (await bot(sim).post('/api/bot/synchro', {})).json;
+    assert.ok(!synchro.jeux.some((j) => j.id === 'lol'), 'jeu désactivé : pas de rôle ni de salon');
+    assert.deepEqual(synchro.sauvegardes.map((j) => j.id).sort(), ['lol', 'valorant']);
+    assert.equal((await bot(sim).post('/api/bot/sauvegarde', { jeu: 'lol' })).json.espace, 'lol');
   } finally {
     await sim.arreter();
   }
@@ -326,6 +333,27 @@ test('webhooks branchés par le bot : seulement là où il n’y en a pas, jamai
     assert.equal((await admin.get('/api/e/valorant/reglages')).json.discord.retire, false);
     assert.equal((await b.post('/api/bot/webhooks', { jeux: 'pas une liste' })).statut, 400);
     assert.equal((await bot(sim, 'z'.repeat(40)).post('/api/bot/webhooks', { annonces: AUTRE })).statut, 403);
+  } finally {
+    await sim.arreter();
+  }
+});
+
+test('sauvegarde du Pi en retard : alerte dans la vue d’ensemble et l’état du service au-delà de 8 jours', async () => {
+  const { alerteSauvegarde } = await import('../src/domaine/bot.js');
+  const m = new Date('2026-10-23T12:00:00Z');
+  assert.equal(alerteSauvegarde(null, m, ''), null, 'bot non configuré : rien');
+  assert.match(alerteSauvegarde(null, m, 'cle'), /jamais présenté/);
+  assert.equal(alerteSauvegarde({ dernierContact: m.toISOString(), sauvegarde: { le: '2026-10-16T12:00:00Z' } }, m, 'cle'), null, '7 jours : normal');
+  assert.match(alerteSauvegarde({ dernierContact: m.toISOString(), sauvegarde: { le: '2026-10-14T12:00:00Z' } }, m, 'cle'), /il y a 9 jours/);
+  assert.match(alerteSauvegarde({ dernierContact: m.toISOString(), sauvegarde: null }, m, 'cle'), /Aucune sauvegarde/);
+  const { sim } = await preparer();
+  try {
+    const admin = await adminPret(sim);
+    await bot(sim).post('/api/bot/synchro', { sauvegarde: { le: '2020-01-01T10:00:00.000Z', jeux: 1, octets: 10 } });
+    assert.match((await admin.get('/api/admin/structure')).json.alertes[0], /Raspberry Pi il y a \d+ jours/);
+    assert.ok((await admin.get('/api/admin/etat')).json.avertissements.some((a) => /Raspberry Pi/.test(a)));
+    await bot(sim).post('/api/bot/synchro', { sauvegarde: { le: new Date().toISOString(), jeux: 1, octets: 10 } });
+    assert.deepEqual((await admin.get('/api/admin/structure')).json.alertes, []);
   } finally {
     await sim.arreter();
   }

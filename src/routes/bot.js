@@ -94,10 +94,14 @@ export function routesBot(routeur, s) {
       const p = await e.notifications.reglagesPublics();
       if (!p.configure && !p.retire) manquants.jeux.push(e.id);
     }
+    // Jeux à sauvegarder sur le Pi : tous, désactivés compris (seule copie hors d'Atlas avant une suppression définitive).
+    // Rôles et salons restent calés sur les seuls jeux actifs (`jeux`).
+    const sauvegardes = s.registre.liste().map((d) => ({ id: d._id, nom: s.registre.obtenir(d._id)?.def.nom || d.nom || d._id }));
     envoyerJson(r.res, 200, {
       maintenant: maintenant.toISOString(),
       reglages,
       jeux,
+      sauvegardes,
       membres,
       delies: delies.map((d) => d.id).filter((id) => !membres.some((m) => m.discordId === id)),
       rappels,

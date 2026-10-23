@@ -9,6 +9,7 @@ import { statsPresences } from '../../shared/suivi.js';
 import { statsScrims, trierParDate, resultat, scoreLisible } from '../../shared/stats.js';
 import { trouverDans } from '../../shared/jeux/definition.js';
 import { accesEspace } from '../../shared/roles.js';
+import { lireParametresBot, alerteSauvegarde } from '../domaine/bot.js';
 import { semaineCourante, aujourdhui, ajouterJours, civileDepuisIso, isoCivile, lundiDe } from '../../shared/temps.js';
 
 const JOUEURS = new Set(['titulaire', 'remplacant', 'essai']);
@@ -61,6 +62,7 @@ export function routesStructure(routeur, s) {
         meta: meta ? { patch: meta.patch || '', derniereVerif: meta.derniereVerif || '', statut: meta.statut || '' } : null,
       });
     }
-    envoyerJson(r.res, 200, { jeux, aujourdhui: auj, semaine });
+    const alertes = [alerteSauvegarde((await lireParametresBot(s.global)).etat, s.maintenant(), s.config.cleBot)].filter(Boolean);
+    envoyerJson(r.res, 200, { jeux, aujourdhui: auj, semaine, alertes });
   });
 }

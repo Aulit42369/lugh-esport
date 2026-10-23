@@ -7,6 +7,7 @@ import { MODELES, ORDRE, ID_AUTRE, resumeModele } from '../../shared/jeux/index.
 import { MOTIFS } from '../../shared/validation.js';
 import { accesEspace } from '../../shared/roles.js';
 import { MAX_ESPACES } from '../domaine/collections.js';
+import { lireParametresBot, alerteSauvegarde } from '../domaine/bot.js';
 import { estCouleurJeu } from '../../shared/couleurs.js';
 
 // Identifiants interdits pour un « Autre jeu » : ils servent déjà d'adresses de pages (#/admin, #/planning…).
@@ -167,7 +168,7 @@ export function routesAdmin(routeur, s) {
       cleClaude: !!s.config.claude.cle,
       modele: s.config.claude.modele,
       cronConfigure: !!s.config.secretCron,
-      avertissements: s.config.avertissements,
+      avertissements: [...s.config.avertissements, alerteSauvegarde((await lireParametresBot(s.global)).etat, s.maintenant(), s.config.cleBot)].filter(Boolean),
       jeux,
     });
   });

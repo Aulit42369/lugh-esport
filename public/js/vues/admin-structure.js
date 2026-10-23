@@ -17,7 +17,9 @@ export function rendreStructure(zone) {
   let affiche = '';
   const dessiner = (d) => {
     affiche = JSON.stringify(d);
-    zone.replaceChildren(resume(d), h('div', { class: 'adm-structure' }, trier(d.jeux).map(carteJeu)));
+    zone.replaceChildren(
+      d.alertes?.length ? h('ul', { class: 'pile-s adm-avertissements' }, d.alertes.map((a) => h('li', { class: 'alerte alerte--attention' }, icone('alerte'), h('span', {}, a)))) : '',
+      resume(d), h('div', { class: 'adm-structure' }, trier(d.jeux).map(carteJeu)));
   };
   if (cache) dessiner(cache);
   else zone.replaceChildren(chargement());

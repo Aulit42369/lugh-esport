@@ -10,6 +10,7 @@ import { formatHorodatage, ilYA } from '/shared/temps.js';
 import { chargement, erreurChargement, interrupteur } from './admin-commun.js';
 
 const SILENCE_INQUIETANT_MS = 7 * 3_600_000; // le bot se synchronise toutes les 3 h
+const SAUVEGARDE_EN_RETARD_MS = 8 * 86_400_000; // une par semaine (même seuil que le serveur, domaine/bot.js)
 
 export function rendreDiscord(zone, ctx) {
   zone.replaceChildren(chargement());
@@ -54,6 +55,8 @@ function ficheEtat(d) {
         ? `${ilYA(e.sauvegarde.le)} : ${e.sauvegarde.jeux} jeu${e.sauvegarde.jeux > 1 ? 'x' : ''}, ${(e.sauvegarde.octets / 1_048_576).toFixed(1).replace('.', ',')} Mo`
         : 'pas encore (une fois par semaine)')),
     silence ? h('p', { class: 'petit compte-2fa__alerte' }, icone('alerte'), 'Plus de nouvelles depuis plus de 7 h : le Pi est-il allumé ? Sur le Pi : pm2 status lugh-bot.') : null,
+    e.sauvegarde && Date.now() - new Date(e.sauvegarde.le).getTime() > SAUVEGARDE_EN_RETARD_MS
+      ? h('p', { class: 'petit compte-2fa__alerte' }, icone('alerte'), 'Sauvegarde sur le Pi de plus de 8 jours : seule copie hors d’Atlas, vérifie le Pi (pm2 logs lugh-bot).') : null,
     e.problemes?.length
       ? h('div', { class: 'pile-s' },
         h('h3', { class: 'sous-titre' }, 'Problèmes signalés par le bot'),
