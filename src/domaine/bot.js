@@ -4,7 +4,7 @@
 // écrase jamais une autre : réglages (Administrateur général), état (le bot), comptes déliés ; champ `discord` des comptes.
 
 import { createHash, randomInt } from 'node:crypto';
-import { dateCivile, isoCivile, civileDepuisIso, ajouterJours, semaineIso, decalerSemaine, joursDe, minutes } from '../../shared/temps.js';
+import { dateCivile, isoCivile, civileDepuisIso, ajouterJours, semaineIso, decalerSemaine, joursDe, instantCivil } from '../../shared/temps.js';
 import { accesEspace } from '../../shared/roles.js';
 import { concerne } from '../../shared/charge.js';
 import { tournoisAVenir } from '../../shared/organisation.js';
@@ -97,23 +97,6 @@ export function rolesAttendus(compte, jeuxActifs) {
     for (const m of metiers) if (FONCTION_DU_METIER[m]) fonctions.add(FONCTION_DU_METIER[m]);
   }
   return { fonctions: [...fonctions], jeux };
-}
-
-// ——— Instants : date civile + heure à Paris → instant UTC (heure d'été comprise) ———
-
-function decalage(ms, fuseau) {
-  const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
-    timeZone: fuseau, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
-  }).formatToParts(new Date(ms)).filter((x) => x.type !== 'literal').map((x) => [x.type, Number(x.value)]));
-  return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ms / 1000) * 1000;
-}
-
-export function instantCivil(dateIso, heure, fuseau) {
-  const { a, m, j } = civileDepuisIso(dateIso);
-  const t = minutes(heure);
-  const naif = Date.UTC(a, m - 1, j, Math.floor(t / 60), t % 60);
-  const premier = naif - decalage(naif, fuseau);
-  return new Date(naif - decalage(premier, fuseau));
 }
 
 // ——— Rappels des prochaines heures, tous jeux actifs ———

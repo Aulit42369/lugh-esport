@@ -133,6 +133,23 @@ export function minutes(hhmm) {
   return h * 60 + m;
 }
 
+// Décalage (en ms) entre l'heure civile d'un fuseau et UTC, à l'instant ms.
+function decalage(ms, fuseau) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+    timeZone: fuseau, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).formatToParts(new Date(ms)).filter((x) => x.type !== 'literal').map((x) => [x.type, Number(x.value)]));
+  return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ms / 1000) * 1000;
+}
+
+// Date civile (AAAA-MM-JJ) + heure (HH:MM) dans un fuseau → instant UTC, heure d'été comprise (source unique).
+export function instantCivil(dateIso, heure, fuseau) {
+  const { a, m, j } = civileDepuisIso(dateIso);
+  const t = minutes(heure);
+  const naif = Date.UTC(a, m - 1, j, Math.floor(t / 60), t % 60);
+  const premier = naif - decalage(naif, fuseau);
+  return new Date(naif - decalage(premier, fuseau));
+}
+
 export function hhmm(total) {
   const t = Math.max(0, Math.min(24 * 60, Math.round(total)));
   return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;

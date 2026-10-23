@@ -1,15 +1,9 @@
 // Routes de la méta : vérification à la demande dans un jeu, déclenchement externe facultatif, santé du service.
 // La vérification du lundi et du jeudi n'a besoin d'aucun cron : voir src/domaine/automatismes.js.
 
-import { createHash, timingSafeEqual } from 'node:crypto';
 import { envoyerJson, erreurs } from '../http/outils.js';
+import { egalTempsConstant } from '../http/securite.js';
 import { exigerConnexion, exigerEspace, exigerPerm } from '../auth/acces.js';
-
-function egalTempsConstant(a, b) {
-  const ha = createHash('sha256').update(String(a)).digest();
-  const hb = createHash('sha256').update(String(b)).digest();
-  return timingSafeEqual(ha, hb);
-}
 
 export function routesMeta(routeur, s) {
   routeur.get('/api/sante', async (r) => {

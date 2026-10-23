@@ -43,8 +43,8 @@ export function routesDonnees(routeur, s) {
     const suivante = ecart > 2 * 3600_000
       ? { debut: t.toISOString(), dernier: t.toISOString(), precedente: actuelle?.dernier || null }
       : { ...actuelle, dernier: t.toISOString() };
-    frais.visites = { ...(frais.visites || {}), [jeu]: suivante };
-    await s.global.ecrire('comptes', frais);
+    // Écriture partielle : une modification simultanée du compte par l'admin (accès, désactivation) n'est pas annulée.
+    await s.global.modifier('comptes', frais._id, { [`visites.${jeu}`]: suivante });
     return suivante.precedente || null;
   }
 

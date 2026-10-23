@@ -3,6 +3,7 @@
 
 import { MongoClient } from 'mongodb';
 import { MARQUE } from '../../shared/marque.js';
+import { MOTIF_CHEMIN } from './memoire.js';
 
 // Index de chaque type de base : créés au démarrage (créer un index existant ne coûte rien).
 export const INDEX = {
@@ -68,6 +69,13 @@ function stockageBase(db, nom) {
       if (!doc || typeof doc._id !== 'string') throw new Error('Document sans _id');
       await c(collection).replaceOne({ _id: doc._id }, doc, { upsert: true });
       return doc;
+    },
+
+    // Écriture partielle atomique ($set sur des chemins) : une écriture simultanée d'un autre champ n'est pas écrasée.
+    async modifier(collection, id, champs) {
+      for (const chemin of Object.keys(champs)) if (!MOTIF_CHEMIN.test(chemin)) throw new Error(`Chemin invalide : ${chemin}`);
+      const r = await c(collection).updateOne({ _id: id }, { $set: champs });
+      return r.matchedCount > 0;
     },
 
     async supprimer(collection, id) {

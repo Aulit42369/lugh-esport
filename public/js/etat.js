@@ -4,6 +4,7 @@
 import { api } from './api.js';
 import { permissionsDe } from '/shared/roles.js';
 import { MARQUE } from '/shared/marque.js';
+import { fusionnerSynchro } from '/shared/synchro.js';
 
 const COLLECTIONS = ['jeu', 'equipe', 'membres', 'mapsEquipe', 'strats', 'planning', 'objectifs', 'scrims', 'vods', 'vodNotes', 'dispos',
   'meta', 'suggestions', 'adversaires', 'presences', 'absences', 'mesures', 'bibliotheque', 'candidats', 'votes',
@@ -123,19 +124,7 @@ export async function synchroniser() {
       await charger();
       return;
     }
-    let change = false;
-    for (const [coll, docs] of Object.entries(r.docs || {})) {
-      for (const d of docs) {
-        const actuel = etat.donnees[coll]?.get(d._id);
-        if (!actuel || actuel.rev !== d.rev) {
-          etat.donnees[coll]?.set(d._id, d);
-          change = true;
-        }
-      }
-    }
-    for (const s of r.suppressions || []) {
-      if (etat.donnees[s.coll]?.delete(s.id)) change = true;
-    }
+    const change = fusionnerSynchro(etat.donnees, r);
     etat.rev = Math.max(etat.rev, r.rev);
     if (change) notifier('sync');
   } catch {

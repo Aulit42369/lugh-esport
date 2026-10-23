@@ -5,7 +5,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { demarrer, adminPret, compteConnecte, client, MDP, WEBHOOK } from './simulation.js';
 import { nouvelId } from '../shared/validation.js';
-import { instantCivil, rolesAttendus } from '../src/domaine/bot.js';
+import { rolesAttendus } from '../src/domaine/bot.js';
+import { instantCivil } from '../shared/temps.js';
 
 const CLE = 'k'.repeat(40);
 const DISCORD_A = '111111111111111111';

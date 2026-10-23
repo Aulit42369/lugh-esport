@@ -47,6 +47,26 @@ class FausseCollection {
     this.docs.set(filtre._id, structuredClone(doc));
     return { acknowledged: true };
   }
+  // $set sur des chemins pointés, comme MongoDB : objets intermédiaires créés, refus sur une valeur qui n'est pas un objet.
+  async updateOne(filtre, maj, options) {
+    assert.deepEqual(Object.keys(filtre), ['_id'], 'modification par identifiant');
+    assert.deepEqual(Object.keys(maj), ['$set'], 'écriture partielle : $set seulement');
+    assert.equal(options?.upsert, undefined, 'jamais de création par une écriture partielle');
+    const doc = this.docs.get(filtre._id);
+    if (!doc) return { acknowledged: true, matchedCount: 0, modifiedCount: 0 };
+    for (const [chemin, valeur] of Object.entries(maj.$set)) {
+      const segments = chemin.split('.');
+      const dernier = segments.pop();
+      let cible = doc;
+      for (const seg of segments) {
+        cible[seg] ??= {};
+        if (typeof cible[seg] !== 'object' || cible[seg] === null) throw new Error(`Cannot create field '${dernier}' in element ${seg}`);
+        cible = cible[seg];
+      }
+      cible[dernier] = structuredClone(valeur);
+    }
+    return { acknowledged: true, matchedCount: 1, modifiedCount: 1 };
+  }
   async deleteOne(filtre) { return { deletedCount: this.docs.delete(filtre._id) ? 1 : 0 }; }
   async deleteMany(filtre) {
     let n = 0;
@@ -125,6 +145,14 @@ async function scenario(stockage) {
     restants: await stockage.compter('vodNotes'),
     absent: await stockage.lire('strats', 's-zzzzzzzzzz'),
     sansExpire: Object.keys(await depot.lire('strats', 's-aaaaaaaaaa')).includes('_expire'),
+    partielle: [
+      await stockage.modifier('strats', 's-cccccccccc', { 'lus.c-aaaaaaaaaa': '2026-10-21', 'visites.lol': { dernier: 'x' } }),
+      await stockage.modifier('strats', 's-cccccccccc', { 'lus.c-bbbbbbbbbb': '2026-10-22', nom: 'C2' }),
+      await stockage.modifier('strats', 's-zzzzzzzzzz', { nom: 'fantôme' }),
+      await stockage.modifier('strats', 's-cccccccccc', { 'lus.$x': 1 }).catch((e) => e.message),
+    ],
+    apresPartielle: await stockage.lire('strats', 's-cccccccccc'),
+    fantome: await stockage.lire('strats', 's-zzzzzzzzzz'),
   };
 }
 
@@ -193,6 +221,10 @@ test('MongoDB et mémoire donnent exactement les mêmes résultats sur le scéna
   assert.deepEqual(resultatMongo.limite, ['1', '2']);
   assert.deepEqual([resultatMongo.supprimes, resultatMongo.restants], [2, 1]);
   assert.equal(resultatMongo.sansExpire, false);
+  assert.deepEqual(resultatMongo.partielle, [true, true, false, 'Chemin invalide : lus.$x']);
+  const { lus, visites, nom, map } = resultatMongo.apresPartielle;
+  assert.deepEqual({ lus, visites, nom, map }, { lus: { 'c-aaaaaaaaaa': '2026-10-21', 'c-bbbbbbbbbb': '2026-10-22' }, visites: { lol: { dernier: 'x' } }, nom: 'C2', map: 'haven' });
+  assert.equal(resultatMongo.fantome, null, 'pas de création');
   await mongo.fermer();
 });
 
