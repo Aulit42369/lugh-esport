@@ -229,25 +229,40 @@ export async function appliquerReprise(s, { resume, actions }, compte) {
   }
   const motsDePasse = [];
   const quand = s.maintenant().toISOString();
+  // Chaque écriture a son propre essai : une erreur passagère d'Atlas au milieu ne doit pas faire perdre les mots de
+  // passe temporaires des comptes déjà recréés (ils ne sont montrés qu'une fois) ; l'échec est rendu dans le bilan.
+  const echec = (quoi, err) => bilan.echecs.push(`${quoi} : ${String(err?.message || err).slice(0, 120)}`);
   for (const c of actions.comptes) {
-    const acces = Object.fromEntries(Object.entries(c.acces).filter(([jeu]) => s.registre.obtenir(jeu)));
-    const mdpTemporaire = genererMdpTemporaire();
-    await s.global.ecrire('comptes', {
-      ...c, acces, doitChangerMdp: true, hash: await hacherMdp(mdpTemporaire), creeLe: quand, creePar: compte._id, derniereConnexion: null,
-    });
-    motsDePasse.push({ identifiant: c.identifiant, nomAffiche: c.nomAffiche, mdpTemporaire });
-    bilan.comptes += 1;
+    try {
+      const acces = Object.fromEntries(Object.entries(c.acces).filter(([jeu]) => s.registre.obtenir(jeu)));
+      const mdpTemporaire = genererMdpTemporaire();
+      await s.global.ecrire('comptes', {
+        ...c, acces, doitChangerMdp: true, hash: await hacherMdp(mdpTemporaire), creeLe: quand, creePar: compte._id, derniereConnexion: null,
+      });
+      motsDePasse.push({ identifiant: c.identifiant, nomAffiche: c.nomAffiche, mdpTemporaire });
+      bilan.comptes += 1;
+    } catch (err) {
+      echec(`compte ${c.identifiant}`, err);
+    }
   }
   for (const doc of actions.parametres) {
-    await s.global.ecrire('parametres', doc);
-    bilan.donnees += 1;
+    try {
+      await s.global.ecrire('parametres', doc);
+      bilan.donnees += 1;
+    } catch (err) {
+      echec(`paramètres ${doc._id}`, err);
+    }
   }
   for (const [coll, docs] of Object.entries(actions.collections)) {
     for (const doc of docs) {
       // L'autorisation d'un jeu dont la création a échoué n'a plus de jeu.
       if (coll === 'autorisations' && !s.registre.obtenir(doc.jeu)) continue;
-      await s.global.ecrire(coll, doc);
-      bilan.donnees += 1;
+      try {
+        await s.global.ecrire(coll, doc);
+        bilan.donnees += 1;
+      } catch (err) {
+        echec(`${coll} ${doc._id}`, err);
+      }
     }
   }
   await s.historique.ecrire(compte, 'reprise après sinistre de la structure', resume.exporteLe,

@@ -33,18 +33,19 @@ export function verifierSecondFacteur(df, code, maintenant, coffre) {
 export async function convertirClesAuDemarrage({ global, coffre }) {
   let illisibles = 0;
   for (const compte of await global.lister('comptes')) {
-    let change = false;
+    // Écriture partielle (seulement la clé) : pendant un redéploiement, l'ancienne instance peut encore modifier ce
+    // compte (mot de passe, désactivation) ; réécrire la fiche lue au début l'écraserait.
+    const chiffrees = {};
     for (const champ of ['deuxFacteurs', 'deuxFacteursEnAttente']) {
       const secret = compte[champ]?.secret;
       if (!secret) continue;
       if (estChiffre(secret)) {
         if (coffre.dechiffrer(secret) === null) illisibles += 1;
       } else if (coffre.actif) {
-        compte[champ] = { ...compte[champ], secret: coffre.chiffrer(secret) };
-        change = true;
+        chiffrees[`${champ}.secret`] = coffre.chiffrer(secret);
       }
     }
-    if (change) await global.ecrire('comptes', compte);
+    if (Object.keys(chiffrees).length) await global.modifier('comptes', compte._id, chiffrees);
   }
   return illisibles;
 }

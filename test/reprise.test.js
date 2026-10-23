@@ -170,3 +170,33 @@ test('reprise : une sauvegarde version 1 (sans jeux ni comptes) se relit', async
     await sim.arreter();
   }
 });
+
+test('reprise : une écriture en échec au milieu ne fait perdre ni les autres comptes ni leurs mots de passe temporaires', async () => {
+  const { appliquerReprise } = await import('../src/domaine/reprise-structure.js');
+  const ecrits = [];
+  const s = {
+    maintenant: () => new Date('2026-10-23T12:00:00Z'),
+    registre: { obtenir: () => null, creer: async () => {}, modifier: async () => {} },
+    global: {
+      async ecrire(coll, doc) {
+        if (doc.identifiant === 'bob') throw new Error('Atlas indisponible un instant');
+        ecrits.push([coll, doc._id]);
+      },
+    },
+    historique: { async ecrire() {} },
+  };
+  const plan = {
+    resume: { exporteLe: '2026-10-20T10:00:00Z', invalides: 0 },
+    actions: {
+      jeux: [],
+      comptes: ['alice', 'bob', 'chloe'].map((id) => ({ _id: `c-${id}`, identifiant: id, nomAffiche: id, acces: {} })),
+      parametres: [{ _id: 'structure-identite' }],
+      collections: { ecritures: [{ _id: 'e-1' }] },
+    },
+  };
+  const r = await appliquerReprise(s, plan, { _id: 'c-admin' });
+  assert.deepEqual(r.motsDePasse.map((m) => m.identifiant), ['alice', 'chloe']);
+  assert.equal(r.bilan.comptes, 2);
+  assert.match(r.bilan.echecs[0], /compte bob : Atlas indisponible/);
+  assert.deepEqual(ecrits.map(([c]) => c), ['comptes', 'comptes', 'parametres', 'ecritures'], 'la suite continue après l’échec');
+});
