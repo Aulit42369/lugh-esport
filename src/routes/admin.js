@@ -1,7 +1,7 @@
 // Administration générale (Administrateur général) : jeux (activation depuis le catalogue, ajout d'un « Autre jeu »,
 // suppression définitive d'un jeu désactivé), état du service et journal complet. Les comptes sont dans routes/comptes.js.
 
-import { envoyerJson, erreurs } from '../http/outils.js';
+import { envoyerJson, erreurs, listeTransmise } from '../http/outils.js';
 import { exigerConnexion, exigerAdmin } from '../auth/acces.js';
 import { MODELES, ORDRE, ID_AUTRE, resumeModele } from '../../shared/jeux/index.js';
 import { MOTIFS } from '../../shared/validation.js';
@@ -9,6 +9,7 @@ import { accesEspace } from '../../shared/roles.js';
 import { MAX_ESPACES } from '../domaine/collections.js';
 import { lireParametresBot, alerteSauvegarde } from '../domaine/bot.js';
 import { estCouleurJeu } from '../../shared/couleurs.js';
+import { PLAFONDS_MANUELS } from '../config.js';
 
 // Identifiants interdits pour un « Autre jeu » : ils servent déjà d'adresses de pages (#/admin, #/planning…).
 const ID_RESERVES = new Set(['admin', 'jeux', 'compte', 'api', 'accueil', 'planning', 'presences', 'dispos', 'match', 'maps',
@@ -168,6 +169,16 @@ export function routesAdmin(routeur, s) {
       cleClaude: !!s.config.claude.cle,
       modele: s.config.claude.modele,
       cronConfigure: !!s.config.secretCron,
+      // Réservé à l'Administrateur général : sa propre adresse, pour vérifier que Lugh lit la bonne (voir PIEGES).
+      reseau: {
+        ip: r.ip,
+        transmis: String(r.req.headers['x-forwarded-for'] || '').slice(0, 300),
+        elements: listeTransmise(r.req).length,
+        derriereProxy: s.config.derriereProxy,
+        sauts: s.config.proxySauts,
+      },
+      plafonds: PLAFONDS_MANUELS,
+      veilleManuels: (await s.veille.etat()).couts?.[s.maintenant().toISOString().slice(0, 7)]?.manuels || 0,
       avertissements: [...s.config.avertissements, alerteSauvegarde((await lireParametresBot(s.global)).etat, s.maintenant(), s.config.cleBot)].filter(Boolean),
       jeux,
     });

@@ -1,6 +1,6 @@
 // Livres des comptes (association, puis société) : page « Comptes de la structure » (trésorier) et sous-onglet de
 // l'Administration générale → Administratif. Soldes du jour, bilan de l'exercice (imprimable pour l'assemblée
-// générale), rapprochement bancaire, liste des écritures, clôture d'exercice, export tableur, et pour l'association
+// générale), rapprochement bancaire, liste des écritures, historique des modifications, clôture d'exercice, export tableur, et pour l'association
 // l'indicateur « Prêt pour la société ? ».
 
 import { h, bouton, toast, confirmer, liste, onglets, etatVide, messageErreur } from '../ui.js';
@@ -8,7 +8,7 @@ import { api } from '../api.js';
 import { icone } from '../icones.js';
 import * as E from '../etat.js';
 import { puce } from '../composants/jetons.js';
-import { euros, nomCategorie, MOYENS } from '/shared/administratif/comptes.js';
+import { euros, nomCategorie, MOYENS, resumeEcriture } from '/shared/administratif/comptes.js';
 import { formatDate, formatHorodatage, aujourdhui } from '/shared/temps.js';
 import { chargement, erreurChargement } from './admin-commun.js';
 import { fenetreEcriture, fenetreReglages, fenetreRapprochement } from './tresorerie-saisie.js';
@@ -79,6 +79,7 @@ function contenu(d, recharger) {
     d.indicateur ? indicateurSociete(d.indicateur) : null,
     h('div', { class: 'grille-2 section' }, bilan(d.bilan), rapprochement(d, recharger)),
     ecritures(d, recharger),
+    historique(d),
     cloture(d, recharger),
   ];
 }
@@ -164,6 +165,22 @@ function ecritures(d, recharger) {
               }
             },
           })) : null))))));
+}
+
+// Ancienne version de chaque écriture modifiée ou supprimée dans cet exercice (gardée par le serveur, jamais effacée).
+function historique(d) {
+  const liste = d.historique || [];
+  if (!liste.length) return null;
+  const version = (titre, e) => h('div', { class: 'pile-s' }, h('span', { class: 'texte-3 tres-petit' }, titre), h('span', {}, e ? resumeEcriture(e, d.livre) : '—'));
+  return h('details', { class: 'referentiel section sans-impression' },
+    h('summary', {}, h('strong', {}, `Historique des modifications (${liste.length})`)),
+    h('p', { class: 'texte-3 petit' }, 'Chaque écriture modifiée ou supprimée garde sa version d’avant : qui, quand, avant et après.'),
+    h('ul', { class: 'pile' }, liste.map((x) => h('li', { class: 'fiche pile-s' },
+      h('div', { class: 'rangee' }, puce(x.action === 'suppression' ? 'Supprimée' : 'Modifiée', x.action === 'suppression' ? 'negatif' : 'info'),
+        h('span', { class: 'texte-3 petit' }, `${formatHorodatage(x.le)} par ${x.parNom}`)),
+      version('Avant', x.avant),
+      x.apres ? version('Après', x.apres) : null))),
+    h('a', { href: `/api/tresorerie/export${requete({ exercice: d.exercice.annee, historique: '1' })}`, class: 'btn btn--discret', download: '' }, icone('telecharger'), 'Tableur de l’historique'));
 }
 
 function cloture(d, recharger) {

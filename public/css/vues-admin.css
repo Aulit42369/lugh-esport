@@ -415,3 +415,5 @@
 .adm-discord__types { border: 0; margin: 0; padding: 0; min-width: 0; }
 .adm-discord__ligne { flex-wrap: nowrap; align-items: center; }
 .adm-discord__ligne > div:first-child { flex: 1 1 auto; min-width: 0; }
+/* Service : adresse IP vue par Lugh et X-Forwarded-For brut (peuvent être longs). */
+.adm-adresse code { font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; padding: 1px 6px; border-radius: 4px; background: var(--creux); color: var(--encre); overflow-wrap: anywhere; }

@@ -17,9 +17,12 @@ export function routesMeta(routeur, s) {
   });
 
   routeur.post('/api/e/:jeu/meta/actualiser', exigerConnexion(s), exigerEspace(s), exigerPerm('meta.actualiser'), async (r) => {
-    const resultat = r.espace.actualisation.lancer({ declencheur: 'manuel', compte: r.compte });
+    const resultat = await r.espace.actualisation.lancerManuel(r.compte);
     if (!resultat.lancee) {
       if (resultat.raison === 'en_cours') throw erreurs.conflit('Une actualisation est déjà en cours.');
+      if (resultat.raison === 'plafond') {
+        throw erreurs.tropDeRequetes(`Plafond de ${resultat.plafond} vérifications manuelles ce mois-ci atteint ; prochaine vérification automatique lundi ou jeudi (l’import manuel reste possible).`);
+      }
       throw erreurs.indisponible('Clé API Claude absente : ajoute ANTHROPIC_API_KEY dans les variables Render.');
     }
     envoyerJson(r.res, 202, { lancee: true });

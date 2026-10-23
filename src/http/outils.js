@@ -104,11 +104,17 @@ export function serialiserCookie(nom, valeur, { maxAge, httpOnly = true, secure 
   return parts.join('; ');
 }
 
-export function ipClient(req, derriereProxy) {
+// Liste de X-Forwarded-For, du client (à gauche) au dernier proxy (à droite).
+export function listeTransmise(req) {
+  return String(req.headers['x-forwarded-for'] || '').split(',').map((x) => x.trim()).filter(Boolean);
+}
+
+// sauts : nombre de proxys de confiance. Chacun AJOUTE l'adresse qu'il voit à la fin : le début de la liste peut être
+// écrit par le client, seuls les « sauts » derniers éléments sont sûrs. Liste plus courte : on prend son premier élément.
+export function ipClient(req, derriereProxy, sauts = 1) {
   if (derriereProxy) {
-    // Le proxy de Render AJOUTE l'adresse réelle à la fin : le début de la liste peut être écrit par le client.
-    const transmis = String(req.headers['x-forwarded-for'] || '').split(',').map((x) => x.trim()).filter(Boolean).at(-1) || '';
-    if (transmis) return transmis;
+    const liste = listeTransmise(req);
+    if (liste.length) return liste.at(-Math.min(sauts, liste.length));
   }
   return req.socket?.remoteAddress || 'inconnue';
 }

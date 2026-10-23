@@ -8,7 +8,7 @@ import { validerMeta } from '../../shared/schemas-meta.js';
 import { diffMeta, suggestionsDepuisDiff, idSuggestion } from '../../shared/alertes.js';
 import { aujourdhui } from '../../shared/temps.js';
 import { champsMetier } from '../domaine/depot.js';
-import { TARIFS_CLAUDE, TARIF_RECHERCHE } from '../config.js';
+import { TARIFS_CLAUDE, TARIF_RECHERCHE, PLAFONDS_MANUELS } from '../config.js';
 
 const HISTORIQUE_MAX = 20;
 const SUGGESTIONS_MAX = 60;
@@ -19,10 +19,21 @@ export function coutEstime(modele, usage) {
   return (usage.entree / 1e6) * t.entree + (usage.sortie / 1e6) * t.sortie + usage.recherches * TARIF_RECHERCHE;
 }
 
+const MOIS_VIDE = { passages: 0, entree: 0, sortie: 0, recherches: 0, usd: 0 };
+
+// Vérifications lancées à la main, comptées dans le même cumul mensuel que le coût (plafond PLAFONDS_MANUELS),
+// qu'elles réussissent ou non : un appel qui échoue après avoir consommé des jetons coûte aussi.
+export function compterManuel(couts = {}, mois) {
+  const m = couts[mois] || MOIS_VIDE;
+  return { ...couts, [mois]: { ...m, manuels: (m.manuels || 0) + 1 } };
+}
+export const manuelsDuMois = (couts, mois) => couts?.[mois]?.manuels || 0;
+
 export function cumulerCouts(couts = {}, mois, usage, usd) {
   const c = { ...couts };
-  const m = c[mois] || { passages: 0, entree: 0, sortie: 0, recherches: 0, usd: 0 };
+  const m = c[mois] || MOIS_VIDE;
   c[mois] = {
+    ...m,
     passages: m.passages + 1,
     entree: m.entree + usage.entree,
     sortie: m.sortie + usage.sortie,
@@ -81,6 +92,7 @@ export function creerActualisation({
   async function appliquer(brut, { declencheur, compte = null, usage = USAGE_NUL, creneau = null, payant = false }) {
     const debut = maintenant();
     const mois = debut.toISOString().slice(0, 7);
+    const manuel = (c) => (declencheur === 'manuel' ? compterManuel(c, mois) : c);
     const avantDoc = await stockage.lire('meta', 'courante');
     const avant = avantDoc ? champsMetier(avantDoc) : null;
     const verif = validerMeta(definition(), brut, avant);
@@ -98,7 +110,7 @@ export function creerActualisation({
       derniereTentative: debut.toISOString(),
       declencheur,
       tentatives: compterTentative(avant, creneau),
-      couts: payant ? cumulerCouts(avant?.couts, mois, usage, coutEstime(config.claude.modele, usage)) : (avant?.couts || {}),
+      couts: manuel(payant ? cumulerCouts(avant?.couts, mois, usage, coutEstime(config.claude.modele, usage)) : (avant?.couts || {})),
     };
     const diff = diffMeta(avant, nouvelle);
     nouvelle.dernierEcart = resumerEcart(diff);
@@ -115,9 +127,9 @@ export function creerActualisation({
     const avantDoc = await stockage.lire('meta', 'courante');
     if (avantDoc) {
       const avant = champsMetier(avantDoc);
-      const couts = usage.entree || usage.recherches
-        ? cumulerCouts(avant.couts, debut.toISOString().slice(0, 7), usage, coutEstime(config.claude.modele, usage))
-        : avant.couts || {};
+      const mois = debut.toISOString().slice(0, 7);
+      let couts = usage.entree || usage.recherches ? cumulerCouts(avant.couts, mois, usage, coutEstime(config.claude.modele, usage)) : avant.couts || {};
+      if (declencheur === 'manuel') couts = compterManuel(couts, mois);
       await depot.enregistrer('meta', 'courante', {
         ...avant, statut: 'echec', erreur, derniereTentative: debut.toISOString(), declencheur, couts, tentatives: compterTentative(avant, creneau),
       }, compte);
@@ -162,6 +174,15 @@ export function creerActualisation({
           enCours = null;
         });
       return { lancee: true, promesse: enCours };
+    },
+    // Bouton « Vérifier maintenant » : plafonné par mois (le compteur est écrit à la fin du passage, avant de
+    // libérer le verrou : deux clics rapprochés ne passent pas tous les deux).
+    async lancerManuel(compte) {
+      if (enCours) return { lancee: false, raison: 'en_cours' };
+      const doc = await stockage.lire('meta', 'courante');
+      const utilise = manuelsDuMois(doc?.couts, maintenant().toISOString().slice(0, 7));
+      if (utilise >= PLAFONDS_MANUELS.meta) return { lancee: false, raison: 'plafond', plafond: PLAFONDS_MANUELS.meta };
+      return this.lancer({ declencheur: 'manuel', compte });
     },
     // Import manuel : le JSON préparé par Claude dans une conversation, collé par un Responsable ou un coach.
     async importer(texte, compte) {

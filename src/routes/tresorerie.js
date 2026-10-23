@@ -3,12 +3,13 @@
 // catégories, ses réglages (début d'exercice, soldes d'ouverture), ses clôtures et son rapprochement bancaire.
 // Les justificatifs restent hors de Lugh : seul leur numéro de pièce est noté.
 // Collection « ecritures » (champ « livre », absent = association) et documents parametres/structure-comptes(-societe).
+// Collection « ecrituresHistorique » : l'ancienne version de chaque écriture modifiée ou supprimée.
 
 import { envoyerJson, erreurs } from '../http/outils.js';
 import { exigerConnexion } from '../auth/acces.js';
 import { valider, nouvelId, date } from '../../shared/validation.js';
 import {
-  schemaEcriture, reglagesComptes, bornesExercice, exerciceDe, bilanExercice, soldes, csvEcritures, euros, MONTANT_MAX,
+  schemaEcriture, reglagesComptes, bornesExercice, exerciceDe, bilanExercice, soldes, csvEcritures, csvHistorique, euros, MONTANT_MAX,
   LIVRES, livreValide, recettesCommerciales,
 } from '../../shared/administratif/comptes.js';
 import { exerciceValide, contexteStructure } from '../../shared/administratif/identite.js';
@@ -21,6 +22,7 @@ export const ID_COMPTES_SOCIETE = 'structure-comptes-societe';
 const ID_PARAMETRES = { association: ID_COMPTES, societe: ID_COMPTES_SOCIETE };
 const MAX_ECRITURES = 5000; // par livre
 const MOTIF_ID = /^e-[a-z0-9]{4,40}$/;
+export const HISTORIQUE = 'ecrituresHistorique';
 
 export const livreDe = (e) => (e?.livre === 'societe' ? 'societe' : 'association');
 const nomLivre = (livre) => LIVRES.find((l) => l.id === livre)?.nom.toLowerCase() || livre;
@@ -87,6 +89,26 @@ export function routesTresorerie(routeur, s) {
     return { actuelle, livre, reg };
   }
 
+  // Trace écrite AVANT la modification : au pire une trace sans changement, jamais un changement sans trace.
+  // Jamais effacée par Lugh, même après la clôture : les livres et pièces se gardent 6 ans (impôts, LPF art. L102 B)
+  // et 10 ans pour une société (C. com. art. L123-22). Seul l'Administrateur général peut l'effacer, à la main dans Atlas.
+  // Collection à part plutôt qu'un champ de l'écriture : une écriture supprimée disparaît, sa trace reste.
+  async function garderVersion(r, action, avant, apres = null) {
+    await s.global.ecrire(HISTORIQUE, {
+      _id: nouvelId('h'), ecriture: avant._id, livre: livreDe(avant), action, le: s.maintenant().toISOString(), par: r.compteGlobal._id, avant, apres,
+    });
+  }
+
+  // Modifications des écritures de l'exercice (date d'avant ou d'après dans ses bornes), les plus récentes d'abord.
+  async function historique(livre, bornes) {
+    const dans = (e) => e && e.date >= bornes.debut && e.date <= bornes.fin;
+    return (await s.global.lister(HISTORIQUE, { livre }, { tri: { le: -1 } })).filter((x) => dans(x.avant) || dans(x.apres));
+  }
+  async function nomsComptes() {
+    const noms = new Map((await s.global.lister('comptes')).map((c) => [c._id, c.nomAffiche || c.identifiant]));
+    return (id) => noms.get(id) || 'Un ancien compte';
+  }
+
   // « Prêt pour la société ? » : recettes commerciales de l'association sur 12 mois, face à la franchise des impôts
   // commerciaux et au seuil de passage choisi dans Identité (s'il y a un passage prévu).
   function indicateur(liste, ctx) {
@@ -105,6 +127,8 @@ export function routesTresorerie(routeur, s) {
     const bornes = exerciceDemande(r, reg);
     const liste = await toutes(livre);
     const auj = aujourdhui();
+    const modifications = await historique(livre, bornes);
+    const nomPar = modifications.length ? await nomsComptes() : null;
     const rap = reg.rapprochement ? { ...reg.rapprochement, calcule: soldes(liste, reg.ouverture, reg.rapprochement.date).banque } : null;
     envoyerJson(r.res, 200, {
       livre,
@@ -118,6 +142,7 @@ export function routesTresorerie(routeur, s) {
       rapprochement: rap ? { ...rap, ecart: rap.solde - rap.calcule } : null,
       exercices: [...new Set([exerciceDe(auj, reg.debutExercice).annee, ...liste.map((e) => exerciceDe(e.date, reg.debutExercice).annee)])].sort((a, b) => b - a),
       indicateur: livre === 'association' ? indicateur(liste, ctx) : null,
+      historique: modifications.map((x) => ({ ...x, parNom: nomPar(x.par) })),
       nombre: liste.length,
       max: MAX_ECRITURES,
     });
@@ -140,6 +165,7 @@ export function routesTresorerie(routeur, s) {
     const { actuelle, livre, reg } = await ecritureExistante(r);
     const valeur = await verifierEcriture(await r.corps(), reg, livre);
     const doc = { ...actuelle, ...valeur, livre, modifieLe: s.maintenant().toISOString(), modifiePar: r.compteGlobal._id };
+    await garderVersion(r, 'modification', actuelle, doc);
     await s.global.ecrire('ecritures', doc);
     await s.historique.ecrire(r.compteGlobal, `écriture modifiée dans le livre des comptes (${nomLivre(livre)})`, valeur.libelle, `${valeur.sens} ${euros(valeur.montant)}`);
     envoyerJson(r.res, 200, { ecriture: doc });
@@ -147,6 +173,7 @@ export function routesTresorerie(routeur, s) {
 
   routeur.delete('/api/tresorerie/ecritures/:id', ...tresorier, async (r) => {
     const { actuelle, livre } = await ecritureExistante(r);
+    await garderVersion(r, 'suppression', actuelle);
     await s.global.supprimer('ecritures', actuelle._id);
     await s.historique.ecrire(r.compteGlobal, `écriture supprimée du livre des comptes (${nomLivre(livre)})`, actuelle.libelle, `${actuelle.sens} ${euros(actuelle.montant)}`);
     envoyerJson(r.res, 200, { ok: true });
@@ -199,12 +226,15 @@ export function routesTresorerie(routeur, s) {
     const { livre } = await livreDemande(r);
     const reg = await reglages(livre);
     const bornes = exerciceDemande(r, reg);
-    const liste = (await toutes(livre)).filter((e) => e.date >= bornes.debut && e.date <= bornes.fin);
-    const corps = csvEcritures(liste, livre);
-    await s.historique.ecrire(r.compteGlobal, `export du livre des comptes (${nomLivre(livre)})`, bornes.libelle);
+    // ?historique=1 : le tableur des modifications et suppressions de l'exercice, au lieu des écritures.
+    const versions = r.query.get('historique') === '1';
+    const corps = versions
+      ? csvHistorique(await historique(livre, bornes), livre, await nomsComptes())
+      : csvEcritures((await toutes(livre)).filter((e) => e.date >= bornes.debut && e.date <= bornes.fin), livre);
+    await s.historique.ecrire(r.compteGlobal, `export ${versions ? 'de l’historique ' : ''}du livre des comptes (${nomLivre(livre)})`, bornes.libelle);
     r.res.writeHead(200, {
       'Content-Type': 'text/csv; charset=utf-8',
-      'Content-Disposition': `attachment; filename="${MARQUE.id}-comptes-${livre}-${bornes.libelle}.csv"`,
+      'Content-Disposition': `attachment; filename="${MARQUE.id}-comptes-${livre}-${bornes.libelle}${versions ? '-historique' : ''}.csv"`,
       'Cache-Control': 'no-store',
       'Content-Length': Buffer.byteLength(corps),
     });

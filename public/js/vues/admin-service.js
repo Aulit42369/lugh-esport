@@ -1,5 +1,5 @@
 // Administration générale, onglet Service : état du serveur (version, base, clé API Claude, réveil externe),
-// une ligne par jeu (méta, vérification automatique, coût du mois, Discord) et le journal général de tous les jeux.
+// adresse IP vue par Lugh, une ligne par jeu (méta, vérification automatique, coût du mois et vérifications à la main, Discord) et le journal général de tous les jeux.
 
 import { MARQUE } from '/shared/marque.js';
 import { h, champ, liste, toast, messageErreur } from '../ui.js';
@@ -49,6 +49,7 @@ function contenu(d) {
           etat.espace?.mo !== null && etat.espace?.mo !== undefined ? [h('dt', {}, 'Espace utilisé'), h('dd', {},
             etat.espace.mo >= 400 ? puce(`${etat.espace.mo} Mo sur ${etat.espace.limiteMo} : à surveiller`, 'attention') : `${etat.espace.mo} Mo sur ${etat.espace.limiteMo} (offre gratuite d’Atlas)`)] : null,
           h('dt', {}, 'Réveil externe'), h('dd', {}, etat.cronConfigure ? puce('Secret configuré', 'positif') : h('span', { class: 'texte-2' }, 'Non configuré (facultatif)'))),
+        etat.reseau ? adresseVue(etat.reseau) : null,
         etat.avertissements?.length
           ? h('ul', { class: 'pile-s adm-avertissements' }, etat.avertissements.map((a) => h('li', { class: 'alerte alerte--attention' }, icone('alerte'), h('span', {}, a))))
           : h('p', { class: 'texte-3 petit adm-ok' }, icone('ok', { classe: 'icone-texte' }), ' Aucun avertissement de configuration.')),
@@ -57,11 +58,29 @@ function contenu(d) {
         h('dl', { class: 'details' },
           h('dt', {}, 'Rythme'), h('dd', {}, etat.cleClaude ? 'À la première visite d’un jeu après le lundi et le jeudi 7 h 45 (Paris)' : 'Aucun : import manuel depuis la page Méta de chaque jeu'),
           h('dt', {}, 'Ce mois-ci'), h('dd', {}, h('strong', {}, dollars(coutMois)), h('span', { class: 'texte-3' }, ` estimés, tous jeux confondus (${mois})`)),
-          h('dt', {}, 'Jeux suivis'), h('dd', {}, `${etat.jeux.filter((j) => j.actif && j.metaAuto).length} sur ${etat.jeux.length} en vérification automatique`)),
+          h('dt', {}, 'Jeux suivis'), h('dd', {}, `${etat.jeux.filter((j) => j.actif && j.metaAuto).length} sur ${etat.jeux.length} en vérification automatique`),
+          etat.plafonds ? [h('dt', {}, 'Vérifications à la main'), h('dd', {}, `${etat.plafonds.meta} par mois et par jeu pour la méta (voir le tableau des jeux)`),
+            h('dt', {}, 'Veille légale'), h('dd', {}, utilise(etat.veilleManuels, etat.plafonds.veille), h('span', { class: 'texte-3' }, ' vérifications ce mois-ci'))] : null),
         h('p', { class: 'texte-3 petit' }, 'Chaque Responsable coupe la vérification automatique de son jeu dans ses Réglages du jeu. Un jeu que personne n’ouvre ne coûte rien.'))),
     sectionJeux(d),
     sectionJournal(d),
   ];
+}
+
+// « 3 / 10 », en alerte quand le plafond est atteint : au-delà, le bouton de vérification est refusé jusqu'au mois suivant.
+function utilise(n = 0, plafond) {
+  return n >= plafond ? puce(`${n} / ${plafond}`, 'attention') : h('strong', {}, `${n} / ${plafond}`);
+}
+
+// Adresse que Lugh attribue à l'Administrateur général : sert au blocage après 20 échecs et à la limite de débit.
+// Si ce n'est pas la sienne, tous les visiteurs partagent peut-être la même (celle d'un proxy de Render).
+function adresseVue(reseau) {
+  return h('div', { class: 'pile-s adm-adresse' },
+    h('dl', { class: 'details' },
+      h('dt', {}, 'Ton adresse vue par Lugh'), h('dd', {}, h('code', {}, reseau.ip)),
+      h('dt', {}, 'X-Forwarded-For reçu'), h('dd', {}, reseau.transmis ? h('code', {}, reseau.transmis) : h('span', { class: 'texte-3' }, 'absent'),
+        h('span', { class: 'texte-3 tres-petit' }, ` ${reseau.elements} élément${reseau.elements > 1 ? 's' : ''} ; ${reseau.derriereProxy ? `Lugh garde le ${reseau.sauts === 1 ? 'dernier' : `${reseau.sauts}e en partant de la fin`} (LUGH_PROXY_SAUTS = ${reseau.sauts})` : 'pas de proxy déclaré : adresse de la connexion'}`))),
+    h('p', { class: 'texte-3 petit' }, 'À vérifier une fois après chaque changement d’hébergement : compare « Ton adresse vue par Lugh » avec celle qu’affiche un site « quelle est mon adresse IP ». Si elles diffèrent (ou si l’adresse ressemble à une adresse interne, 10.x, 172.16 à 31.x), dis-le à Claude avec la ligne X-Forwarded-For : un mauvais réglage ferait partager à tous les visiteurs le même compteur d’échecs de connexion.'));
 }
 
 function resultatMeta(m) {
@@ -93,7 +112,8 @@ function sectionJeux(d) {
           cellule('Dernière vérification', j.meta?.derniereVerif ? h('span', { title: formatHorodatage(j.meta.derniereVerif) }, ilYA(j.meta.derniereVerif)) : 'jamais'),
           cellule('Résultat', resultatMeta(j.meta)),
           cellule('Vérif. auto', j.metaAuto ? puce('Oui', 'info') : puce('Coupée')),
-          h('td', { class: 'num', 'data-libelle': 'Coût du mois' }, dollars(cout?.usd || 0), cout?.passages ? h('span', { class: 'texte-3 tres-petit' }, ` · ${cout.passages} passage${cout.passages > 1 ? 's' : ''}`) : null),
+          h('td', { class: 'num', 'data-libelle': 'Coût du mois' }, dollars(cout?.usd || 0), cout?.passages ? h('span', { class: 'texte-3 tres-petit' }, ` · ${cout.passages} passage${cout.passages > 1 ? 's' : ''}`) : null,
+            d.etat.plafonds ? h('span', { class: 'tres-petit' }, ' · à la main ', utilise(cout?.manuels, d.etat.plafonds.meta)) : null),
           cellule('Discord', j.discord ? puce('Configuré', 'positif') : h('span', { class: 'texte-3' }, 'Non configuré')),
           cellule('Gestion', h('a', { href: `#/${encodeURIComponent(j.id)}/gestion`, class: 'btn btn--petit btn--discret', 'aria-label': `Gestion de ${j.nom}` }, 'Gestion', icone('droite'))));
       })))
