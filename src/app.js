@@ -109,7 +109,7 @@ export async function creerApp({
     const chemin = url.pathname;
     try {
       if (chemin.startsWith('/api/')) {
-        const ip = ipClient(req, config.derriereProxy);
+        const ip = ipClient(req, config.derriereProxy, config.proxySauts);
         if (!limiteurDebit.autoriser(ip)) throw erreurs.tropDeRequetes();
         // Le cron et le bot s'authentifient par une clé dans l'en-tête Authorization, sans cookie : pas d'en-tête X-Lugh.
         if (!chemin.startsWith('/api/cron/') && !chemin.startsWith('/api/bot/')) controlerEcriture(req, config);

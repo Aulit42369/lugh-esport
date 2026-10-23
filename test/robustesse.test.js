@@ -8,6 +8,7 @@ import { nouvelId } from '../shared/validation.js';
 import { reinitialiserAuDemarrage } from '../src/auth/deuxfacteurs.js';
 import { restaurer } from '../src/domaine/restauration.js';
 import { ipClient } from '../src/http/outils.js';
+import { lireConfig } from '../src/config.js';
 import { validerReglagesJeu } from '../shared/jeux/reglages-jeu.js';
 import { modele } from '../shared/jeux/index.js';
 
@@ -64,6 +65,17 @@ test('adresse IP derrière le proxy : la dernière de X-Forwarded-For (le début
   const req = { headers: { 'x-forwarded-for': '1.2.3.4, 9.9.9.9' }, socket: { remoteAddress: '10.0.0.1' } };
   assert.equal(ipClient(req, true), '9.9.9.9');
   assert.equal(ipClient(req, false), '10.0.0.1');
+});
+
+test('LUGH_PROXY_SAUTS : N proxys de confiance, le N-ième en partant de la droite ; liste plus courte : le premier', () => {
+  const req = { headers: { 'x-forwarded-for': ' 1.2.3.4 ,5.6.7.8, 9.9.9.9' }, socket: { remoteAddress: '10.0.0.1' } };
+  assert.equal(ipClient(req, true, 1), '9.9.9.9');
+  assert.equal(ipClient(req, true, 2), '5.6.7.8');
+  assert.equal(ipClient(req, true, 5), '1.2.3.4');
+  assert.equal(ipClient({ headers: {}, socket: { remoteAddress: '10.0.0.1' } }, true, 2), '10.0.0.1', 'sans en-tête : adresse de la connexion');
+  assert.equal(lireConfig({ LUGH_MODE: 'simulation' }).proxySauts, 1, 'par défaut : le dernier, comme avant');
+  assert.equal(lireConfig({ LUGH_MODE: 'simulation', LUGH_PROXY_SAUTS: '2' }).proxySauts, 2);
+  for (const v of ['0', '1.5', 'deux', '9']) assert.equal(lireConfig({ LUGH_MODE: 'simulation', LUGH_PROXY_SAUTS: v }).erreurs.length, 1, v);
 });
 
 test('format de profil : les motifs qui peuvent figer le navigateur sont refusés', () => {

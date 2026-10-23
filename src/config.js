@@ -9,6 +9,10 @@ export const TARIFS_CLAUDE = {
 };
 export const TARIF_RECHERCHE = 0.01; // 10 $ pour 1 000 recherches web
 
+// Vérifications lancées à la main par mois (bouton) : la méta par jeu, la veille légale pour la structure.
+// Les passages automatiques du lundi et du jeudi ne comptent pas.
+export const PLAFONDS_MANUELS = { meta: 10, veille: 5 };
+
 export function lireConfig(env = process.env) {
   const mode = env.LUGH_MODE === 'simulation' ? 'simulation' : 'production';
   const erreurs = [];
@@ -61,6 +65,11 @@ export function lireConfig(env = process.env) {
   const reinitialiser2fa = (env.LUGH_REINITIALISER_2FA || '').trim().toLowerCase();
   if (reinitialiser2fa) avertissements.push(`LUGH_REINITIALISER_2FA est défini (${reinitialiser2fa}) : retire-le des variables Render maintenant que le compte est débloqué.`);
 
+  // Nombre de proxys de confiance devant Lugh : l'adresse du client est le N-ième élément de X-Forwarded-For en
+  // partant de la droite (1 = le dernier, celui qu'ajoute le proxy de Render). À vérifier dans Administration → Service.
+  const proxySauts = Number(env.LUGH_PROXY_SAUTS || 1);
+  if (!Number.isInteger(proxySauts) || proxySauts < 1 || proxySauts > 5) erreurs.push('LUGH_PROXY_SAUTS invalide : un nombre entier de 1 à 5.');
+
   const surRender = env.RENDER === 'true';
   const simulation = mode === 'simulation';
   return {
@@ -83,6 +92,7 @@ export function lireConfig(env = process.env) {
     },
     origine,
     derriereProxy: surRender || env.LUGH_PROXY === '1',
+    proxySauts,
     cookieSecurise: surRender || origine.startsWith('https://'),
     hsts: surRender,
     fuseau: 'Europe/Paris',

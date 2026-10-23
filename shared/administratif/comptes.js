@@ -211,12 +211,30 @@ export function lireMontant(saisie) {
 }
 
 // Export tableur (Excel en français : point-virgule, virgule décimale, BOM UTF-8).
+const cellule = (v) => {
+  let t = String(v ?? '');
+  if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`; // jamais de formule exécutée par le tableur
+  return /[;"\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+};
+const tableur = (lignes) => `﻿${lignes.map((l) => l.map(cellule).join(';')).join('\r\n')}\r\n`;
+
+// Une écriture en une ligne lisible (historique des modifications, à l'écran et dans le tableur).
+export function resumeEcriture(e, livre = 'association') {
+  if (!e) return '';
+  const type = SENS.find((x) => x.id === e.sens)?.nom || e.sens;
+  const moyen = e.sens === 'transfert' ? `${e.moyen} → ${e.vers}` : e.moyen;
+  return [e.date, `${type} ${euros(e.montant)}`, e.libelle, e.sens === 'transfert' ? '' : nomCategorie(e.sens, e.categorie, livre), moyen,
+    e.piece && `pièce ${e.piece}`, e.tiers, e.note].filter(Boolean).join(' · ');
+}
+
+// Historique des écritures modifiées ou supprimées : qui, quand, la version d'avant et celle d'après.
+export function csvHistorique(entrees, livre = 'association', nomPar = (id) => id) {
+  const lignes = [['Le', 'Par', 'Action', 'Avant', 'Après']];
+  for (const x of entrees) lignes.push([x.le, nomPar(x.par), x.action === 'suppression' ? 'Supprimée' : 'Modifiée', resumeEcriture(x.avant, livre), resumeEcriture(x.apres, livre)]);
+  return tableur(lignes);
+}
+
 export function csvEcritures(ecritures, livre = 'association') {
-  const cellule = (v) => {
-    let t = String(v ?? '');
-    if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`; // jamais de formule exécutée par le tableur
-    return /[;"\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
-  };
   const montant = (c) => (c / 100).toFixed(2).replace('.', ',');
   const lignes = [['Date', 'Type', 'Catégorie', 'Libellé', 'Tiers', 'N° de pièce', 'Moyen', 'Recette', 'Dépense', 'Note']];
   for (const e of [...ecritures].sort((a, b) => a.date.localeCompare(b.date))) {
@@ -225,7 +243,7 @@ export function csvEcritures(ecritures, livre = 'association') {
     lignes.push([e.date, type, e.sens === 'transfert' ? '' : nomCategorie(e.sens, e.categorie, livre), e.libelle, e.tiers || '', e.piece || '', moyen,
       e.sens === 'recette' ? montant(e.montant) : '', e.sens === 'depense' ? montant(e.montant) : '', e.note || '']);
   }
-  return `﻿${lignes.map((l) => l.map(cellule).join(';')).join('\r\n')}\r\n`;
+  return tableur(lignes);
 }
 
 // Recettes commerciales de l'association sur 12 mois glissants jusqu'à « jusqua » inclus (centimes) : sponsors,

@@ -4,7 +4,8 @@
 // proposition que l'Administrateur général accepte ou refuse. Document unique : parametres/structure-veille.
 
 import { interrogerClaude as interrogerParDefaut, extraireJson } from '../meta/claude.js';
-import { coutEstime, cumulerCouts } from '../meta/actualisation.js';
+import { coutEstime, cumulerCouts, compterManuel, manuelsDuMois } from '../meta/actualisation.js';
+import { PLAFONDS_MANUELS } from '../config.js';
 import { obligationsEffectives, sectionsVisibles, SOURCES_OFFICIELLES, NIVEAUX, tousLesPoints } from '../../shared/administratif/obligations.js';
 import { nouvelId } from '../../shared/validation.js';
 
@@ -116,7 +117,7 @@ export function creerVeille({
     const decidees = gardees.filter((p) => p.statut !== 'nouvelle');
     doc.propositions = [...enAttente, ...decidees].slice(0, Math.max(PROPOSITIONS_MAX, enAttente.length));
     Object.assign(doc, { derniereVerif: quand, declencheur, statut: 'ok', erreur: null });
-    if (usage) doc.couts = cumulerCouts(doc.couts, quand.slice(0, 7), usage, coutEstime(config.claude.modele, usage));
+    if (usage) doc.couts = compterManuel(cumulerCouts(doc.couts, quand.slice(0, 7), usage, coutEstime(config.claude.modele, usage)), quand.slice(0, 7));
     await global.ecrire('parametres', doc);
     return { ok: true, nouvelles: nouvelles.length };
   }
@@ -134,6 +135,7 @@ export function creerVeille({
       const quand = maintenant().toISOString();
       Object.assign(doc, { statut: 'echec', erreur: String(e?.message || e).slice(0, 300), derniereTentative: quand });
       if (usage) doc.couts = cumulerCouts(doc.couts, quand.slice(0, 7), usage, coutEstime(config.claude.modele, usage));
+      doc.couts = compterManuel(doc.couts, quand.slice(0, 7)); // toute vérification par l'API est lancée à la main
       await global.ecrire('parametres', doc);
       return { ok: false, erreur: doc.erreur };
     }
@@ -155,9 +157,14 @@ export function creerVeille({
         cleApi: !!config.claude.cle,
       };
     },
-    lancer() {
+    // Plafonnée par mois (PLAFONDS_MANUELS.veille) ; l'import manuel ne compte pas.
+    async lancer() {
       if (enCours) return { lancee: false, raison: 'en_cours' };
       if (!config.claude.cle) return { lancee: false, raison: 'cle_absente' };
+      if (manuelsDuMois((await lire()).couts, maintenant().toISOString().slice(0, 7)) >= PLAFONDS_MANUELS.veille) {
+        return { lancee: false, raison: 'plafond', plafond: PLAFONDS_MANUELS.veille };
+      }
+      if (enCours) return { lancee: false, raison: 'en_cours' }; // lancée par une autre requête pendant la lecture
       enCours = executer()
         .catch((e) => {
           journal.error?.('[veille]', e?.message || e);

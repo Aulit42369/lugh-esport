@@ -121,8 +121,11 @@ export function routesAdministratif(routeur, s) {
 
   // ——— Veille légale ———
   routeur.post('/api/admin/administratif/veille', ...admin, async (r) => {
-    const resultat = s.veille.lancer();
+    const resultat = await s.veille.lancer();
     if (!resultat.lancee) {
+      if (resultat.raison === 'plafond') {
+        throw erreurs.tropDeRequetes(`Plafond de ${resultat.plafond} vérifications de la veille légale ce mois-ci atteint : utilise la vérification manuelle (copier la consigne, coller la réponse).`);
+      }
       throw erreurs.conflit(resultat.raison === 'cle_absente'
         ? 'Clé API Claude absente : utilise la vérification manuelle (copier la consigne, coller la réponse).'
         : 'Une vérification est déjà en cours.');

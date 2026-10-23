@@ -74,7 +74,7 @@ test('actualisation de Valorant : méta validée, écart, historique, coût du m
   assert.deepEqual(meta.dernierEcart, {
     patch: { avant: '13.08', apres: '13.09' }, entrees: ['Ascent'], sorties: ['Sunset'], personnagesModifies: ['Jett'], nouveauxPersonnages: ['Nova'], vide: false,
   });
-  assert.deepEqual(meta.couts, { '2026-10': { passages: 1, entree: 50_000, sortie: 4_000, recherches: 6, usd: 0.2 } });
+  assert.deepEqual(meta.couts, { '2026-10': { passages: 1, entree: 50_000, sortie: 4_000, recherches: 6, usd: 0.2, manuels: 1 } }, 'le bouton compte dans le plafond du mois');
   assert.deepEqual((await e.stockage.lister('metaHistorique')).map((h) => h.patch), ['13.08']);
 
   const suggestions = Object.fromEntries((await e.stockage.lister('suggestions')).map((s) => [s.titre, s]));
