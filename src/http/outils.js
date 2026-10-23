@@ -1,6 +1,7 @@
 // Outils HTTP : erreurs typées, réponses JSON (compressées au-delà de 16 Ko), corps de requête, cookies, adresse IP.
 
 import { gzipSync } from 'node:zlib';
+import { isIP } from 'node:net';
 
 export class ErreurHttp extends Error {
   constructor(statut, code, message, details = null) {
@@ -117,4 +118,18 @@ export function ipClient(req, derriereProxy, sauts = 1) {
     if (liste.length) return liste.at(-Math.min(sauts, liste.length));
   }
   return req.socket?.remoteAddress || 'inconnue';
+}
+
+// Adresse interne (privée, locale, CGNAT, lien local) : celle d'un proxy, jamais celle d'un visiteur sur Internet.
+const INTERNE = /^(::ffff:)?(10\.|127\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.|169\.254\.)|^(::1$|f[cd]|fe[89ab])/i;
+
+// Garde-fou de LUGH_PROXY_SAUTS (affiché dans Service, ne change rien au calcul) : signale un en-tête qui ne ressemble
+// pas à ce qu'ajoute un proxy de confiance. null quand tout paraît normal.
+export function alerteReseau({ ip, elements, derriereProxy, sauts }) {
+  if (!derriereProxy) return null;
+  if (!elements) return 'Aucun X-Forwarded-For reçu alors qu’un proxy est déclaré : Lugh prend l’adresse de la connexion, sans doute celle du proxy, commune à tous les visiteurs.';
+  if (elements < sauts) return `X-Forwarded-For n’a que ${elements} élément${elements > 1 ? 's' : ''} pour LUGH_PROXY_SAUTS = ${sauts} : Lugh prend le premier, que le visiteur peut écrire lui-même. Baisser LUGH_PROXY_SAUTS.`;
+  if (!isIP(ip)) return 'L’adresse retenue ne ressemble pas à une adresse IP : elle vient peut-être du visiteur. Vérifier LUGH_PROXY_SAUTS.';
+  if (INTERNE.test(ip)) return 'L’adresse retenue est une adresse interne, sans doute celle d’un proxy : tous les visiteurs partageraient le même compteur. Augmenter LUGH_PROXY_SAUTS ?';
+  return null;
 }

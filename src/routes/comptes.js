@@ -5,7 +5,7 @@
 
 import { envoyerJson, erreurs } from '../http/outils.js';
 import { hacherMdp, genererMdpTemporaire } from '../auth/mdp.js';
-import { exigerConnexion, exigerAdmin, exigerEspace, exigerPerm, profilCompte, profilCompteJeu } from '../auth/acces.js';
+import { exigerConnexion, exigerAdmin, exigerEspace, exigerPerm, profilCompte, profilCompteJeu, modifierCompte } from '../auth/acces.js';
 import { valider, nouvelId } from '../../shared/validation.js';
 import { creationCompte, creationCompteJeu, modificationCompte, modificationCompteJeu } from '../../shared/schemas-comptes.js';
 import { estMetier, ordonnerMetiers, jeuxDuCompte, estResponsable, accesEspace } from '../../shared/roles.js';
@@ -97,7 +97,7 @@ export function routesComptes(routeur, s) {
     const mdpTemporaire = genererMdpTemporaire();
     cible.hash = await hacherMdp(mdpTemporaire);
     cible.doitChangerMdp = true;
-    await s.global.ecrire('comptes', cible);
+    await modifierCompte(s, cible._id, { hash: cible.hash, doitChangerMdp: true });
     await s.sessions.supprimerPourCompte(cible._id);
     return mdpTemporaire;
   }
@@ -118,9 +118,10 @@ export function routesComptes(routeur, s) {
     envoyerJson(r.res, 201, { compte: profilCompte(compte), mdpTemporaire });
   });
 
+  // Corps lu AVANT la fiche (partout où la fiche est réécrite) : l'attente du corps est choisie par le client.
   routeur.put('/api/admin/comptes/:id', ...admin, async (r) => {
-    const cible = await lire(r.params.id);
     const v = valider(modificationCompte, await r.corps());
+    const cible = await lire(r.params.id);
     if (!v.ok) throw erreurs.invalide(v.erreurs);
     const { nomAffiche, actif, admin: estAdmin, tresorier } = v.valeur;
     const soi = cible._id === r.compteGlobal._id;
@@ -129,7 +130,7 @@ export function routesComptes(routeur, s) {
     const acces = await nettoyerAcces(v.valeur.acces, cible._id);
     const desactive = cible.actif !== false && !actif;
     Object.assign(cible, { nomAffiche, actif, admin: estAdmin, tresorier, acces });
-    await s.global.ecrire('comptes', cible);
+    await modifierCompte(s, cible._id, { nomAffiche, actif, admin: estAdmin, tresorier, acces });
     if (desactive) await s.sessions.supprimerPourCompte(cible._id);
     await journaliser(r.compteGlobal, desactive ? 'compte désactivé' : 'compte modifié', cible.identifiant, [estAdmin ? 'Administrateur général' : '', ...Object.keys(acces)].filter(Boolean).join(', '));
     envoyerJson(r.res, 200, { compte: profilCompte(cible) });
@@ -175,8 +176,11 @@ export function routesComptes(routeur, s) {
       if (corps.existant !== true) throw erreurs.conflit('Cet identifiant est déjà pris. Si cette personne a déjà un compte pour un autre jeu, coche « Compte existant ».');
       if (aAccesAuJeu(existant, jeu)) throw erreurs.conflit('Ce compte a déjà accès à ce jeu.');
       if ((existant.admin || existant.tresorier) && !r.compteGlobal.admin) throw erreurs.interdit('Seul l’Administrateur général donne un accès de jeu à ce compte.');
+      // Un compte sans aucun jeu (ancien membre, compte désactivé) ne relève d'aucun Responsable : lui donner ce jeu
+      // le rendrait « gérable » (mot de passe, activation, suppression). Seul l'Administrateur général le rattache.
+      if (!jeuxDuCompte(existant).length && !r.compteGlobal.admin) throw erreurs.interdit('Ce compte n’a accès à aucun jeu : seul l’Administrateur général peut lui redonner un accès.');
       existant.acces = { ...(existant.acces || {}), [jeu]: { metiers, membreId: v.valeur.membreId } };
-      await s.global.ecrire('comptes', existant);
+      await modifierCompte(s, existant._id, { [`acces.${jeu}`]: existant.acces[jeu] });
       await journaliser(r.compteGlobal, 'accès ajouté', existant.identifiant, metiers.join(', '), jeu);
       return envoyerJson(r.res, 200, { compte: profilCompteJeu(existant, jeu, gerable(r.compteGlobal, existant)) });
     }
@@ -198,8 +202,8 @@ export function routesComptes(routeur, s) {
 
   routeur.put('/api/e/:jeu/comptes/:id', ...responsable, async (r) => {
     const jeu = r.espace.id;
-    const cible = await cibleDuJeu(r);
     const v = valider(modificationCompteJeu, await r.corps());
+    const cible = await cibleDuJeu(r);
     if (!v.ok) throw erreurs.invalide(v.erreurs);
     const metiers = metiersValides(v.valeur.metiers);
     const soi = cible._id === r.compteGlobal._id;
@@ -217,7 +221,9 @@ export function routesComptes(routeur, s) {
     if (changeNom) cible.nomAffiche = v.valeur.nomAffiche;
     const desactive = changeActif && !v.valeur.actif;
     if (changeActif) cible.actif = v.valeur.actif;
-    await s.global.ecrire('comptes', cible);
+    await modifierCompte(s, cible._id, {
+      [`acces.${jeu}`]: cible.acces[jeu], ...(changeNom ? { nomAffiche: cible.nomAffiche } : {}), ...(changeActif ? { actif: cible.actif } : {}),
+    });
     if (desactive) await s.sessions.supprimerPourCompte(cible._id);
     await journaliser(r.compteGlobal, desactive ? 'compte désactivé' : 'compte modifié', cible.identifiant, metiers.join(', '), jeu);
     envoyerJson(r.res, 200, { compte: profilCompteJeu(cible, jeu, gerable(r.compteGlobal, cible)) });
@@ -240,7 +246,7 @@ export function routesComptes(routeur, s) {
     if (cible.admin) throw erreurs.conflit('Un Administrateur général a accès à tous les jeux.');
     const { [jeu]: retire, ...reste } = cible.acces || {};
     cible.acces = reste;
-    await s.global.ecrire('comptes', cible);
+    await modifierCompte(s, cible._id, { acces: reste });
     await journaliser(r.compteGlobal, 'accès retiré', cible.identifiant, '', jeu);
     envoyerJson(r.res, 200, { ok: true });
   });

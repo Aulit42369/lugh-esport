@@ -162,7 +162,7 @@ export function routesBot(routeur, s) {
     const pseudo = texteCourt(corps.pseudo, 40) || discordId;
     cible.discordAttente = { id: discordId, pseudo, expire: new Date(t + DUREE_ATTENTE_MS).toISOString() };
     delete cible.discordCode;
-    await s.global.ecrire('comptes', cible);
+    await s.global.modifier('comptes', cible._id, { discordAttente: cible.discordAttente, discordCode: null });
     envoyerJson(r.res, 200, { aConfirmer: true, pseudo });
   });
 

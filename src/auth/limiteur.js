@@ -8,6 +8,7 @@ export function creerLimiteurConnexion({
   maintenant = () => Date.now(),
 } = {}) {
   const etats = new Map();
+  const files = new Map(); // clé → fin de la dernière tentative en file
 
   function seuil(cle) {
     return cle.startsWith('ip:') ? seuils.ip : seuils.id;
@@ -42,6 +43,21 @@ export function creerLimiteurConnexion({
         }
         e.n += 1;
         if (e.n >= seuil(cle)) e.jusqua = t + blocageMs;
+      }
+    },
+    // Une tentative à la fois par clé (identifiant, compte) : sans cela, une rafale de requêtes simultanées passait
+    // toute entière le contrôle attente() avant que le premier échec ne soit compté (≈ 40 essais au lieu de 5).
+    async exclusif(cle, fn) {
+      const avant = files.get(cle) || Promise.resolve();
+      let fin;
+      const ici = new Promise((ok) => { fin = ok; });
+      files.set(cle, ici);
+      await avant;
+      try {
+        return await fn();
+      } finally {
+        fin();
+        if (files.get(cle) === ici) files.delete(cle);
       }
     },
     reussite(cles) {

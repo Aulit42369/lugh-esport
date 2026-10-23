@@ -14,7 +14,7 @@ test('Service : l’Administrateur général voit l’adresse retenue par Lugh e
   try {
     const admin = await adminPret(sim);
     const { reseau } = (await admin.get('/api/admin/etat', { entetes: { 'X-Forwarded-For': '6.6.6.6, 7.7.7.7' } })).json;
-    assert.deepEqual(reseau, { ip: '7.7.7.7', transmis: '6.6.6.6, 7.7.7.7', elements: 2, derriereProxy: true, sauts: 1 });
+    assert.deepEqual(reseau, { ip: '7.7.7.7', transmis: '6.6.6.6, 7.7.7.7', elements: 2, derriereProxy: true, sauts: 1, alerte: null });
   } finally {
     await sim.arreter();
   }
@@ -23,6 +23,8 @@ test('Service : l’Administrateur général voit l’adresse retenue par Lugh e
     const admin = await adminPret(deux);
     const { reseau } = (await admin.get('/api/admin/etat', { entetes: { 'X-Forwarded-For': '5.5.5.5, 6.6.6.6, 7.7.7.7' } })).json;
     assert.deepEqual([reseau.ip, reseau.sauts], ['6.6.6.6', 2], 'deux proxys de confiance : l’avant-dernier');
+    const court = (await admin.get('/api/admin/etat', { entetes: { 'X-Forwarded-For': '7.7.7.7' } })).json.reseau;
+    assert.match(court.alerte, /Baisser LUGH_PROXY_SAUTS/, 'en-tête plus court que les sauts : signalé');
   } finally {
     await deux.arreter();
   }

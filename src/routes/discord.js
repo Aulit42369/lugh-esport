@@ -2,7 +2,7 @@
 // état du bot, réglages des rappels et des rôles, comptes liés. Le bot lui-même passe par routes/bot.js.
 
 import { envoyerJson, erreurs } from '../http/outils.js';
-import { exigerConnexion, exigerAdmin, profilCompte } from '../auth/acces.js';
+import { exigerConnexion, exigerAdmin, profilCompte, modifierCompte } from '../auth/acces.js';
 import {
   lireParametresBot, ecrireReglagesBot, normaliserReglages, nouveauCode, empreinte, noterDelie, DUREE_CODE_MS, DELAIS_RAPPEL,
 } from '../domaine/bot.js';
@@ -15,7 +15,7 @@ export function routesDiscord(routeur, s) {
     if (!compte.discord?.id) return false;
     const { id, pseudo } = compte.discord;
     delete compte.discord;
-    await s.global.ecrire('comptes', compte);
+    await modifierCompte(s, compte._id, { discord: null });
     await noterDelie(s.global, id, s.maintenant());
     await s.historique.ecrire(par, 'compte Discord délié', compte.identifiant, pseudo || id);
     return true;
@@ -29,34 +29,35 @@ export function routesDiscord(routeur, s) {
     const code = nouveauCode();
     const expire = new Date(s.maintenant().getTime() + DUREE_CODE_MS).toISOString();
     compte.discordCode = { empreinte: empreinte(code), expire };
-    await s.global.ecrire('comptes', compte);
+    await modifierCompte(s, compte._id, { discordCode: compte.discordCode });
     envoyerJson(r.res, 200, { code, expire });
   });
 
   // Confirmation de la liaison tapée sur Discord (avec le pseudo qui l'a tapée), ou refus.
+  // Le corps est lu AVANT la fiche (relue fraîche) : l'attente du corps est choisie par le client.
   routeur.post('/api/moi/discord/confirmer', connecte, async (r) => {
-    const compte = r.compteGlobal;
     const { accepter } = (await r.corps()) || {};
     if (typeof accepter !== 'boolean') throw erreurs.requete();
+    const compte = await s.global.lire('comptes', r.compteGlobal._id);
+    if (!compte || compte.actif === false) throw erreurs.nonConnecte();
     const a = compte.discordAttente;
     if (!a || new Date(a.expire).getTime() <= s.maintenant().getTime()) {
-      delete compte.discordAttente;
-      await s.global.ecrire('comptes', compte);
+      if (a) await modifierCompte(s, compte._id, { discordAttente: null });
       throw erreurs.introuvable('Aucune liaison en attente (ou elle a expiré) : obtiens un nouveau code.');
     }
     delete compte.discordAttente;
     if (!accepter) {
-      await s.global.ecrire('comptes', compte);
+      await modifierCompte(s, compte._id, { discordAttente: null });
       await s.historique.ecrire(compte, 'liaison Discord refusée', compte.identifiant, a.pseudo);
       return envoyerJson(r.res, 200, { compte: profilCompte(compte) });
     }
     const autre = (await s.global.lister('comptes')).find((c) => c._id !== compte._id && c.discord?.id === a.id);
     if (autre) {
-      await s.global.ecrire('comptes', compte);
+      await modifierCompte(s, compte._id, { discordAttente: null });
       throw erreurs.conflit('Ce compte Discord est déjà lié à un autre compte Lugh.');
     }
     compte.discord = { id: a.id, pseudo: a.pseudo, lieLe: s.maintenant().toISOString() };
-    await s.global.ecrire('comptes', compte);
+    await modifierCompte(s, compte._id, { discord: compte.discord, discordAttente: null });
     await s.historique.ecrire(compte, 'compte Discord lié', compte.identifiant, a.pseudo);
     envoyerJson(r.res, 200, { compte: profilCompte(compte) });
   });

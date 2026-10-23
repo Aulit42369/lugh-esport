@@ -100,7 +100,7 @@ test('activation : clé montrée une seule fois, premier code obligatoire, codes
 
     const stocke = await compteGlobal(sim, 'nova');
     assert.equal(stocke.deuxFacteurs.secret, secret);
-    assert.equal(stocke.deuxFacteursEnAttente, undefined);
+    assert.equal(stocke.deuxFacteursEnAttente ?? null, null, 'effacé (null : écriture partielle)');
     assert.ok(!ok.json.codesSecours.some((x) => JSON.stringify(stocke).includes(x)), 'codes de secours jamais stockés en clair');
     assert.equal((await c.post('/api/auth/2fa/preparer')).statut, 409, 'déjà active');
 
@@ -188,7 +188,7 @@ test('codes de secours renouvelés avec un code ; désactivation avec mot de pas
     assert.equal(off.statut, 200, 'un code de secours suffit aussi');
     assert.equal(off.json.compte.deuxFacteurs.actif, false);
     assert.equal((await client(sim.base).post('/api/auth/connexion', { identifiant: 'prudent', mdp: MDP })).statut, 200);
-    assert.equal((await compteGlobal(sim, 'prudent')).deuxFacteurs, undefined);
+    assert.equal((await compteGlobal(sim, 'prudent')).deuxFacteurs ?? null, null);
   } finally {
     await sim.arreter();
   }

@@ -407,7 +407,7 @@ test('compte présent dans un autre jeu : le Responsable change ses métiers ou 
 });
 
 test('« Compte existant » : la personne garde son compte et son mot de passe, et reçoit l’accès au jeu', async () => {
-  const { sim } = await monde();
+  const { sim, admin } = await monde();
   try {
     const respLol = await compteConnecte(sim, { identifiant: 'resp-lol', acces: { lol: ['responsable'] } });
     const mistral = await creerCompte(sim, { identifiant: 'mistral', nomAffiche: 'Mistral', acces: { valorant: ['joueur'] } });
@@ -429,6 +429,15 @@ test('« Compte existant » : la personne garde son compte et son mot de passe
 
     assert.match((await respLol.post('/api/e/lol/comptes', { ...demande, membreId: '', existant: true })).json.erreur.message, /déjà accès/);
     assert.equal((await respLol.post('/api/e/lol/comptes', { identifiant: 'personne', nomAffiche: 'P', metiers: ['joueur'], existant: true })).statut, 404);
+
+    // Compte sans aucun jeu (ancien membre) : le Responsable ne peut pas se l'approprier, l'Administrateur général oui.
+    const ancien = await creerCompte(sim, { identifiant: 'ancien', nomAffiche: 'Ancien', acces: {} });
+    const refus = await respLol.post('/api/e/lol/comptes', { identifiant: 'ancien', metiers: ['joueur'], existant: true });
+    assert.equal(refus.statut, 403);
+    assert.match(refus.json.erreur.message, /aucun jeu/);
+    assert.deepEqual((await compteGlobal(sim, 'ancien')).acces, {}, 'aucun accès ajouté');
+    assert.equal((await respLol.post(`/api/e/lol/comptes/${ancien._id}/mdp`)).statut, 404, 'mot de passe hors de portée');
+    assert.equal((await admin.post('/api/e/lol/comptes', { identifiant: 'ancien', metiers: ['joueur'], existant: true })).statut, 200);
   } finally {
     await sim.arreter();
   }
@@ -572,6 +581,22 @@ test('Administrateur général : comptes multi-jeux, validations, désactivation
     assert.equal((await admin.del(`/api/admin/comptes/${id}`)).statut, 404);
     const actions = (await journal(admin)).map((e) => e.action);
     for (const a of ['compte créé', 'compte désactivé', 'compte modifié', 'mot de passe réinitialisé', 'compte supprimé']) assert.ok(actions.includes(a), a);
+  } finally {
+    await sim.arreter();
+  }
+});
+
+test('nom de jeu réservé : un nom de rôle de fonction Discord (Administrateur, Responsable…) est refusé à la création et au renommage', async () => {
+  const sim = await demarrer({ jeux: ['valorant'] });
+  try {
+    const admin = await adminPret(sim);
+    for (const nom of ['Administrateur', '  responsable ', 'Remplaçant', 'Capitaine / IGL', 'INVITÉ']) {
+      const r = await admin.post('/api/admin/jeux', { modele: 'autre', nom });
+      assert.equal(r.statut, 400, nom);
+      assert.match(JSON.stringify(r.json), /rôle de fonction/);
+    }
+    assert.equal((await admin.put('/api/admin/jeux/valorant', { nom: 'Administrateur' })).statut, 400);
+    assert.equal((await admin.put('/api/admin/jeux/valorant', { nom: 'Valorant Académie' })).statut, 200, 'un nom ordinaire passe');
   } finally {
     await sim.arreter();
   }

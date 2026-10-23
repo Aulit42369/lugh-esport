@@ -1,7 +1,7 @@
 // Administration générale (Administrateur général) : jeux (activation depuis le catalogue, ajout d'un « Autre jeu »,
 // suppression définitive d'un jeu désactivé), état du service et journal complet. Les comptes sont dans routes/comptes.js.
 
-import { envoyerJson, erreurs, listeTransmise } from '../http/outils.js';
+import { envoyerJson, erreurs, listeTransmise, alerteReseau } from '../http/outils.js';
 import { exigerConnexion, exigerAdmin } from '../auth/acces.js';
 import { MODELES, ORDRE, ID_AUTRE, resumeModele } from '../../shared/jeux/index.js';
 import { MOTIFS } from '../../shared/validation.js';
@@ -9,7 +9,10 @@ import { accesEspace } from '../../shared/roles.js';
 import { MAX_ESPACES } from '../domaine/collections.js';
 import { lireParametresBot, alerteSauvegarde } from '../domaine/bot.js';
 import { estCouleurJeu } from '../../shared/couleurs.js';
+import { estNomJeuReserve, MESSAGE_NOM_RESERVE } from '../../shared/referentiel.js';
 import { PLAFONDS_MANUELS } from '../config.js';
+
+const avecAlerte = (reseau) => ({ ...reseau, alerte: alerteReseau(reseau) });
 
 // Identifiants interdits pour un « Autre jeu » : ils servent déjà d'adresses de pages (#/admin, #/planning…).
 export const ID_RESERVES = new Set(['admin', 'jeux', 'compte', 'api', 'accueil', 'planning', 'presences', 'dispos', 'match', 'maps',
@@ -60,6 +63,7 @@ export function routesAdmin(routeur, s) {
     if (modele === ID_AUTRE) {
       nomJeu = typeof nom === 'string' ? nom.trim().replace(/\s+/g, ' ').slice(0, 40) : '';
       if (nomJeu.length < 2) throw erreurs.invalide([{ chemin: 'nom', message: 'nom du jeu obligatoire (2 caractères au moins)' }]);
+      if (estNomJeuReserve(nomJeu)) throw erreurs.invalide([{ chemin: 'nom', message: MESSAGE_NOM_RESERVE }]);
       id = typeof idPropose === 'string' && idPropose ? idPropose : idDepuisNom(nomJeu);
       if (!MOTIFS.jeu.test(id)) throw erreurs.invalide([{ chemin: 'id', message: 'identifiant : 2 à 20 minuscules ou chiffres' }]);
       if (ID_RESERVES.has(id)) throw erreurs.invalide([{ chemin: 'id', message: `« ${id} » est un mot réservé (page de l’application) : choisis un autre identifiant` }]);
@@ -87,6 +91,7 @@ export function routesAdmin(routeur, s) {
     const champs = {};
     if (typeof corps.actif === 'boolean') champs.actif = corps.actif;
     if (typeof corps.nom === 'string' && corps.nom.trim()) champs.nom = corps.nom.trim().replace(/\s+/g, ' ').slice(0, 40);
+    if (champs.nom && estNomJeuReserve(champs.nom)) throw erreurs.invalide([{ chemin: 'nom', message: MESSAGE_NOM_RESERVE }]);
     if (typeof corps.court === 'string' && corps.court.trim()) champs.court = corps.court.trim().slice(0, 12);
     if (Number.isInteger(corps.ordre) && corps.ordre >= 0 && corps.ordre <= 99) champs.ordre = corps.ordre;
     if (typeof corps.couleur === 'string' && estCouleurJeu(corps.couleur)) champs.couleur = corps.couleur;
@@ -170,13 +175,13 @@ export function routesAdmin(routeur, s) {
       modele: s.config.claude.modele,
       cronConfigure: !!s.config.secretCron,
       // Réservé à l'Administrateur général : sa propre adresse, pour vérifier que Lugh lit la bonne (voir PIEGES).
-      reseau: {
+      reseau: avecAlerte({
         ip: r.ip,
         transmis: String(r.req.headers['x-forwarded-for'] || '').slice(0, 300),
         elements: listeTransmise(r.req).length,
         derriereProxy: s.config.derriereProxy,
         sauts: s.config.proxySauts,
-      },
+      }),
       plafonds: PLAFONDS_MANUELS,
       veilleManuels: (await s.veille.etat()).couts?.[s.maintenant().toISOString().slice(0, 7)]?.manuels || 0,
       avertissements: [...s.config.avertissements, alerteSauvegarde((await lireParametresBot(s.global)).etat, s.maintenant(), s.config.cleBot)].filter(Boolean),

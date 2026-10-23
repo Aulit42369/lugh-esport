@@ -116,7 +116,7 @@ export function routesDonnees(routeur, s) {
         await s.global.supprimer('autorisations', `${e.id}:${id}`);
         // Les comptes liés à ce membre dans ce jeu ne pointent plus sur une fiche disparue.
         for (const c of await s.global.lister('comptes')) {
-          if (c.acces?.[e.id]?.membreId === id) await s.global.ecrire('comptes', { ...c, acces: { ...c.acces, [e.id]: { ...c.acces[e.id], membreId: '' } } });
+          if (c.acces?.[e.id]?.membreId === id) await s.global.modifier('comptes', c._id, { [`acces.${e.id}.membreId`]: '' });
         }
       }
       if (['membres', 'strats', 'scrims', 'vods', 'candidats', 'adversaires', 'tournois', 'partenaires'].includes(coll)) await e.depot.journaliser(r.compte, `suppression ${coll}`, id);

@@ -7,7 +7,7 @@ import { demarrer, adminPret, stratPour } from './simulation.js';
 import { nouvelId } from '../shared/validation.js';
 import { reinitialiserAuDemarrage } from '../src/auth/deuxfacteurs.js';
 import { restaurer } from '../src/domaine/restauration.js';
-import { ipClient } from '../src/http/outils.js';
+import { ipClient, alerteReseau } from '../src/http/outils.js';
 import { lireConfig } from '../src/config.js';
 import { validerReglagesJeu } from '../shared/jeux/reglages-jeu.js';
 import { modele } from '../shared/jeux/index.js';
@@ -83,4 +83,16 @@ test('format de profil : les motifs qui peuvent figer le navigateur sont refusé
   assert.equal(avec('^(a|aa)+$'), false);
   assert.equal(avec('^(\\w+)*$'), false);
   assert.equal(avec('^[^#]{2,16}#[A-Za-z0-9]{2,5}$'), true);
+});
+
+test('garde-fou X-Forwarded-For : en-tête absent, trop court, adresse interne ou non IP signalés ; rien de changé au calcul', () => {
+  const vu = (ip, elements, sauts = 1, derriereProxy = true) => alerteReseau({ ip, elements, derriereProxy, sauts });
+  assert.equal(vu('203.0.113.7', 2), null);
+  assert.equal(vu('2001:db8::1', 1), null);
+  assert.equal(vu('10.0.0.1', 0, 1, false), null, 'sans proxy déclaré : rien');
+  assert.match(vu('10.0.0.1', 0), /Aucun X-Forwarded-For/);
+  assert.match(vu('203.0.113.7', 1, 2), /Baisser/);
+  assert.match(vu('faux', 2), /ne ressemble pas/);
+  for (const ip of ['10.1.2.3', '172.20.0.1', '192.168.1.1', '100.64.0.1', '127.0.0.1', '::1', 'fd00::1', '::ffff:10.0.0.2']) assert.match(vu(ip, 2), /interne/, ip);
+  for (const ip of ['172.32.0.1', '100.128.0.1', '11.0.0.1']) assert.equal(vu(ip, 2), null, ip);
 });

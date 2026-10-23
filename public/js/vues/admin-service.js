@@ -80,6 +80,7 @@ function adresseVue(reseau) {
       h('dt', {}, 'Ton adresse vue par Lugh'), h('dd', {}, h('code', {}, reseau.ip)),
       h('dt', {}, 'X-Forwarded-For reçu'), h('dd', {}, reseau.transmis ? h('code', {}, reseau.transmis) : h('span', { class: 'texte-3' }, 'absent'),
         h('span', { class: 'texte-3 tres-petit' }, ` ${reseau.elements} élément${reseau.elements > 1 ? 's' : ''} ; ${reseau.derriereProxy ? `Lugh garde le ${reseau.sauts === 1 ? 'dernier' : `${reseau.sauts}e en partant de la fin`} (LUGH_PROXY_SAUTS = ${reseau.sauts})` : 'pas de proxy déclaré : adresse de la connexion'}`))),
+    reseau.alerte ? h('p', { class: 'alerte alerte--attention' }, icone('alerte'), h('span', {}, reseau.alerte)) : null,
     h('p', { class: 'texte-3 petit' }, 'À vérifier une fois après chaque changement d’hébergement : compare « Ton adresse vue par Lugh » avec celle qu’affiche un site « quelle est mon adresse IP ». Si elles diffèrent (ou si l’adresse ressemble à une adresse interne, 10.x, 172.16 à 31.x), dis-le à Claude avec la ligne X-Forwarded-For : un mauvais réglage ferait partager à tous les visiteurs le même compteur d’échecs de connexion.'));
 }
 

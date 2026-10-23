@@ -74,13 +74,20 @@ export function texteActionsVod(vod, notes, nomMembre = () => 'Équipe') {
   return couper(lignes.join('\n'));
 }
 
+// Texte venu de l'extérieur (méta écrite par le modèle d'après des pages web) : la syntaxe Discord est neutralisée,
+// pour qu'aucun lien masqué [texte](adresse) ni mise en forme trompeuse n'arrive dans le salon de l'équipe.
+export function echapperMarkdown(t) {
+  return String(t ?? '').replace(/[\\`*_~|>[\]()#<]/g, '\\$&');
+}
+const liste = (noms) => noms.map(echapperMarkdown).join(', ');
+
 export function texteMeta(def, meta, ecart) {
-  const lignes = [`🗺️ **Méta ${def.nom} : patch ${meta.patch}** (${meta.saison})`];
-  if (ecart?.entrees?.length) lignes.push(`Entrent dans le pool : ${ecart.entrees.join(', ')}`);
-  if (ecart?.sorties?.length) lignes.push(`Sortent du pool : ${ecart.sorties.join(', ')}`);
+  const lignes = [`🗺️ **Méta ${def.nom} : patch ${echapperMarkdown(meta.patch)}** (${echapperMarkdown(meta.saison)})`];
+  if (ecart?.entrees?.length) lignes.push(`Entrent dans le pool : ${liste(ecart.entrees)}`);
+  if (ecart?.sorties?.length) lignes.push(`Sortent du pool : ${liste(ecart.sorties)}`);
   const perso = mot(def, 'personnages', true) || 'Personnages';
-  if (ecart?.personnagesModifies?.length) lignes.push(`${perso} modifiés : ${ecart.personnagesModifies.join(', ')}`);
-  if (ecart?.nouveauxPersonnages?.length) lignes.push(`Nouveaux ${mot(def, 'personnages') || 'personnages'} : ${ecart.nouveauxPersonnages.join(', ')}`);
+  if (ecart?.personnagesModifies?.length) lignes.push(`${perso} modifiés : ${liste(ecart.personnagesModifies)}`);
+  if (ecart?.nouveauxPersonnages?.length) lignes.push(`Nouveaux ${mot(def, 'personnages') || 'personnages'} : ${liste(ecart.nouveauxPersonnages)}`);
   lignes.push(`Détails et suggestions sur ${MARQUE.nom}, page Méta.`);
   return couper(lignes.join('\n'));
 }

@@ -39,6 +39,7 @@ export const CASCADES = {
 
 // Plafonds par collection d'un jeu : protègent la base gratuite (512 Mo) contre un remplissage accidentel.
 export const QUOTAS = {
+  equipe: 1, // une seule fiche « profil » (sans plafond, une restauration pouvait la réécrire un million de fois)
   membres: 60,
   mapsEquipe: 40,
   strats: 1500,

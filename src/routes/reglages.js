@@ -9,6 +9,7 @@ import { completerModele } from '../../shared/jeux/commun.js';
 import { definitionEffective } from '../../shared/jeux/definition.js';
 import { validerReglagesJeu, reglagesVides } from '../../shared/jeux/reglages-jeu.js';
 import { estCouleurJeu } from '../../shared/couleurs.js';
+import { estNomJeuReserve, MESSAGE_NOM_RESERVE } from '../../shared/referentiel.js';
 
 const LIMITE_SAUVEGARDE = 15 * 1024 * 1024;
 
@@ -49,6 +50,7 @@ export function routesReglages(routeur, s) {
     }
     const nom = typeof corps.nom === 'string' ? corps.nom.trim().replace(/\s+/g, ' ').slice(0, 40) : '';
     const court = typeof corps.court === 'string' ? corps.court.trim().slice(0, 12) : '';
+    if (nom && nom !== e.doc.nom && estNomJeuReserve(nom)) throw erreurs.invalide([{ chemin: 'nom', message: MESSAGE_NOM_RESERVE }]);
     if (corps.couleur !== undefined && !estCouleurJeu(corps.couleur)) throw erreurs.invalide([{ chemin: 'couleur', message: 'couleur inconnue' }]);
     const couleur = corps.couleur || e.doc.couleur;
     // Les réglages d'abord (contrôle de revBase : 409 si quelqu'un a modifié entre-temps), le nom ensuite.
@@ -148,7 +150,7 @@ export function routesReglages(routeur, s) {
     const e = r.espace;
     const { confirmation, ...sauvegarde } = exigerMot(await r.corps(LIMITE_SAUVEGARDE), 'RESTAURER');
     const bilan = await restaurer(s, e, sauvegarde, r.compte);
-    await e.depot.journaliser(r.compte, 'sauvegarde restaurée', sauvegarde.exporteLe || '', `${bilan.restaures} fiches, ${bilan.ignores} ignorées`);
+    await e.depot.journaliser(r.compte, 'sauvegarde restaurée', sauvegarde.exporteLe || '', `${bilan.restaures} fiches, ${bilan.ignores} ignorées${bilan.autresAuteurs ? `, ${bilan.autresAuteurs} avis ou notes de VOD au nom d’autres comptes` : ''}`);
     envoyerJson(r.res, 200, { ...bilan, point: await lirePoint(s, e) });
   });
 

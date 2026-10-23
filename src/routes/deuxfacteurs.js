@@ -2,7 +2,7 @@
 // côté Administrateur général, l'obligation pour les Responsables et la remise à zéro d'un compte.
 
 import { envoyerJson, erreurs, ErreurHttp } from '../http/outils.js';
-import { exigerConnexion, exigerAdmin, profilCompte } from '../auth/acces.js';
+import { exigerConnexion, exigerAdmin, profilCompte, modifierCompte } from '../auth/acces.js';
 import { verifierMdp } from '../auth/mdp.js';
 import { nouveauSecret, verifierCode, nouveauxCodesSecours, adresseOtpauth } from '../auth/totp.js';
 import { verifierSecondFacteur, lireSecret } from '../auth/deuxfacteurs.js';
@@ -17,6 +17,7 @@ export function routesDeuxFacteurs(routeur, s) {
   const connecte = exigerConnexion(s, { autoriser2fa: true });
   const admin = [exigerConnexion(s), exigerAdmin()];
 
+  // Chaque route qui l'appelle passe aussi par exclusif() : un essai à la fois par compte.
   function limiter(r) {
     const cle = [`2fa:${r.compteGlobal._id}`];
     const attente = s.limiteurConnexion.attente(cle);
@@ -24,8 +25,11 @@ export function routesDeuxFacteurs(routeur, s) {
     return cle;
   }
 
+  // Relue après le corps de la requête (jamais avant : l'attente du corps est choisie par le client).
   async function compteFrais(r) {
-    return (await s.global.lire('comptes', r.compteGlobal._id)) || r.compteGlobal;
+    const compte = await s.global.lire('comptes', r.compteGlobal._id);
+    if (!compte || compte.actif === false) throw erreurs.nonConnecte();
+    return compte;
   }
 
   // 1. Préparation : une clé neuve, montrée une seule fois (QR code et texte), valable 10 minutes ; chiffrée en base.
@@ -34,18 +38,18 @@ export function routesDeuxFacteurs(routeur, s) {
     if (compte.deuxFacteurs) throw erreurs.conflit('La double authentification est déjà active sur ce compte.');
     const secret = nouveauSecret();
     compte.deuxFacteursEnAttente = { secret: s.coffre2fa.chiffrer(secret), expire: new Date(s.maintenant().getTime() + DUREE_ACTIVATION_MS).toISOString() };
-    await s.global.ecrire('comptes', compte);
+    await modifierCompte(s, compte._id, { deuxFacteursEnAttente: compte.deuxFacteursEnAttente });
     const adresse = adresseOtpauth({ emetteur: MARQUE.nom, compte: compte.identifiant, secret });
     envoyerJson(r.res, 200, { secret: secret.match(/.{1,4}/g).join(' '), qr: qrCode(adresse).lignes, emetteur: MARQUE.nom });
   });
 
   // 2. Activation : le premier code prouve que l'application est réglée. Les codes de secours sont montrés une fois.
-  routeur.post('/api/auth/2fa/activer', connecte, async (r) => {
+  routeur.post('/api/auth/2fa/activer', connecte, (r) => s.limiteurConnexion.exclusif(`2fa:${r.compteGlobal._id}`, async () => {
     const cle = limiter(r);
+    const { code } = await r.corps();
     const compte = await compteFrais(r);
     const attente = compte.deuxFacteursEnAttente;
     if (!attente || new Date(attente.expire) <= s.maintenant()) throw erreurs.conflit('Préparation expirée : recommence l’activation.');
-    const { code } = await r.corps();
     const secret = lireSecret(s.coffre2fa, attente.secret);
     const pas = verifierCode(secret, code, { maintenantMs: s.maintenant().getTime() });
     if (pas === null) {
@@ -56,18 +60,18 @@ export function routesDeuxFacteurs(routeur, s) {
     const { codes, empreintes } = nouveauxCodesSecours();
     compte.deuxFacteurs = { secret: s.coffre2fa.chiffrer(secret), depuis: s.maintenant().toISOString(), dernierPas: pas, secours: empreintes };
     delete compte.deuxFacteursEnAttente;
-    await s.global.ecrire('comptes', compte);
+    await modifierCompte(s, compte._id, { deuxFacteurs: compte.deuxFacteurs, deuxFacteursEnAttente: null });
     await s.sessions.supprimerPourCompte(compte._id, r.jeton);
     await s.historique.ecrire(compte, 'double authentification activée');
     envoyerJson(r.res, 200, { codesSecours: codes, compte: profilCompte(compte) });
-  });
+  }));
 
   // Nouveaux codes de secours (les anciens ne marchent plus) : il faut un code de l'application.
-  routeur.post('/api/auth/2fa/codes', connecte, async (r) => {
+  routeur.post('/api/auth/2fa/codes', connecte, (r) => s.limiteurConnexion.exclusif(`2fa:${r.compteGlobal._id}`, async () => {
     const cle = limiter(r);
+    const { code } = await r.corps();
     const compte = await compteFrais(r);
     if (!compte.deuxFacteurs) throw erreurs.conflit('La double authentification n’est pas active.');
-    const { code } = await r.corps();
     const secret = lireSecret(s.coffre2fa, compte.deuxFacteurs.secret);
     const pas = verifierCode(secret, code, { maintenantMs: s.maintenant().getTime(), dernierPas: compte.deuxFacteurs.dernierPas ?? -1 });
     if (pas === null) {
@@ -77,20 +81,20 @@ export function routesDeuxFacteurs(routeur, s) {
     s.limiteurConnexion.reussite(cle);
     const { codes, empreintes } = nouveauxCodesSecours();
     compte.deuxFacteurs = { ...compte.deuxFacteurs, secret: s.coffre2fa.chiffrer(secret), dernierPas: pas, secours: empreintes };
-    await s.global.ecrire('comptes', compte);
+    await modifierCompte(s, compte._id, { deuxFacteurs: compte.deuxFacteurs });
     await s.historique.ecrire(compte, 'codes de secours renouvelés');
     envoyerJson(r.res, 200, { codesSecours: codes, compte: profilCompte(compte) });
-  });
+  }));
 
   // Désactivation : mot de passe et code (de l'application ou de secours). Refusée si la structure l'exige.
-  routeur.post('/api/auth/2fa/desactiver', connecte, async (r) => {
+  routeur.post('/api/auth/2fa/desactiver', connecte, (r) => s.limiteurConnexion.exclusif(`2fa:${r.compteGlobal._id}`, async () => {
     const cle = limiter(r);
+    const { mdp, code } = await r.corps();
     const compte = await compteFrais(r);
     if (!compte.deuxFacteurs) throw erreurs.conflit('La double authentification n’est pas active.');
     if (soumisA2fa(compte) && (await s.parametres.lire()).exiger2fa) {
       throw erreurs.conflit('La structure exige la double authentification pour ton rôle : tu peux renouveler tes codes, pas la désactiver.');
     }
-    const { mdp, code } = await r.corps();
     const verif = typeof mdp === 'string' && (await verifierMdp(mdp, compte.hash)) ? verifierSecondFacteur(compte.deuxFacteurs, code, s.maintenant(), s.coffre2fa) : null;
     if (!verif) {
       s.limiteurConnexion.echec(cle);
@@ -98,10 +102,10 @@ export function routesDeuxFacteurs(routeur, s) {
     }
     s.limiteurConnexion.reussite(cle);
     delete compte.deuxFacteurs;
-    await s.global.ecrire('comptes', compte);
+    await modifierCompte(s, compte._id, { deuxFacteurs: null });
     await s.historique.ecrire(compte, 'double authentification désactivée');
     envoyerJson(r.res, 200, { compte: profilCompte(compte) });
-  });
+  }));
 
   // ——— Administrateur général ———
 
@@ -132,7 +136,7 @@ export function routesDeuxFacteurs(routeur, s) {
     if (!compte) throw erreurs.introuvable('Compte introuvable.');
     delete compte.deuxFacteurs;
     delete compte.deuxFacteursEnAttente;
-    await s.global.ecrire('comptes', compte);
+    await modifierCompte(s, compte._id, { deuxFacteurs: null, deuxFacteursEnAttente: null });
     if (compte._id !== r.compteGlobal._id) await s.sessions.supprimerPourCompte(compte._id);
     await s.historique.ecrire(r.compteGlobal, 'double authentification réinitialisée', compte.nomAffiche);
     envoyerJson(r.res, 200, { compte: profilCompte(compte) });

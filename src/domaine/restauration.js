@@ -179,7 +179,12 @@ async function appliquer(s, e, sauvegarde, compte, { source = '' } = {}) {
       }
       valides[coll].push({ id, valeur: { ...v.valeur, ...techniques } });
     }
-    if (valides[coll].length > QUOTAS[coll]) throw erreurs.requete(`Sauvegarde refusée : ${valides[coll].length} fiches « ${coll} », ${QUOTAS[coll]} au maximum.`);
+    // Même identifiant plusieurs fois dans le fichier : seule la dernière fiche compte (une écriture par fiche).
+    const parId = new Map(valides[coll].map((d) => [d.id, d]));
+    for (let n = parId.size; n < valides[coll].length; n += 1) ignorer(coll, 'doublon');
+    valides[coll] = [...parId.values()];
+    // Toute collection restaurable a un plafond : une collection oubliée dans QUOTAS est refusée, pas illimitée.
+    if (!(valides[coll].length <= QUOTAS[coll])) throw erreurs.requete(`Sauvegarde refusée : ${valides[coll].length} fiches « ${coll} », ${QUOTAS[coll]} au maximum.`);
   }
   // Avis rattachés à un candidat qui n'existera plus : ignorés.
   if (valides.votes) {
@@ -189,6 +194,18 @@ async function appliquer(s, e, sauvegarde, compte, { source = '' } = {}) {
       ignorer('votes', d.id);
       return false;
     });
+  }
+
+  // Avis et notes de VOD au nom d'un autre compte que celui qui restaure, absents de l'état actuel ou différents :
+  // repris du fichier (le cas normal après une perte), mais comptés pour que le journal le montre.
+  bilan.autresAuteurs = 0;
+  for (const [coll, champ] of [['votes', 'compteId'], ['vodNotes', 'auteur']]) {
+    for (const d of valides[coll] || []) {
+      const qui = d.valeur[champ];
+      if (qui === 'systeme' || qui === compte?._id) continue;
+      const actuel = await e.stockage.lire(coll, d.id);
+      if (!actuel || Object.entries(d.valeur).some(([k, x]) => JSON.stringify(actuel[k]) !== JSON.stringify(x))) bilan.autresAuteurs += 1;
+    }
   }
 
   // Tout est contrôlé : l'état actuel devient le point de restauration, puis la sauvegarde est appliquée.

@@ -173,6 +173,13 @@ export function trouver(liste, id) {
   return liste.find((e) => e.id === id) || null;
 }
 
+// Noms de jeu interdits : ceux des rôles de fonction que le bot Discord crée (lugh-bot, src/structure.js). Un jeu nommé
+// ainsi verrait le bot donner ce rôle de fonction (Administrateur compris) à tous les membres du jeu.
+const NOMS_RESERVES = ['administrateur', 'responsable', 'staff', 'capitaine / igl', 'capitaine', 'igl', 'joueur', 'remplacant', 'invite'];
+const normeNom = (n) => String(n || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, ' ').toLowerCase();
+export const estNomJeuReserve = (nom) => NOMS_RESERVES.includes(normeNom(nom));
+export const MESSAGE_NOM_RESERVE = 'ce nom est celui d’un rôle de fonction sur Discord (Administrateur, Responsable, Staff, Capitaine / IGL, Joueur, Remplaçant, Invité) : choisis un autre nom';
+
 export function libelle(liste, id, parDefaut = '') {
   return trouver(liste, id)?.nom ?? (parDefaut || id || '');
 }

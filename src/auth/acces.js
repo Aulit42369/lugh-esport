@@ -89,6 +89,13 @@ export function exigerConnexion(services, { autoriserMdpAChanger = false, autori
   };
 }
 
+// Écriture partielle d'un compte (seuls ces champs changent, rien n'est recréé) : une requête lente, lue avant une
+// désactivation, un nouveau mot de passe ou une suppression par l'admin, ne peut plus remettre l'ancienne fiche.
+// Un champ à effacer vaut null (pas de suppression de champ avec modifier).
+export async function modifierCompte(services, id, champs) {
+  if (!(await services.global.modifier('comptes', id, champs))) throw erreurs.introuvable('Compte introuvable.');
+}
+
 // La structure exige la double authentification et ce compte (Administrateur général ou Responsable) ne l'a pas.
 export async function doitActiver2fa(services, compte) {
   if (compte.deuxFacteurs || !soumisA2fa(compte) || !services.parametres) return false;
