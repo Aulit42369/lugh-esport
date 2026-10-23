@@ -11,6 +11,9 @@ import {
 } from '../../shared/administratif/identite.js';
 import { tousLesPoints, sectionsVisibles } from '../../shared/administratif/obligations.js';
 import { sauvegardeStructure } from '../domaine/sauvegarde-structure.js';
+import { reprendre, MOT_REPRISE } from '../domaine/reprise-structure.js';
+
+const LIMITE_SAUVEGARDE = 15 * 1024 * 1024;
 
 export const ID_IDENTITE = 'structure-identite';
 export const ID_SUIVI = 'structure-suivi';
@@ -63,6 +66,15 @@ export function routesAdministratif(routeur, s) {
       'Content-Length': Buffer.byteLength(corps),
     });
     r.res.end(corps);
+  });
+
+  // Reprise après sinistre : ne crée que ce qui manque (jeux, comptes, documents), ne modifie jamais l'existant.
+  // { sauvegarde, apercu: true } : plan sans rien écrire ; sinon le mot RESTAURER est exigé.
+  routeur.post('/api/admin/administratif/reprise', ...admin, async (r) => {
+    const corps = await r.corps(LIMITE_SAUVEGARDE);
+    const apercu = corps?.apercu === true;
+    if (!apercu && corps?.confirmation !== MOT_REPRISE) throw erreurs.requete(`Tape ${MOT_REPRISE} pour confirmer la reprise.`);
+    envoyerJson(r.res, 200, await reprendre(s, corps?.sauvegarde, r.compteGlobal, { apercu }));
   });
 
   routeur.get('/api/admin/administratif', ...admin, async (r) => {

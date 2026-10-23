@@ -1,6 +1,6 @@
 // Administration générale → Administratif : la gestion administrative de la structure, en cinq rubriques.
 // Obligations (suivi et veille légale), Comptes (livre des comptes), Documents types, Mineurs (autorisations de
-// chaque jeu) et Identité (nom de l'association, RNA, contact public, référent).
+// chaque jeu) et Identité (nom de l'association, RNA, contact public, référent ; sauvegarde et reprise après sinistre).
 
 import { h, bouton, toast, champ, saisie, liste, caseACocher, messageErreur } from '../ui.js';
 import { api } from '../api.js';
@@ -10,6 +10,7 @@ import { chargement, erreurChargement } from './admin-commun.js';
 import { rendreObligations } from './admin-obligations.js';
 import { rendreDocuments } from './admin-documents.js';
 import { rendreComptes } from './tresorerie.js';
+import { ficheReprise } from './admin-reprise.js';
 import { formatDate } from '/shared/temps.js';
 
 const RUBRIQUES = [
@@ -42,7 +43,7 @@ export function rendreAdministratif(zone, ctx, params = []) {
     .then((d) => {
       if (rubrique.id === 'obligations') rendreObligations(corps, d, recharger);
       else if (rubrique.id === 'mineurs') corps.replaceChildren(...mineurs(d).filter(Boolean));
-      else corps.replaceChildren(identite(d, recharger), formeJuridique(d, recharger), sauvegarde());
+      else corps.replaceChildren(identite(d, recharger), formeJuridique(d, recharger), ficheReprise());
     })
     .catch((err) => corps.replaceChildren(erreurChargement(err, recharger)));
   return null;
@@ -70,14 +71,6 @@ function mineurs(d) {
             m.image ? puce(`Image ✓ ${formatDate(m.image)}`, 'positif') : puce('Pas de diffusion', 'attention')))))
         : h('p', { class: 'texte-3 petit' }, `Aucun mineur signalé (${j.membres.filter((m) => m.renseigne).length} fiche${j.membres.filter((m) => m.renseigne).length > 1 ? 's' : ''} renseignée${j.membres.filter((m) => m.renseigne).length > 1 ? 's' : ''} sur ${j.membres.length}).`))),
   ];
-}
-
-// Copie des données de la structure (comptes, autorisations, suivi, identité) : le bot du Pi en range une chaque semaine.
-function sauvegarde() {
-  return h('section', { class: 'fiche pile-s section' },
-    h('div', { class: 'fiche__titre' }, h('h2', {}, 'Sauvegarde')),
-    h('p', { class: 'texte-2 petit' }, 'Le livre des comptes, les autorisations des mineurs, le suivi des obligations et l’identité ne sont dans aucun jeu : ils ont leur propre sauvegarde. Le bot du Raspberry Pi en range une copie chaque semaine (fichier « _structure.json ») ; tu peux aussi la télécharger ici.'),
-    h('div', {}, h('a', { href: '/api/admin/administratif/sauvegarde', class: 'btn', download: '' }, icone('telecharger'), 'Télécharger la sauvegarde')));
 }
 
 // Forme juridique : association aujourd'hui, société (SAS) le jour du passage. Elle décide des sections

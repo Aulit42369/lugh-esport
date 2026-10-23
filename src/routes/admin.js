@@ -11,7 +11,7 @@ import { lireParametresBot, alerteSauvegarde } from '../domaine/bot.js';
 import { estCouleurJeu } from '../../shared/couleurs.js';
 
 // Identifiants interdits pour un « Autre jeu » : ils servent déjà d'adresses de pages (#/admin, #/planning…).
-const ID_RESERVES = new Set(['admin', 'jeux', 'compte', 'api', 'accueil', 'planning', 'presences', 'dispos', 'match', 'maps',
+export const ID_RESERVES = new Set(['admin', 'jeux', 'compte', 'api', 'accueil', 'planning', 'presences', 'dispos', 'match', 'maps',
   'strats', 'bibliotheque', 'adversaires', 'tournois', 'meta', 'scrims', 'partenaires', 'vod', 'progression', 'programme', 'bilan',
   'roster', 'recrutement', 'gestion', 'reglages', 'structure', 'annonces', 'tresorerie']);
 
