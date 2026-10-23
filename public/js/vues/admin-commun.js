@@ -110,6 +110,12 @@ export function actionsSensibles(actions, fenetre) {
 }
 
 // État d'un compte : désactivé, mot de passe à choisir, ou dernière connexion.
+// Après une action qui doit retirer des rôles Discord (Administrateur général retiré, compte désactivé, supprimé ou
+// délié) : le bot ne le voit qu'à sa synchro suivante (3 h au plus), d'où ce rappel affiché plus longtemps.
+export function rappelSynchro(nom) {
+  toast(`${nom} est lié à Discord : tape /synchro sur Discord maintenant pour retirer ses rôles tout de suite (sinon, à la prochaine synchronisation du bot, dans 3 h au plus).`, { duree: 12_000 });
+}
+
 export function etatCompte(c) {
   if (!c.actif) return puce('Désactivé', 'negatif');
   if (c.doitChangerMdp) return puce('Mot de passe à choisir', 'attention');

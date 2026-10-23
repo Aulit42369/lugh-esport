@@ -18,7 +18,9 @@ export function creerParametres({ global, maintenant = () => new Date() }) {
     async ecrire(champs, compte) {
       const actuel = await this.lire();
       const suivant = { ...actuel, ...champs };
-      await global.ecrire('parametres', { _id: 'structure', ...suivant, majLe: maintenant().toISOString(), majPar: compte?._id || 'systeme' });
+      // Les autres champs du document (note de LUGH_REINITIALISER_2FA) sont gardés : sinon la remise à zéro repartirait.
+      const doc = (await global.lire('parametres', 'structure')) || {};
+      await global.ecrire('parametres', { ...doc, _id: 'structure', ...suivant, majLe: maintenant().toISOString(), majPar: compte?._id || 'systeme' });
       cache = suivant;
       luA = Date.now();
       return cache;

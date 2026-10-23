@@ -5,7 +5,7 @@ import { envoyerJson, erreurs, ErreurHttp } from '../http/outils.js';
 import { exigerConnexion, exigerAdmin, profilCompte } from '../auth/acces.js';
 import { verifierMdp } from '../auth/mdp.js';
 import { nouveauSecret, verifierCode, nouveauxCodesSecours, adresseOtpauth } from '../auth/totp.js';
-import { verifierSecondFacteur } from '../auth/deuxfacteurs.js';
+import { verifierSecondFacteur, lireSecret } from '../auth/deuxfacteurs.js';
 import { qrCode } from '../auth/qr.js';
 import { soumisA2fa } from '../domaine/parametres.js';
 import { MOTIFS } from '../../shared/validation.js';
@@ -28,12 +28,12 @@ export function routesDeuxFacteurs(routeur, s) {
     return (await s.global.lire('comptes', r.compteGlobal._id)) || r.compteGlobal;
   }
 
-  // 1. Préparation : une clé neuve, montrée une seule fois (QR code et texte), valable 10 minutes.
+  // 1. Préparation : une clé neuve, montrée une seule fois (QR code et texte), valable 10 minutes ; chiffrée en base.
   routeur.post('/api/auth/2fa/preparer', connecte, async (r) => {
     const compte = await compteFrais(r);
     if (compte.deuxFacteurs) throw erreurs.conflit('La double authentification est déjà active sur ce compte.');
     const secret = nouveauSecret();
-    compte.deuxFacteursEnAttente = { secret, expire: new Date(s.maintenant().getTime() + DUREE_ACTIVATION_MS).toISOString() };
+    compte.deuxFacteursEnAttente = { secret: s.coffre2fa.chiffrer(secret), expire: new Date(s.maintenant().getTime() + DUREE_ACTIVATION_MS).toISOString() };
     await s.global.ecrire('comptes', compte);
     const adresse = adresseOtpauth({ emetteur: MARQUE.nom, compte: compte.identifiant, secret });
     envoyerJson(r.res, 200, { secret: secret.match(/.{1,4}/g).join(' '), qr: qrCode(adresse).lignes, emetteur: MARQUE.nom });
@@ -46,14 +46,15 @@ export function routesDeuxFacteurs(routeur, s) {
     const attente = compte.deuxFacteursEnAttente;
     if (!attente || new Date(attente.expire) <= s.maintenant()) throw erreurs.conflit('Préparation expirée : recommence l’activation.');
     const { code } = await r.corps();
-    const pas = verifierCode(attente.secret, code, { maintenantMs: s.maintenant().getTime() });
+    const secret = lireSecret(s.coffre2fa, attente.secret);
+    const pas = verifierCode(secret, code, { maintenantMs: s.maintenant().getTime() });
     if (pas === null) {
       s.limiteurConnexion.echec(cle);
       throw new ErreurHttp(400, 'code_2fa', 'Code incorrect : vérifie l’heure du téléphone et saisis le code affiché.');
     }
     s.limiteurConnexion.reussite(cle);
     const { codes, empreintes } = nouveauxCodesSecours();
-    compte.deuxFacteurs = { secret: attente.secret, depuis: s.maintenant().toISOString(), dernierPas: pas, secours: empreintes };
+    compte.deuxFacteurs = { secret: s.coffre2fa.chiffrer(secret), depuis: s.maintenant().toISOString(), dernierPas: pas, secours: empreintes };
     delete compte.deuxFacteursEnAttente;
     await s.global.ecrire('comptes', compte);
     await s.sessions.supprimerPourCompte(compte._id, r.jeton);
@@ -67,14 +68,15 @@ export function routesDeuxFacteurs(routeur, s) {
     const compte = await compteFrais(r);
     if (!compte.deuxFacteurs) throw erreurs.conflit('La double authentification n’est pas active.');
     const { code } = await r.corps();
-    const pas = verifierCode(compte.deuxFacteurs.secret, code, { maintenantMs: s.maintenant().getTime(), dernierPas: compte.deuxFacteurs.dernierPas ?? -1 });
+    const secret = lireSecret(s.coffre2fa, compte.deuxFacteurs.secret);
+    const pas = verifierCode(secret, code, { maintenantMs: s.maintenant().getTime(), dernierPas: compte.deuxFacteurs.dernierPas ?? -1 });
     if (pas === null) {
       s.limiteurConnexion.echec(cle);
       throw new ErreurHttp(400, 'code_2fa', 'Code incorrect.');
     }
     s.limiteurConnexion.reussite(cle);
     const { codes, empreintes } = nouveauxCodesSecours();
-    compte.deuxFacteurs = { ...compte.deuxFacteurs, dernierPas: pas, secours: empreintes };
+    compte.deuxFacteurs = { ...compte.deuxFacteurs, secret: s.coffre2fa.chiffrer(secret), dernierPas: pas, secours: empreintes };
     await s.global.ecrire('comptes', compte);
     await s.historique.ecrire(compte, 'codes de secours renouvelés');
     envoyerJson(r.res, 200, { codesSecours: codes, compte: profilCompte(compte) });
@@ -89,7 +91,7 @@ export function routesDeuxFacteurs(routeur, s) {
       throw erreurs.conflit('La structure exige la double authentification pour ton rôle : tu peux renouveler tes codes, pas la désactiver.');
     }
     const { mdp, code } = await r.corps();
-    const verif = typeof mdp === 'string' && (await verifierMdp(mdp, compte.hash)) ? verifierSecondFacteur(compte.deuxFacteurs, code, s.maintenant()) : null;
+    const verif = typeof mdp === 'string' && (await verifierMdp(mdp, compte.hash)) ? verifierSecondFacteur(compte.deuxFacteurs, code, s.maintenant(), s.coffre2fa) : null;
     if (!verif) {
       s.limiteurConnexion.echec(cle);
       throw new ErreurHttp(400, 'code_2fa', 'Mot de passe ou code incorrect.');

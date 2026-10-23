@@ -28,7 +28,8 @@ import { contexteStructure } from '../shared/administratif/identite.js';
 import { routesTresorerie } from './routes/tresorerie.js';
 import { creerVeille } from './domaine/veille.js';
 import { creerParametres } from './domaine/parametres.js';
-import { reinitialiserAuDemarrage } from './auth/deuxfacteurs.js';
+import { reinitialiserAuDemarrage, convertirClesAuDemarrage } from './auth/deuxfacteurs.js';
+import { creerCoffre } from './auth/chiffrement.js';
 import { creerAnnoncesDiscord } from './notifications/annonces.js';
 
 const RACINE = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -40,8 +41,15 @@ export async function creerApp({
   const global = fabrique.base(config.base);
   await global.preparer('global');
   const historique = creerJournal({ stockage: global, maintenant });
-  // Dernier recours (accès Render requis) : remet à zéro la double authentification d'un compte au démarrage.
-  if (config.reinitialiser2fa) await reinitialiserAuDemarrage({ global, historique, identifiant: config.reinitialiser2fa, journal });
+  // Dernier recours (accès Render requis) : remet à zéro la double authentification d'un compte au démarrage
+  // (appelé à chaque démarrage : variable retirée, la note d'usage unique est effacée).
+  await reinitialiserAuDemarrage({ global, historique, identifiant: config.reinitialiser2fa, journal });
+  // Clés de double authentification : chiffrement des anciennes clés en clair, alerte si des clés sont illisibles.
+  const coffre2fa = creerCoffre(config.cle2fa);
+  const illisibles = await convertirClesAuDemarrage({ global, coffre: coffre2fa });
+  if (illisibles) {
+    config.avertissements.push(`${illisibles} clé(s) de double authentification illisible(s) : LUGH_CLE_2FA est absente ou n’est plus la même. Remets la valeur d’origine dans Render (sinon ces comptes ne peuvent plus se connecter).`);
+  }
   const registre = creerRegistre({
     fabrique, global, config, historique, maintenant, journal, interrogerClaude, fetchDiscord, delaiPlanningMs, automatismes,
   });
@@ -55,6 +63,7 @@ export async function creerApp({
     registre,
     maintenant,
     journal,
+    coffre2fa,
     sessions: creerSessions({ stockage: global, maintenant }),
     parametres: creerParametres({ global, maintenant }),
     annoncesDiscord: creerAnnoncesDiscord({ global, ...(fetchDiscord ? { fetchImpl: fetchDiscord } : {}) }),

@@ -143,7 +143,7 @@ function confirmerRestauration(sauvegarde, nomFichier) {
       classe: 'btn--danger',
       action: async () => {
         if (mot.value.trim() !== 'RESTAURER') throw new Error('Tape RESTAURER en majuscules pour confirmer.');
-        const bilan = await E.appeler('POST', '/restaurer', sauvegarde);
+        const bilan = await E.appeler('POST', '/restaurer', { ...sauvegarde, confirmation: 'RESTAURER' });
         await terminer('Sauvegarde restaurée', bilan);
       },
     }],
@@ -183,7 +183,7 @@ function confirmerAnnulation(point) {
       classe: 'btn--danger',
       action: async () => {
         if (mot.value.trim() !== 'ANNULER') throw new Error('Tape ANNULER en majuscules pour confirmer.');
-        const bilan = await E.appeler('POST', '/restauration/annuler', {});
+        const bilan = await E.appeler('POST', '/restauration/annuler', { confirmation: 'ANNULER' });
         await terminer('Restauration annulée', bilan);
       },
     }],

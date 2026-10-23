@@ -7,7 +7,7 @@ import * as E from '../etat.js';
 import { puce } from '../composants/jetons.js';
 import { nomsMetiers } from '/shared/roles.js';
 import { formatHorodatage, ilYA } from '/shared/temps.js';
-import { afficherMdp, choixMetiers, etatCompte, pastilleJeu, chargement, erreurChargement, actionsSensibles, interrupteur } from './admin-commun.js';
+import { afficherMdp, choixMetiers, etatCompte, pastilleJeu, chargement, erreurChargement, actionsSensibles, interrupteur, rappelSynchro } from './admin-commun.js';
 
 let cache = null; // { comptes, jeux, parametres } : affiché tout de suite au rendu suivant
 const filtre = { vue: '', texte: '' };
@@ -267,6 +267,7 @@ function modifier(c, d, ctx) {
         if (!ok) return false;
         await api('DELETE', `/api/admin/comptes/${encodeURIComponent(c._id)}`);
         toast('Compte supprimé.');
+        if (c.discord) rappelSynchro(c.nomAffiche);
         await ctx.recharger();
         return true;
       },
@@ -314,6 +315,7 @@ function modifier(c, d, ctx) {
           }
           await api('PUT', `/api/admin/comptes/${encodeURIComponent(c._id)}`, corps);
           toast('Compte enregistré.');
+          if (c.discord && ((c.actif && !corps.actif) || (c.admin && !corps.admin))) rappelSynchro(c.nomAffiche);
           await ctx.recharger();
           return true;
         },

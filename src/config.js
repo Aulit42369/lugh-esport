@@ -31,6 +31,14 @@ export function lireConfig(env = process.env) {
   const cleBot = (env.LUGH_CLE_BOT || '').trim();
   if (cleBot && cleBot.length < 32) erreurs.push('LUGH_CLE_BOT trop courte : 32 caractères minimum.');
 
+  // Facultatif mais conseillé : chiffre les clés de double authentification dans Atlas (AES-256-GCM).
+  // Ne jamais la changer ni la retirer une fois posée : les clés chiffrées deviendraient illisibles.
+  const cle2fa = (env.LUGH_CLE_2FA || '').trim().toLowerCase();
+  if (cle2fa && !/^[0-9a-f]{64}$/.test(cle2fa)) erreurs.push('LUGH_CLE_2FA invalide : 64 caractères hexadécimaux (openssl rand -hex 32).');
+  if (!cle2fa && mode === 'production') {
+    avertissements.push('LUGH_CLE_2FA absente : les clés de double authentification sont enregistrées en clair dans Atlas.');
+  }
+
   const cleClaude = (env.ANTHROPIC_API_KEY || '').trim();
   if (!cleClaude && mode === 'production') {
     avertissements.push('ANTHROPIC_API_KEY absente : la méta de chaque jeu se met à jour par import manuel (page Méta).');
@@ -66,6 +74,7 @@ export function lireConfig(env = process.env) {
     },
     secretCron,
     cleBot,
+    cle2fa,
     reinitialiser2fa,
     claude: {
       cle: cleClaude,

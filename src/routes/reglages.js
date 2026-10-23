@@ -143,9 +143,10 @@ export function routesReglages(routeur, s) {
   });
 
   // Restauration d'une sauvegarde de ce jeu ; l'état actuel est gardé comme point de restauration.
+  // Le mot tapé dans la fenêtre de confirmation est exigé ici aussi : un appel direct ne suffit pas.
   routeur.post('/api/e/:jeu/restaurer', ...espace, exigerPerm('donnees.exporter'), async (r) => {
     const e = r.espace;
-    const sauvegarde = await r.corps(LIMITE_SAUVEGARDE);
+    const { confirmation, ...sauvegarde } = exigerMot(await r.corps(LIMITE_SAUVEGARDE), 'RESTAURER');
     const bilan = await restaurer(s, e, sauvegarde, r.compte);
     await e.depot.journaliser(r.compte, 'sauvegarde restaurée', sauvegarde.exporteLe || '', `${bilan.restaures} fiches, ${bilan.ignores} ignorées`);
     envoyerJson(r.res, 200, { ...bilan, point: await lirePoint(s, e) });
@@ -158,8 +159,15 @@ export function routesReglages(routeur, s) {
 
   routeur.post('/api/e/:jeu/restauration/annuler', ...espace, exigerPerm('donnees.exporter'), async (r) => {
     const e = r.espace;
+    exigerMot(await r.corps(), 'ANNULER');
     const bilan = await annulerDerniereRestauration(s, e, r.compte);
     await e.depot.journaliser(r.compte, 'restauration annulée', '', `${bilan.restaures} fiches remises`);
     envoyerJson(r.res, 200, { ...bilan, point: await lirePoint(s, e) });
   });
+}
+
+// Confirmation forte côté serveur : le corps doit porter le mot tapé par la personne (RESTAURER ou ANNULER).
+function exigerMot(corps, mot) {
+  if (corps?.confirmation !== mot) throw erreurs.requete(`Confirmation manquante : tape ${mot} en majuscules.`);
+  return corps;
 }

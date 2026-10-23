@@ -7,7 +7,7 @@ import { api } from '../api.js';
 import { icone } from '../icones.js';
 import { puce } from '../composants/jetons.js';
 import { formatHorodatage, ilYA } from '/shared/temps.js';
-import { chargement, erreurChargement, interrupteur } from './admin-commun.js';
+import { chargement, erreurChargement, interrupteur, rappelSynchro } from './admin-commun.js';
 
 const SILENCE_INQUIETANT_MS = 7 * 3_600_000; // le bot se synchronise toutes les 3 h
 const SAUVEGARDE_EN_RETARD_MS = 8 * 86_400_000; // une par semaine (même seuil que le serveur, domaine/bot.js)
@@ -136,6 +136,7 @@ function ficheLiaisons(d, recharger) {
             try {
               await api('DELETE', `/api/admin/comptes/${encodeURIComponent(l.compteId)}/discord`);
               toast('Délié.');
+              rappelSynchro(l.nomAffiche);
               recharger();
             } catch (err) {
               toast(messageErreur(err), { type: 'erreur' });

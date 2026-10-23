@@ -56,7 +56,7 @@ export function routesAuth(routeur, s) {
       const code = typeof corps.code === 'string' ? corps.code.trim().slice(0, 20) : '';
       // Code manquant : réponse normale (pas d'erreur dans la console), sans session ; l'interface demande le code.
       if (!code) return envoyerJson(r.res, 200, { code2fa: true });
-      const verif = verifierSecondFacteur(frais.deuxFacteurs, code, s.maintenant());
+      const verif = verifierSecondFacteur(frais.deuxFacteurs, code, s.maintenant(), s.coffre2fa);
       if (!verif) {
         s.limiteurConnexion.echec(cles);
         throw erreurs.codeDeuxFacteurs('Code incorrect ou déjà utilisé.');

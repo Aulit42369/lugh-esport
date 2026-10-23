@@ -1,5 +1,5 @@
 # Blueprint Render : crée le service web de Lugh depuis ce dépôt (Render → New → Blueprint).
-# Aucune valeur secrète n'est écrite ici : Render demande MONGODB_URI, LUGH_ADMIN_ID et LUGH_ADMIN_MDP à la création.
+# Aucune valeur secrète n'est écrite ici : Render demande MONGODB_URI, LUGH_ADMIN_ID, LUGH_ADMIN_MDP et LUGH_CLE_2FA à la création.
 # La clé API Claude (ANTHROPIC_API_KEY) est facultative : elle s'ajoute plus tard dans Environment.
 services:
   - type: web
@@ -19,4 +19,6 @@ services:
       - key: LUGH_ADMIN_ID
         sync: false
       - key: LUGH_ADMIN_MDP
+        sync: false
+      - key: LUGH_CLE_2FA
         sync: false

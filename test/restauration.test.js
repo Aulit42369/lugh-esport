@@ -50,15 +50,15 @@ test('restauration refusée : autre jeu, autre modèle, autre format ou version,
   try {
     const s = await exporter(admin);
     const avant = await st.compter('membres');
-    const autreJeu = await admin.post('/api/e/lol/restaurer', s);
+    const autreJeu = await admin.post('/api/e/lol/restaurer', { ...s, confirmation: 'RESTAURER' });
     assert.equal(autreJeu.statut, 400);
     assert.match(autreJeu.json.erreur.message, /autre jeu \(Valorant\)/);
     for (const faux of [{ ...s, version: 1 }, { ...s, format: 'qg-valorant' }, { ...s, modele: 'cs2' }, { ...s, espace: 'lol' }, {}]) {
-      assert.equal((await admin.post('/api/e/valorant/restaurer', faux)).statut, 400, JSON.stringify({ ...faux, membres: undefined }).slice(0, 80));
+      assert.equal((await admin.post('/api/e/valorant/restaurer', { ...faux, confirmation: 'RESTAURER' })).statut, 400, JSON.stringify({ ...faux, membres: undefined }).slice(0, 80));
     }
     assert.equal((await admin.post('/api/e/valorant/restaurer', '[1, 2]')).statut, 400, 'pas un objet JSON');
     const hc = await compteConnecte(sim, { identifiant: 'hc', acces: { valorant: ['headcoach'] } });
-    assert.equal((await hc.post('/api/e/valorant/restaurer', s)).statut, 403);
+    assert.equal((await hc.post('/api/e/valorant/restaurer', { ...s, confirmation: 'RESTAURER' })).statut, 403);
     assert.equal(await st.compter('membres'), avant);
   } finally {
     await sim.arreter();
@@ -84,7 +84,7 @@ test('restauration : la sauvegarde remplace les fiches du jeu ; comptes, méta e
     const comptes = await sim.global.compter('comptes');
     const rev = (await admin.get('/api/e/valorant/sync?rev=0')).json.rev;
 
-    const r = await admin.post('/api/e/valorant/restaurer', sauvegarde);
+    const r = await admin.post('/api/e/valorant/restaurer', { ...sauvegarde, confirmation: 'RESTAURER' });
     assert.equal(r.statut, 200, r.texte);
     assert.equal(r.json.ignores, 0);
     assert.deepEqual(r.json.details, []);
@@ -121,7 +121,7 @@ test('restauration : les Réglages du jeu de la sauvegarde passent en premier et
     await admin.del(`/api/e/valorant/c/membres/${id}`);
     assert.equal((await admin.put(`/api/e/valorant/c/membres/${id}`, { valeur: { type: 'joueur', statut: 'titulaire', roleJeu: 'ancre' } })).statut, 400);
 
-    const r = await admin.post('/api/e/valorant/restaurer', sauvegarde);
+    const r = await admin.post('/api/e/valorant/restaurer', { ...sauvegarde, confirmation: 'RESTAURER' });
     assert.equal(r.statut, 200, r.texte);
     assert.equal(r.json.ignores, 0, 'le membre « ancre » est valide avec les Réglages de la sauvegarde');
     assert.equal((await st.lire('membres', id)).roleJeu, 'ancre');
@@ -131,7 +131,7 @@ test('restauration : les Réglages du jeu de la sauvegarde passent en premier et
     // Réglages invalides dans le fichier : ignorés, les fiches sont validées avec les Réglages actuels.
     const casse = structuredClone(sauvegarde);
     casse.jeu = [{ _id: 'reglages', listes: { roles: [{ id: 'ancre', nom: 'Ancre' }] } }];
-    const r2 = await admin.post('/api/e/valorant/restaurer', casse);
+    const r2 = await admin.post('/api/e/valorant/restaurer', { ...casse, confirmation: 'RESTAURER' });
     assert.equal(r2.statut, 200);
     assert.ok(r2.json.details.includes('jeu reglages'));
     assert.ok((await admin.get('/api/e/valorant/reglages-jeu')).json.reglages.listes.roles.some((x) => x.id === 'duelliste'), 'réglages actuels gardés');
@@ -150,7 +150,7 @@ test('restauration silencieuse : aucun message Discord pour les fiches remises e
     sauvegarde.absences = [{ _id: nouvelId('a'), membreId: m0._id, date: '2026-10-30' }];
     sauvegarde.adversaires = [{ _id: nouvelId('d'), nom: 'Kraken', prochainMatch: { date: '2026-10-30', heure: '20:00', format: 'bo3' } }];
     const n = sim.discord.envois.length;
-    const r = await admin.post('/api/e/valorant/restaurer', sauvegarde);
+    const r = await admin.post('/api/e/valorant/restaurer', { ...sauvegarde, confirmation: 'RESTAURER' });
     assert.equal(r.statut, 200, r.texte);
     assert.equal(await st.compter('scrims'), 3);
     assert.equal(await st.compter('absences'), 1);
@@ -182,7 +182,7 @@ test('restauration : fiches invalides ignorées, champs techniques déduits de l
     ];
     s.vodNotes = [{ _id: nouvelId('n'), vodId: vod, texte: 'Auteur bidon', auteur: '<script>' }, { _id: noteOk, vodId: vod, texte: 'Bonne note', auteur: admin.id }];
 
-    const r = await admin.post('/api/e/valorant/restaurer', s);
+    const r = await admin.post('/api/e/valorant/restaurer', { ...s, confirmation: 'RESTAURER' });
     assert.equal(r.statut, 200, r.texte);
     assert.equal(r.json.ignores, 5);
     for (const d of ['equipe profil', 'strats pas-un-id', 'votes k-aaaaaaaaaa_c-bbbbbbbbbb']) assert.ok(r.json.details.includes(d), d);
@@ -211,7 +211,7 @@ test('restauration : plafonds vérifiés avant toute écriture', async () => {
     const { modele } = (await admin.get('/api/e/valorant/reglages-jeu')).json;
     s.jeu = [{ _id: 'reglages', listes: { roles: [...modele.roles, { id: 'ancre', nom: 'Ancre' }] } }];
     s.adversaires = Array.from({ length: 301 }, (_, i) => ({ _id: nouvelId('d'), nom: `Adversaire ${i}` }));
-    const r = await admin.post('/api/e/valorant/restaurer', s);
+    const r = await admin.post('/api/e/valorant/restaurer', { ...s, confirmation: 'RESTAURER' });
     assert.equal(r.statut, 400);
     assert.match(r.json.erreur.message, /301 fiches « adversaires », 300 au maximum/);
     assert.equal(await st.lire('strats', s1), null, 'rien n’a été restauré');
@@ -226,7 +226,7 @@ test('point de restauration : l’état d’avant est gardé, la restauration s�
   const { sim, admin, st } = await preparer();
   try {
     assert.deepEqual((await admin.get('/api/e/valorant/restauration')).json, { point: null });
-    const annulerSansPoint = await admin.post('/api/e/valorant/restauration/annuler');
+    const annulerSansPoint = await admin.post('/api/e/valorant/restauration/annuler', { confirmation: 'ANNULER' });
     assert.equal(annulerSansPoint.statut, 404);
     assert.match(annulerSansPoint.json.erreur.message, /Aucune restauration à annuler/);
 
@@ -239,27 +239,27 @@ test('point de restauration : l’état d’avant est gardé, la restauration s�
     const fichesB = (await Promise.all(['membres', 'mapsEquipe', 'planning', 'equipe', 'strats'].map((c) => st.compter(c)))).reduce((x, y) => x + y, 0);
 
     sim.maintenant.avancer(60_000);
-    const r = await admin.post('/api/e/valorant/restaurer', sauvegarde);
+    const r = await admin.post('/api/e/valorant/restaurer', { ...sauvegarde, confirmation: 'RESTAURER' });
     assert.equal(r.statut, 200);
     assert.deepEqual(r.json.point, { le: sim.maintenant().toISOString(), par: 'chef', source: sauvegarde.exporteLe, fiches: fichesB, interrompue: false });
     assert.ok(await st.lire('strats', a));
     assert.equal(await st.lire('strats', b), null);
 
-    const annule = await admin.post('/api/e/valorant/restauration/annuler');
+    const annule = await admin.post('/api/e/valorant/restauration/annuler', { confirmation: 'ANNULER' });
     assert.equal(annule.statut, 200, annule.texte);
     assert.equal(annule.json.point.source, 'annulation');
     assert.equal(await st.lire('strats', a), null, 'retour à l’état d’avant la restauration');
     assert.equal((await st.lire('strats', b)).nom, 'État B');
     assert.ok((await admin.get('/api/e/valorant/journal')).json.entrees.some((e) => e.action === 'restauration annulée'));
 
-    assert.equal((await admin.post('/api/e/valorant/restauration/annuler')).statut, 200, 'annuler l’annulation');
+    assert.equal((await admin.post('/api/e/valorant/restauration/annuler', { confirmation: 'ANNULER' })).statut, 200, 'annuler l’annulation');
     assert.ok(await st.lire('strats', a));
     assert.equal(await st.lire('strats', b), null);
     assert.deepEqual((await admin.get('/api/e/lol/restauration')).json, { point: null }, 'un point par jeu');
 
     const hc = await compteConnecte(sim, { identifiant: 'hc', acces: { valorant: ['headcoach'] } });
     assert.equal((await hc.get('/api/e/valorant/restauration')).statut, 403);
-    assert.equal((await hc.post('/api/e/valorant/restauration/annuler')).statut, 403);
+    assert.equal((await hc.post('/api/e/valorant/restauration/annuler', { confirmation: 'ANNULER' })).statut, 403);
   } finally {
     await sim.arreter();
   }
@@ -277,13 +277,38 @@ test('annuler une restauration remet aussi les Réglages d’avant, même quand 
     const sauvegarde = await exporter(admin);
     sauvegarde.jeu = [{ _id: 'reglages', score: { type: 'simple' } }];
     sauvegarde.scrims = [];
-    assert.equal((await admin.post('/api/e/valorant/restaurer', sauvegarde)).statut, 200);
+    assert.equal((await admin.post('/api/e/valorant/restaurer', { ...sauvegarde, confirmation: 'RESTAURER' })).statut, 200);
     assert.equal((await admin.get('/api/e/valorant/donnees')).json.definition.score.type, 'simple');
 
-    assert.equal((await admin.post('/api/e/valorant/restauration/annuler')).statut, 200);
+    assert.equal((await admin.post('/api/e/valorant/restauration/annuler', { confirmation: 'ANNULER' })).statut, 200);
     assert.equal((await admin.get('/api/e/valorant/donnees')).json.definition.score.type, 'manches', 'Réglages d’avant : ceux du modèle');
     const revenu = await st.lire('scrims', x);
     assert.deepEqual([revenu.campDepart, revenu.mtNous, revenu.pistols], ['att', 7, { att: 'gagne', def: 'perdu' }], 'scrim remis à l’identique');
+  } finally {
+    await sim.arreter();
+  }
+});
+
+test('restauration et annulation : le mot de confirmation est exigé par le serveur, pas seulement par la page', async () => {
+  const { sim, admin, st } = await preparer();
+  try {
+    const sauvegarde = await exporter(admin);
+    await admin.put(`/api/e/valorant/c/strats/${nouvelId('s')}`, { valeur: stratPour('valorant', 'Après export') });
+    const avant = await st.compter('strats');
+    for (const confirmation of [undefined, 'restaurer', 'ANNULER', '']) {
+      const r = await admin.post('/api/e/valorant/restaurer', { ...sauvegarde, confirmation });
+      assert.equal(r.statut, 400, `confirmation ${confirmation}`);
+      assert.match(r.json.erreur.message, /tape RESTAURER/);
+    }
+    assert.equal(await st.compter('strats'), avant, 'rien n’a été restauré');
+    assert.equal((await admin.post('/api/e/valorant/restaurer', { ...sauvegarde, confirmation: 'RESTAURER' })).statut, 200);
+    assert.equal(await st.compter('strats'), avant - 1);
+    for (const corps of [undefined, {}, { confirmation: 'RESTAURER' }]) {
+      assert.equal((await admin.post('/api/e/valorant/restauration/annuler', corps)).statut, 400, JSON.stringify(corps));
+    }
+    assert.equal(await st.compter('strats'), avant - 1, 'rien n’a été annulé');
+    assert.equal((await admin.post('/api/e/valorant/restauration/annuler', { confirmation: 'ANNULER' })).statut, 200);
+    assert.equal(await st.compter('strats'), avant);
   } finally {
     await sim.arreter();
   }
