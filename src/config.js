@@ -68,7 +68,7 @@ export function lireConfig(env = process.env) {
   // Nombre de proxys de confiance devant Lugh : l'adresse du client est le N-ième élément de X-Forwarded-For en
   // partant de la droite (1 = le dernier, celui qu'ajoute le proxy de Render). À vérifier dans Administration → Service.
   const proxySauts = Number(env.LUGH_PROXY_SAUTS || 1);
-  if (!Number.isInteger(proxySauts) || proxySauts < 1 || proxySauts > 5) erreurs.push('LUGH_PROXY_SAUTS invalide : un nombre entier de 1 à 5.');
+  if (!Number.isInteger(proxySauts) || proxySauts < 1 || proxySauts > 5) erreurs.push(`LUGH_PROXY_SAUTS invalide (reçu : « ${String(env.LUGH_PROXY_SAUTS).slice(0, 40)} ») : mets seulement un chiffre de 1 à 5, sans guillemets ni texte (ex. 2).`);
 
   const surRender = env.RENDER === 'true';
   const simulation = mode === 'simulation';
