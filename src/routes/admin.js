@@ -1,7 +1,7 @@
 // Administration générale (Administrateur général) : jeux (activation depuis le catalogue, ajout d'un « Autre jeu »,
 // suppression définitive d'un jeu désactivé), état du service et journal complet. Les comptes sont dans routes/comptes.js.
 
-import { envoyerJson, erreurs, listeTransmise, alerteReseau } from '../http/outils.js';
+import { envoyerJson, erreurs, listeTransmise, alerteReseau, typesAdresses, sautsConseilles } from '../http/outils.js';
 import { exigerConnexion, exigerAdmin } from '../auth/acces.js';
 import { MODELES, ORDRE, ID_AUTRE, resumeModele } from '../../shared/jeux/index.js';
 import { MOTIFS } from '../../shared/validation.js';
@@ -12,7 +12,17 @@ import { estCouleurJeu } from '../../shared/couleurs.js';
 import { estNomJeuReserve, nomJeuDejaPris, MESSAGE_NOM_RESERVE } from '../../shared/referentiel.js';
 import { PLAFONDS_MANUELS } from '../config.js';
 
-const avecAlerte = (reseau) => ({ ...reseau, alerte: alerteReseau(reseau) });
+// Ce qui part au navigateur : la nature des adresses et la valeur conseillée, jamais une adresse IP.
+function vueReseau(r, config) {
+  const liste = listeTransmise(r.req);
+  const conseil = config.derriereProxy ? sautsConseilles(liste) : null;
+  const alerte = alerteReseau({ ip: r.ip, elements: liste.length, derriereProxy: config.derriereProxy, sauts: config.proxySauts })
+    || (conseil && conseil !== config.proxySauts ? `Mettre LUGH_PROXY_SAUTS = ${conseil} dans Render (Environment), puis vérifier ici que l’adresse retenue est « publique ».` : null);
+  return {
+    types: typesAdresses(liste), elements: liste.length, retenue: typesAdresses([r.ip])[0],
+    derriereProxy: config.derriereProxy, sauts: config.proxySauts, conseil, alerte,
+  };
+}
 
 // Identifiants interdits pour un « Autre jeu » : ils servent déjà d'adresses de pages (#/admin, #/planning…).
 export const ID_RESERVES = new Set(['admin', 'jeux', 'compte', 'api', 'accueil', 'planning', 'presences', 'dispos', 'match', 'maps',
@@ -182,14 +192,8 @@ export function routesAdmin(routeur, s) {
       cleClaude: !!s.config.claude.cle,
       modele: s.config.claude.modele,
       cronConfigure: !!s.config.secretCron,
-      // Réservé à l'Administrateur général : sa propre adresse, pour vérifier que Lugh lit la bonne (voir PIEGES).
-      reseau: avecAlerte({
-        ip: r.ip,
-        transmis: String(r.req.headers['x-forwarded-for'] || '').slice(0, 300),
-        elements: listeTransmise(r.req).length,
-        derriereProxy: s.config.derriereProxy,
-        sauts: s.config.proxySauts,
-      }),
+      // Réservé à l'Administrateur général : la nature des adresses de SA requête et le réglage conseillé (voir PIEGES).
+      reseau: vueReseau(r, s.config),
       plafonds: PLAFONDS_MANUELS,
       veilleManuels: (await s.veille.etat()).couts?.[s.maintenant().toISOString().slice(0, 7)]?.manuels || 0,
       avertissements: [...s.config.avertissements, alerteSauvegarde((await lireParametresBot(s.global)).etat, s.maintenant(), s.config.cleBot)].filter(Boolean),

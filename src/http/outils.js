@@ -123,6 +123,18 @@ export function ipClient(req, derriereProxy, sauts = 1) {
 // Adresse interne (privée, locale, CGNAT, lien local) : celle d'un proxy, jamais celle d'un visiteur sur Internet.
 const INTERNE = /^(::ffff:)?(10\.|127\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\.|169\.254\.)|^(::1$|f[cd]|fe[89ab])/i;
 
+// Nature de chaque élément de X-Forwarded-For (de gauche à droite), sans l'adresse elle-même : Service ne montre
+// aucune adresse IP (décision d'Olivier du 24/10).
+export const typesAdresses = (liste) => liste.map((a) => (!isIP(a) ? 'invalide' : INTERNE.test(a) ? 'interne' : 'publique'));
+
+// Valeur conseillée de LUGH_PROXY_SAUTS : position, en partant de la droite, de la première adresse publique (celle du
+// visiteur, vue par le dernier proxy interne de l'hébergeur). Ce qui est plus à gauche peut être écrit par le visiteur.
+// null quand aucune adresse publique n'est transmise.
+export function sautsConseilles(liste) {
+  for (let i = liste.length - 1; i >= 0; i -= 1) if (isIP(liste[i]) && !INTERNE.test(liste[i])) return liste.length - i;
+  return null;
+}
+
 // Garde-fou de LUGH_PROXY_SAUTS (affiché dans Service, ne change rien au calcul) : signale un en-tête qui ne ressemble
 // pas à ce qu'ajoute un proxy de confiance. null quand tout paraît normal.
 export function alerteReseau({ ip, elements, derriereProxy, sauts }) {

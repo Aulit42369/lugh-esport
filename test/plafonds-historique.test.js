@@ -9,20 +9,25 @@ import { creneauPrecedent } from '../src/domaine/automatismes.js';
 
 const MOIS = '2026-10'; // horloge de la simulation : 21 octobre 2026
 
-test('Service : l’Administrateur général voit l’adresse retenue par Lugh et le X-Forwarded-For brut', async () => {
+test('Service : nature des adresses et LUGH_PROXY_SAUTS conseillé, sans jamais montrer une adresse IP', async () => {
   const sim = await demarrer();
   try {
     const admin = await adminPret(sim);
-    const { reseau } = (await admin.get('/api/admin/etat', { entetes: { 'X-Forwarded-For': '6.6.6.6, 7.7.7.7' } })).json;
-    assert.deepEqual(reseau, { ip: '7.7.7.7', transmis: '6.6.6.6, 7.7.7.7', elements: 2, derriereProxy: true, sauts: 1, alerte: null });
+    const rep = await admin.get('/api/admin/etat', { entetes: { 'X-Forwarded-For': '6.6.6.6, 7.7.7.7' } });
+    assert.deepEqual(rep.json.reseau, { types: ['publique', 'publique'], elements: 2, retenue: 'publique', derriereProxy: true, sauts: 1, conseil: 1, alerte: null });
+    assert.ok(!JSON.stringify(rep.json).includes('7.7.7.7') && !JSON.stringify(rep.json).includes('6.6.6.6'), 'aucune adresse IP renvoyée');
+    // Comme chez Render : visiteur public, puis le proxy interne de l'hébergeur ajouté à la fin.
+    const render = (await admin.get('/api/admin/etat', { entetes: { 'X-Forwarded-For': '86.1.2.3, 10.0.0.7' } })).json.reseau;
+    assert.deepEqual([render.retenue, render.conseil], ['interne', 2]);
+    assert.match(render.alerte, /adresse interne/);
   } finally {
     await sim.arreter();
   }
   const deux = await demarrer({ env: { LUGH_PROXY_SAUTS: '2' } });
   try {
     const admin = await adminPret(deux);
-    const { reseau } = (await admin.get('/api/admin/etat', { entetes: { 'X-Forwarded-For': '5.5.5.5, 6.6.6.6, 7.7.7.7' } })).json;
-    assert.deepEqual([reseau.ip, reseau.sauts], ['6.6.6.6', 2], 'deux proxys de confiance : l’avant-dernier');
+    const { reseau } = (await admin.get('/api/admin/etat', { entetes: { 'X-Forwarded-For': '86.1.2.3, 10.0.0.7' } })).json;
+    assert.deepEqual([reseau.retenue, reseau.sauts, reseau.conseil, reseau.alerte], ['publique', 2, 2, null], 'réglage conseillé appliqué : plus d’alerte');
     const court = (await admin.get('/api/admin/etat', { entetes: { 'X-Forwarded-For': '7.7.7.7' } })).json.reseau;
     assert.match(court.alerte, /Baisser LUGH_PROXY_SAUTS/, 'en-tête plus court que les sauts : signalé');
   } finally {

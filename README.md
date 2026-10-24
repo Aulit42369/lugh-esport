@@ -79,7 +79,7 @@ Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été dépl
    - le mot de passe temporaire ne s'affiche **qu'une fois** : envoie-le en message privé.
 5. Facultatif : **Administration générale → Comptes**, section « Double authentification », interrupteur sur **Exigée**. L'obligation vise l'Administrateur général et les Responsables, qui devront l'activer à leur prochaine connexion. La section liste les comptes qui ne l'ont pas encore activée.
 6. Dans chaque jeu, suis la liste **Premiers pas** de l'Accueil, puis ouvre **Réglages du jeu** pour adapter le modèle : rôles, rangs, chiffres, vocabulaire, couleur du jeu, seuils de charge…
-7. **Administration générale → Service** : compare « Ton adresse vue par Lugh » avec celle d'un site « quelle est mon adresse IP » ouvert sur le même appareil. Si elles diffèrent, la protection contre les essais de mots de passe compte tous les visiteurs ensemble : note la ligne « X-Forwarded-For reçu » et règle `LUGH_PROXY_SAUTS` (voir `PIEGES.md`).
+7. **Administration générale → Service** : la ligne « Adresse retenue » doit dire « publique : correct », depuis le PC comme depuis le téléphone. Sinon, mets dans Render → *Environment* la variable `LUGH_PROXY_SAUTS` avec la « Valeur conseillée » affichée juste dessous, puis recharge la page. Aucune adresse IP n'est affichée ni enregistrée (voir `PIEGES.md`).
 
 ### 5. Facultatif : méta automatique (clé API Claude)
 1. platform.claude.com → *Billing* : ajoute quelques dollars de crédit. Puis *API Keys* → *Create Key* (nom `lugh`) et copie la clé.
