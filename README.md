@@ -213,6 +213,16 @@ Chaque modification ou suppression d'une écriture garde la version d'avant (qui
 
 Pour toi (Olivier) : Claude publie directement sur GitHub, Render redéploie tout seul.
 
+### Tests automatiques (GitHub Actions)
+À chaque envoi sur GitHub, le workflow **Tests** (`.github/workflows/tests.yml`) lance `npm ci` puis `npm test` sous Node 22, sans aucun secret. Résultat : onglet **Actions** du dépôt (coche verte = tout passe, croix rouge = un test échoue).
+
+Pour que Render ne mette en ligne **que du code dont les tests passent** (réglage à faire une seule fois, par toi) :
+1. Sur render.com, ouvre le service **lugh-esport** → **Settings**.
+2. Section **Build & Deploy** → **Auto-Deploy** → **Edit** → choisis **After CI Checks Pass** → **Save Changes**.
+3. Attention : `render.yaml` contient `autoDeployTrigger: commit`. Si tu resynchronises le Blueprint, Render remet ce réglage. Pour le rendre définitif, remplace cette ligne par `autoDeployTrigger: checksPass`.
+
+Si un test échoue, Render garde l'ancienne version en ligne : corrige, renvoie, et le déploiement repart tout seul.
+
 Pour une autre structure : chaque mise à jour arrive dans **un seul dossier** `Lugh-<version>-a-envoyer` : seulement les fichiers qui ont changé, déjà rangés dans leurs sous-dossiers. Sur GitHub, à la racine du dépôt : *Add file → Upload files*, ouvre le dossier, sélectionne tout son contenu (*Ctrl+A*), glisse-le dans la page, puis *Commit changes*. Les fichiers non livrés restent tels quels. Render redéploie tout seul. Les données ne bougent pas, elles sont dans Atlas. Le zip complet (en trois envois) ne sert que pour une installation de zéro.
 
 ---

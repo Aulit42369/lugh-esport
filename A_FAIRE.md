@@ -40,6 +40,7 @@
 - Après le premier vrai essai du bot : vérifier les rappels d'une vraie semaine et la synchronisation des rôles.
 
 ## Décisions prises
+- 24/10 : idées refusées par Olivier (ne pas reproposer) : démo en ligne de Lugh (Lugh reste pour lui seul pour l'instant) ; page de candidature publique (même raison).
 - 19/10 : départ en association, passage en société (SAS) prévu plus tard. Nom « Lugh » : pas de dépôt INPI pour l'instant ; il sera sans doute déposé au nom d'Olivier, puis prêté par licence à l'association (gratuite) et à la société.
 - 19/10 : livre des comptes ouvert à l'Administrateur général et à un rôle Trésorier ; justificatifs hors de Lugh (numéro de pièce seulement) ; veille légale au bouton seulement (pas d'automatique) ; association pas encore créée.
 - 18/10 : la méta n'écrit jamais le travail de l'équipe : les ajustements deviennent des suggestions.
