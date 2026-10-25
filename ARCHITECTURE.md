@@ -55,7 +55,7 @@ Lugh-2.0.0/
 │   │   ├── structure.js           vue d'ensemble de tous les jeux (Administrateur général)
 │   │   ├── administratif.js       identité de l'association, suivi des obligations, veille légale, autorisations des mineurs, identité publique
 │   │   ├── tresorerie.js          livres des comptes association et société (admin ou Trésorier) : écritures, réglages, clôture, rapprochement, export, indicateur de passage
-│   │   └── meta.js                santé, vérification de la méta (Responsable ou cron facultatif)
+│   │   └── meta.js                santé (ping Atlas, 2 s, 503 si muette), vérification de la méta (Responsable ou cron facultatif)
 │   ├── notifications/discord.js   webhook secret par jeu, événements filtrés, planning regroupé (2 min)
 │   └── meta/        claude.js  consigne.js (construite depuis le modèle)  actualisation.js (une par jeu)
 ├── shared/                        code commun serveur + navigateur (source unique)
@@ -251,6 +251,7 @@ Vérification de la méta (par jeu) :
 | `permissions.test.js` | chaque métier : ce qu'il peut et ne peut pas écrire ; dispos et notes à soi |
 | `donnees.test.js` | écritures validées par la définition du jeu, synchronisation, suppressions, conflit 409, types de score |
 | `securite.test.js` | en-têtes, CSRF, champs inconnus ignorés, liens non https refusés, aucun hachage exposé |
+| `sante.test.js` | `/api/sante` : 200 si la base répond, 503 sans adresse ni message brut si elle est en erreur ou muette (délai 2 s) |
 | `meta.test.js` | actualisation réussie, réponse invalide, reprise pause_turn, verrou, secret du cron, consigne propre au jeu |
 | `logique.test.js`, `suivi.test.js` | stats (trois types de score), alertes, moniteur de santé, semaines ISO, veto, agenda .ics, CSV, textes Discord, bilan |
 | `restauration.test.js` | sauvegarde et restauration silencieuse, jeu différent refusé, Réglages du jeu, point de restauration et annulation |

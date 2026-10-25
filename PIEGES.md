@@ -88,3 +88,4 @@
 | Écriture modifiée ou supprimée sans trace | `PUT`/`DELETE` remplaçaient l'écriture | ancienne version gardée dans `ecrituresHistorique` avant chaque changement, jamais effacée par Lugh (6 ans au moins, 10 ans pour la société) |
 | `e.currentTarget` après un `await` | il vaut `null` : le bouton ne se réactive pas | le garder dans une variable avant le premier `await` |
 | Identité publique | le contact s'affiche sans connexion | une adresse de l'association, jamais une adresse personnelle ; pas d'adresse postale ni de nom de dirigeant dans Lugh |
+| `/api/sante` qui ne regarde pas la base | Atlas coupé, la santé répondait quand même « ok » | ping de la base, 2 s au plus, 503 sinon. C'est aussi le `healthCheckPath` de Render : Atlas coupé, Render voit le service malade (redéploiement non promu, redémarrage possible) ; c'est voulu, sans base le service ne sert à rien |

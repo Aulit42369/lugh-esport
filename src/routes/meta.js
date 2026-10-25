@@ -5,9 +5,23 @@ import { envoyerJson, erreurs } from '../http/outils.js';
 import { egalTempsConstant } from '../http/securite.js';
 import { exigerConnexion, exigerEspace, exigerPerm } from '../auth/acces.js';
 
+export const DELAI_PING_MS = 2000;
+
 export function routesMeta(routeur, s) {
+  // Santé : vraie vérification de MongoDB Atlas (ping, 2 s au plus). Base muette → 503 { ok: false, base: 'injoignable' },
+  // sans adresse ni message brut ; le tableau de santé du Pi le compte comme un échec (panne au 2e de suite).
   routeur.get('/api/sante', async (r) => {
-    envoyerJson(r.res, 200, { ok: true });
+    let minuteur;
+    const delai = new Promise((_, rejeter) => { minuteur = setTimeout(() => rejeter(new Error('délai')), DELAI_PING_MS); });
+    try {
+      await Promise.race([s.global.ping(), delai]);
+      envoyerJson(r.res, 200, { ok: true });
+    } catch (e) {
+      s.journal.error?.('[santé] base injoignable :', e?.message === 'délai' ? 'délai dépassé' : e?.name || 'erreur');
+      envoyerJson(r.res, 503, { ok: false, base: 'injoignable' });
+    } finally {
+      clearTimeout(minuteur);
+    }
   });
 
   routeur.post('/api/e/:jeu/meta/actualiser', exigerConnexion(s), exigerEspace(s), exigerPerm('meta.actualiser'), async (r) => {
