@@ -26,6 +26,8 @@ import { routesDiscord } from './routes/discord.js';
 import { routesAdministratif, lireIdentite } from './routes/administratif.js';
 import { contexteStructure } from '../shared/administratif/identite.js';
 import { routesTresorerie } from './routes/tresorerie.js';
+import { routesRiot } from './routes/riot.js';
+import { creerServiceRiot } from './riot/service.js';
 import { creerVeille } from './domaine/veille.js';
 import { creerParametres } from './domaine/parametres.js';
 import { reinitialiserAuDemarrage, convertirClesAuDemarrage } from './auth/deuxfacteurs.js';
@@ -35,7 +37,7 @@ import { creerAnnoncesDiscord } from './notifications/annonces.js';
 const RACINE = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 export async function creerApp({
-  config, fabrique, maintenant = () => new Date(), interrogerClaude = null, fetchDiscord = null, journal = console, automatismes = true,
+  config, fabrique, maintenant = () => new Date(), interrogerClaude = null, fetchDiscord = null, fetchRiot = null, journal = console, automatismes = true,
   delaiPlanningMs = undefined,
 }) {
   const global = fabrique.base(config.base);
@@ -67,6 +69,7 @@ export async function creerApp({
     sessions: creerSessions({ stockage: global, maintenant }),
     parametres: creerParametres({ global, maintenant }),
     annoncesDiscord: creerAnnoncesDiscord({ global, ...(fetchDiscord ? { fetchImpl: fetchDiscord } : {}) }),
+    riot: creerServiceRiot({ config, global, maintenant, journal, fetchImpl: fetchRiot }),
     limiteurConnexion: creerLimiteurConnexion({ maintenant: () => maintenant().getTime() }),
     veille: creerVeille({
       global, config, maintenant, journal,
@@ -92,6 +95,7 @@ export async function creerApp({
   routesDiscord(routeur, services);
   routesAdministratif(routeur, services);
   routesTresorerie(routeur, services);
+  routesRiot(routeur, services);
 
   const servirStatique = creerStatique([
     { prefixe: '/shared/', dossier: join(RACINE, 'shared') },

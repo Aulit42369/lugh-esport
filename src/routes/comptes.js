@@ -150,6 +150,7 @@ export function routesComptes(routeur, s) {
     if (cible.admin && cible.actif !== false) await verifierAutreAdmin(cible._id);
     await s.global.supprimer('comptes', cible._id);
     if (cible.discord?.id) await noterDelie(s.global, cible.discord.id, s.maintenant());
+    await s.riot.delier?.(cible._id); // liaison Riot, jetons et parties : effacés avec le compte
     await s.sessions.supprimerPourCompte(cible._id);
     await journaliser(r.compteGlobal, 'compte supprimé', cible.identifiant);
     envoyerJson(r.res, 200, { ok: true });
@@ -259,6 +260,7 @@ export function routesComptes(routeur, s) {
     if (cible.admin) await verifierAutreAdmin(cible._id);
     await s.global.supprimer('comptes', cible._id);
     if (cible.discord?.id) await noterDelie(s.global, cible.discord.id, s.maintenant());
+    await s.riot.delier?.(cible._id); // liaison Riot, jetons et parties : effacés avec le compte
     await s.sessions.supprimerPourCompte(cible._id);
     await journaliser(r.compteGlobal, 'compte supprimé', cible.identifiant, '', r.espace.id);
     envoyerJson(r.res, 200, { ok: true });

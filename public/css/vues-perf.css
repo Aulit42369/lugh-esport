@@ -135,3 +135,10 @@
   .compte-rendu { break-inside: avoid; }
   .compte-rendu__quand { color: var(--encre-2); }
 }
+
+/* ——— Stats Valorant (API Riot) ——— */
+.riot-demo { display: flex; align-items: center; gap: var(--e-2); padding: var(--e-2) var(--e-3); border: 1px dashed var(--surimpression); border-radius: var(--r-fiche); color: var(--encre-2); font-size: var(--t-s); }
+.riot-demo svg { width: 1rem; height: 1rem; flex: none; color: var(--surimpression); }
+.riot-accord { display: grid; gap: var(--e-4); border-left: 3px solid var(--surimpression); }
+.riot-accord h3 { font-size: var(--t-s); text-transform: uppercase; letter-spacing: 0.08em; color: var(--encre-2); }
+.riot-relie { display: inline-flex; align-items: center; gap: var(--e-2); margin-right: auto; overflow-wrap: anywhere; }

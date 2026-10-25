@@ -37,6 +37,8 @@ export const VUES = {
   vod: { titre: 'VOD review', court: 'VOD', icone: 'vod', charger: () => import('./vues/vod.js') },
   progression: { titre: 'Progression', icone: 'progression', charger: () => import('./vues/progression.js') },
   programme: { titre: 'Programme individuel', court: 'Programme', icone: 'programme', charger: () => import('./vues/programme.js') },
+  // Stats Valorant (API Riot) : jeux Valorant seulement, et seulement quand le serveur a les clés Riot.
+  riot: { titre: 'Stats Valorant', court: 'Stats', icone: 'etoile', visible: () => E.jeu()?.modele === 'valorant' && !!E.serveur()?.riot, charger: () => import('./vues/riot.js') },
   bilan: { titre: 'Bilan du mois', court: 'Bilan', icone: 'bilan', charger: () => import('./vues/bilan.js') },
   roster: { titre: 'Roster', icone: 'roster', charger: () => import('./vues/roster.js') },
   recrutement: { titre: 'Recrutement', icone: 'recrutement', perm: 'recrutement.voter', charger: () => import('./vues/recrutement.js') },
@@ -55,7 +57,7 @@ export const PAGES = {
 export const GROUPES = [
   { titre: 'Semaine', vues: ['accueil', 'planning', 'presences', 'dispos', 'match'] },
   { titre: 'Jeu', vues: ['maps', 'strats', 'bibliotheque', 'adversaires', 'tournois', 'meta'] },
-  { titre: 'Performance', vues: ['scrims', 'partenaires', 'vod', 'progression', 'programme', 'bilan'] },
+  { titre: 'Performance', vues: ['scrims', 'partenaires', 'vod', 'progression', 'programme', 'riot', 'bilan'] },
   { titre: 'Équipe', vues: ['roster', 'recrutement', 'gestion', 'reglages'] },
 ];
 

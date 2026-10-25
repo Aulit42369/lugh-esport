@@ -1,6 +1,6 @@
 {
   "name": "lugh-esport",
-  "version": "2.7.1",
+  "version": "2.8.0",
   "description": "Lugh : l'espace privé d'une structure esport, un espace par jeu (roster, planning, maps et compos, stratbook, scrims, VOD, progression, méta mise à jour automatiquement).",
   "private": true,
   "type": "module",

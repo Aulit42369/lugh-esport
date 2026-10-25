@@ -18,6 +18,10 @@ export const INDEX = {
     ['ecritures', { date: 1 }],
     ['autorisations', { jeu: 1 }],
     ['restaurations', { jeu: 1 }],
+    ['riot', { _expire: 1 }, { expireAfterSeconds: 0 }],
+    ['riot', { puuid: 1 }],
+    ['riotParties', { _expire: 1 }, { expireAfterSeconds: 0 }],
+    ['riotParties', { compteId: 1, debut: -1 }],
   ],
   jeu: [
     ['suppressions', { _expire: 1 }, { expireAfterSeconds: 0 }],

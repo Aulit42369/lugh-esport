@@ -72,6 +72,26 @@ export function lireConfig(env = process.env) {
 
   const surRender = env.RENDER === 'true';
   const simulation = mode === 'simulation';
+
+  // Facultatif : « Valorant · Stats de l'équipe » (API Riot + Riot Sign On). Inactif tant qu'il manque une valeur.
+  // LUGH_RIOT_DEMO (simulation seulement) branche le faux serveur Riot de src/riot/faux-riot.js.
+  const riotDemo = simulation && env.LUGH_RIOT_DEMO === '1';
+  const riot = {
+    cle: (env.RIOT_API_KEY || '').trim(),
+    clientId: (env.RIOT_RSO_CLIENT_ID || '').trim(),
+    clientSecret: (env.RIOT_RSO_CLIENT_SECRET || '').trim(),
+    redirectUri: (env.RIOT_RSO_REDIRECT_URI || '').trim(),
+    cleChiffrement: (env.LUGH_CLE_RIOT || '').trim().toLowerCase(),
+    demo: riotDemo,
+  };
+  if (riotDemo) {
+    Object.assign(riot, { cle: 'RGAPI-demo', clientId: 'lugh-demo', clientSecret: 'demo', redirectUri: '/api/riot/retour', cleChiffrement: 'a'.repeat(64) });
+  }
+  const riotRemplies = ['cle', 'clientId', 'clientSecret', 'redirectUri', 'cleChiffrement'].filter((k) => riot[k]);
+  if (riot.cleChiffrement && !/^[0-9a-f]{64}$/.test(riot.cleChiffrement)) erreurs.push('LUGH_CLE_RIOT invalide : 64 caractères hexadécimaux (openssl rand -hex 32).');
+  if (riot.redirectUri && !riotDemo && !/^https:\/\/[^/]+\/api\/riot\/retour$/.test(riot.redirectUri)) erreurs.push('RIOT_RSO_REDIRECT_URI invalide : https://<ton-site>/api/riot/retour');
+  if (riotRemplies.length && riotRemplies.length < 5) avertissements.push('Stats Valorant (Riot) inactives : il manque une des variables RIOT_API_KEY, RIOT_RSO_CLIENT_ID, RIOT_RSO_CLIENT_SECRET, RIOT_RSO_REDIRECT_URI, LUGH_CLE_RIOT.');
+  riot.actif = riotRemplies.length === 5 && !erreurs.some((e) => /RIOT/.test(e));
   return {
     mode,
     port,
@@ -85,6 +105,7 @@ export function lireConfig(env = process.env) {
     cleBot,
     cle2fa,
     reinitialiser2fa,
+    riot,
     claude: {
       cle: cleClaude,
       modele,
@@ -96,7 +117,7 @@ export function lireConfig(env = process.env) {
     cookieSecurise: surRender || origine.startsWith('https://'),
     hsts: surRender,
     fuseau: 'Europe/Paris',
-    version: '2.7.1',
+    version: '2.8.0',
     erreurs,
     avertissements,
   };

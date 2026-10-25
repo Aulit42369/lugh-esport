@@ -67,7 +67,7 @@ export function routesDonnees(routeur, s) {
       membreId: r.compte.membreId,
       permissions: [...permissionsDe(r.compte.metiers)],
       depuis,
-      serveur: { version: s.config.version, semaine: semaineCourante(s.config.fuseau), aujourdhui: aujourdhui(s.config.fuseau), metaAuto: !!s.config.claude.cle },
+      serveur: { version: s.config.version, semaine: semaineCourante(s.config.fuseau), aujourdhui: aujourdhui(s.config.fuseau), metaAuto: !!s.config.claude.cle, riot: !!s.riot?.actif },
     });
   });
 

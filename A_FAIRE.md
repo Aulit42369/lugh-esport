@@ -26,11 +26,14 @@
 - 23/10 : 2.7.1 : version distincte pour ce déploiement ; noms de jeu réservés (Administrateur, Responsable, Staff, Capitaine / IGL, Joueur, Remplaçant, Invité) refusés à la création et au renommage, sinon le bot Discord donnait ce rôle de fonction à tous les membres du jeu (audit du bot Lugh) ; 215 tests.
 - 23/10 : noms de jeu uniques : un nom ou un nom court déjà pris par un autre jeu (actif ou désactivé ; casse, accents et espaces ignorés) est refusé à la création, au renommage par l'Administrateur général et dans les Réglages du jeu (le bot Discord nomme rôle et catégorie d'après eux et ne fait que bloquer un doublon) ; le nom court tiré du nom d'un « Autre jeu » s'allonge s'il est déjà pris ; `vues-admin.css` coupé en deux (`vues-reglages-jeu.css`, même ordre de cascade) ; 216 tests.
 - 25/10 : `/api/sante` vérifie vraiment MongoDB Atlas (ping, 2 s au plus) : base coupée ou muette → 503 `{ ok: false, base: "injoignable" }`, sans adresse ni message brut ; le tableau de santé du Pi passe en « panne » au 2e contrôle raté ; `test/sante.test.js` ; 219 tests.
+- 25/10 : 2.8.0 : prototype « Stats Valorant » (API Riot + Riot Sign On) prêt à montrer à Riot, masqué tant que les 5 variables Riot manquent : relier son compte (accord explicite), délier (tout effacé), Mes parties (KDA, ACS, agents, cartes), onglet Équipe pour le staff (joueurs reliés seulement) ; jetons chiffrés, limites de débit et 429 respectés ; faux serveur Riot pour les tests et la démo (`npm run simulation`) ; `docs/DEMANDE-RIOT.md` (formulaire en anglais + marche à suivre) ; confidentialité mise à jour ; 235 tests.
 
 ## En cours
 - Rien.
 
 ## À faire
+- Demande de clé de production Riot : suivre `docs/DEMANDE-RIOT.md` (captures en simulation, Register Product, puis les 5 variables dans Render).
+- Après la validation Riot : relever `LIMITES_DEFAUT` (src/riot/client.js) aux limites de la clé, confirmer l'adresse de révocation RSO (src/riot/rso.js), tester une vraie liaison.
 - Créer l'association (Administratif → Obligations → Créer l'association), puis renseigner son RNA dans Identité.
 - Lancer la veille légale de temps en temps (avant l'assemblée générale par exemple) et relire les propositions.
 - Créer les comptes et les Responsables, régler chaque jeu (Réglages du jeu) et suivre « Premiers pas ».
@@ -41,6 +44,7 @@
 - Après le premier vrai essai du bot : vérifier les rappels d'une vraie semaine et la synchronisation des rôles.
 
 ## Décisions prises
+- 25/10 : Stats Valorant : prototype validé (« fais-le, on voit ce que ça donne ») ; 20 dernières parties, gardées 90 jours ; tableau Équipe visible du Responsable, head coach et coach adjoint ; un compte staff qui relie son propre compte apparaît aussi dans le tableau.
 - 24/10 : idées refusées par Olivier (ne pas reproposer) : démo en ligne de Lugh (Lugh reste pour lui seul pour l'instant) ; page de candidature publique (même raison).
 - 19/10 : départ en association, passage en société (SAS) prévu plus tard. Nom « Lugh » : pas de dépôt INPI pour l'instant ; il sera sans doute déposé au nom d'Olivier, puis prêté par licence à l'association (gratuite) et à la société.
 - 19/10 : livre des comptes ouvert à l'Administrateur général et à un rôle Trésorier ; justificatifs hors de Lugh (numéro de pièce seulement) ; veille légale au bouton seulement (pas d'automatique) ; association pas encore créée.

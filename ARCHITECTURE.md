@@ -1,6 +1,6 @@
 # Lugh — ARCHITECTURE.md
 
-Version 3.8 — 23/10/2026 — revue L99 du 23/10 appliquée (lots A à L : sauvegardes fiables, reprise après sinistre, écritures partielles, synchro, sécurité de la 2FA, adresse IP, plafonds de l'API, historique du livre, ouverture par une installation par structure). Version 3.7 — 19/10/2026 — décisions validées par Olivier (passage en société prévu : forme juridique, deux livres des comptes, M1 à M8, Q1, Q2, B6, D2, R1 à R4, N1 à N11, nom « Lugh », bot Discord D1 à D4, sauvegarde sur le Pi, annonces sur Discord, devise, jeux branchés sur Discord par le bot, suppression définitive d'un jeu désactivé, administratif de l'association : obligations et veille légale validée, livre des comptes et rôle Trésorier, documents types, autorisations des mineurs, page de confidentialité). Remplace les versions 3.0 (« QG Esport ») et 2.2 (QG Valorant 1.1.0), jamais déployées.
+Version 3.9 — 25/10/2026 — prototype « Stats Valorant » (API Riot + Riot Sign On, désactivé sans clés). Version 3.8 — 23/10/2026 — revue L99 du 23/10 appliquée (lots A à L : sauvegardes fiables, reprise après sinistre, écritures partielles, synchro, sécurité de la 2FA, adresse IP, plafonds de l'API, historique du livre, ouverture par une installation par structure). Version 3.7 — 19/10/2026 — décisions validées par Olivier (passage en société prévu : forme juridique, deux livres des comptes, M1 à M8, Q1, Q2, B6, D2, R1 à R4, N1 à N11, nom « Lugh », bot Discord D1 à D4, sauvegarde sur le Pi, annonces sur Discord, devise, jeux branchés sur Discord par le bot, suppression définitive d'un jeu désactivé, administratif de l'association : obligations et veille légale validée, livre des comptes et rôle Trésorier, documents types, autorisations des mineurs, page de confidentialité). Remplace les versions 3.0 (« QG Esport ») et 2.2 (QG Valorant 1.1.0), jamais déployées.
 
 **Lugh** (le dieu celte aux mille talents) : espace privé d'une structure esport, **un espace par jeu** : roster, planning d'entraînement, présences, absences et charge d'entraînement, comptes rendus de séance, disponibilités, Jour de match, maps et compos, stratbook, bibliothèque, adversaires et veto, tournois, méta, scrims et partenaires de scrim, VOD review, progression du débutant complet à l'expert, programme individuel, bilan du mois, recrutement.
 Au niveau de la structure : vue d'ensemble de tous les jeux, annonces avec « lu par », agenda .ics de tous ses jeux et conflits d'agenda entre jeux, double authentification.
@@ -55,8 +55,13 @@ Lugh-2.0.0/
 │   │   ├── structure.js           vue d'ensemble de tous les jeux (Administrateur général)
 │   │   ├── administratif.js       identité de l'association, suivi des obligations, veille légale, autorisations des mineurs, identité publique
 │   │   ├── tresorerie.js          livres des comptes association et société (admin ou Trésorier) : écritures, réglages, clôture, rapprochement, export, indicateur de passage
+│   │   ├── riot.js                Stats Valorant : état, relier (opt-in), retour RSO, délier, mes parties, équipe (staff)
 │   │   └── meta.js                santé (ping Atlas, 2 s, 503 si muette), vérification de la méta (Responsable ou cron facultatif)
 │   ├── notifications/discord.js   webhook secret par jeu, événements filtrés, planning regroupé (2 min)
+│   ├── riot/        Stats Valorant (facultatif, inactif sans les 5 variables Riot)
+│   │                client.js (adresses Riot, limiteur à fenêtres glissantes, 429 + Retry-After)  rso.js (Riot Sign On : autorisation,
+│   │                code, rafraîchissement, révocation)  service.js (liaisons, jetons chiffrés, synchro, déliaison)
+│   │                agregats.js (résumé d'une partie pour UN joueur, stats joueur et équipe)  faux-riot.js (faux serveur : tests et démo)
 │   └── meta/        claude.js  consigne.js (construite depuis le modèle)  actualisation.js (une par jeu)
 ├── shared/                        code commun serveur + navigateur (source unique)
 │   ├── administratif/            obligations.js (référentiel vérifié + changements validés), comptes.js (écritures, exercices, bilan, CSV),
@@ -91,7 +96,7 @@ Lugh-2.0.0/
 │                          (+ progression-chiffres), programme, bilan
 │                          roster, recrutement, gestion (+ gestion-comptes, gestion-service), reglages-jeu
 │                          (+ reglages-listes, -score, -textes, -outils), admin (+ admin-structure, -jeux, -comptes,
-│                          -annonces, -discord, -service, -commun), compte-discord (liaison Discord)
+│                          -annonces, -discord, -service, -commun), compte-discord (liaison Discord), riot (+ riot-equipe : Stats Valorant)
 └── test/                          node --test, serveur de simulation, faux pilote MongoDB
 ```
 
@@ -136,6 +141,8 @@ Base globale `lugh` :
 | `parametres` | paramètres de la structure (double authentification exigée) ; `discord-annonces` (webhook du salon #annonces, secret) ; documents `structure-identite` (nom, RNA, SIRET, contact public, référent : rien de personnel), `structure-suivi` (statut de chaque obligation), `structure-veille` (changements validés, propositions, coût), `structure-comptes` (début d'exercice, ouverture, exercices clôturés, dernier rapprochement), `discord-bot-reglages`, `discord-bot-etat` (dernier état reçu du bot) et `discord-bot-delies` (comptes déliés depuis moins de 14 jours) : un document par écrivain, aucune écriture n'en écrase une autre | Administrateur général ; le bot pour son état |
 | `ecritures` | livres des comptes : `livre` (`association` si absent, ou `societe`), date, recette / dépense / transfert, catégorie, montant en centimes, banque ou caisse, n° de pièce, tiers, note (5 000 au plus par livre ; justificatifs hors de Lugh) | Administrateur général et Trésorier ; un exercice clôturé est en lecture seule |
 | `ecrituresHistorique` | version d'avant de chaque écriture modifiée ou supprimée : écriture, livre, action, qui, quand, avant, après ; jamais effacée par Lugh | serveur (sur modification ou suppression par l'admin ou le Trésorier) |
+| `riot` | liaison Riot d'un compte (`_id` = compte : PUUID, Riot ID, date, jetons RSO **chiffrés** AES-256-GCM avec `LUGH_CLE_RIOT`, dernière synchro) ; « state » RSO en attente (`etat-<empreinte>`, 10 min, index TTL) ; jamais sauvegardée ni exportée | serveur, après l'accord du joueur ; effacée par Délier, la suppression du compte ou un refus de Riot au rafraîchissement |
+| `riotParties` | résumé de chaque partie d'un joueur relié (`<compte>_<partie>` : date, file, carte, agent, K/D/A, ACS, résultat, score des deux équipes ; **aucun autre joueur**), 20 dernières, 90 jours (index TTL) | serveur (synchro au plus toutes les 10 min par joueur) |
 | `autorisations` | par jeu et par membre du roster : mineur (oui/non), dates de l'autorisation parentale et du droit à l'image, note ; jamais d'âge ; hors des données synchronisées du jeu | Responsable du jeu et Administrateur général ; supprimées avec le jeu |
 
 Base de chaque jeu `lugh_<jeu>` (mêmes collections pour tous les jeux) :
@@ -159,7 +166,7 @@ Base de chaque jeu `lugh_<jeu>` (mêmes collections pour tous les jeux) :
 | `reglages` | webhook Discord et événements choisis (**jamais synchronisé ni exporté**) | Responsable |
 | `suppressions`, `compteurs` | synchronisation entre appareils | serveur |
 
-- Atlas gratuit : 100 bases et 500 collections au plus. Une base de jeu compte 27 collections, la base globale 8 : **15 jeux au maximum** (plafond appliqué par le serveur), soit 413 collections.
+- Atlas gratuit : 100 bases et 500 collections au plus. Une base de jeu compte 27 collections, la base globale 10 : **15 jeux au maximum** (plafond appliqué par le serveur), soit 415 collections.
 - Chaque fiche porte `rev` et `maj` (qui, quand) : les autres appareils récupèrent les changements toutes les 20 secondes (fusion dans `shared/synchro.js` : une suppression n'efface la fiche locale que si elle est plus récente, une fiche supprimée puis recréée reste affichée). Une modification des Réglages du jeu recharge la page des autres appareils.
 - Écriture concurrente : si une fiche a changé pendant qu'on l'éditait, le serveur refuse (409) au lieu d'écraser ; les écritures **et suppressions** d'une même fiche passent une par une (verrou en mémoire : **un seul serveur**, Render gratuit — passer à deux instances demanderait des révisions atomiques dans Atlas). La semaine créée automatiquement s'écrit en création seulement (révision de base 0) : une semaine déjà écrite n'est jamais remplacée.
 - Base globale : les écritures faites par le serveur sur une fiche que d'autres modifient (« lu » d'une annonce, visites, dernière connexion, double authentification à la connexion, correction d'une annonce) sont partielles et atomiques (`modifier`, `$set` sur les seuls champs concernés) : elles n'écrasent jamais une modification simultanée de l'Administrateur général.
@@ -175,6 +182,7 @@ Base de chaque jeu `lugh_<jeu>` (mêmes collections pour tous les jeux) :
 ## 4. Sécurité
 
 - Secrets uniquement en variables d'environnement Render : `MONGODB_URI`, `LUGH_ADMIN_MDP`, `ANTHROPIC_API_KEY` (facultative), `LUGH_SECRET_CRON` (facultatif), `LUGH_CLE_BOT` (facultative, 32 caractères minimum), `LUGH_CLE_2FA` (conseillée, 64 caractères hexadécimaux : `openssl rand -hex 32` ; ne jamais la changer ni la retirer une fois posée). Non secrète : `LUGH_PROXY_SAUTS` (1 par défaut). Jamais dans le dépôt, jamais dans une URL. La clé de double authentification d'un compte est en base (nécessaire pour vérifier les codes), chiffrée en AES-256-GCM avec `LUGH_CLE_2FA` (format `v1:iv:tag:chiffré`, IV aléatoire), jamais renvoyée après l'activation ; les anciennes clés en clair sont chiffrées au démarrage et à la connexion. Sans `LUGH_CLE_2FA`, elles restent en clair (avertissement dans Service). Une clé chiffrée illisible (variable absente ou changée) : connexion refusée avec un message clair (503), avertissement dans Service, rien n'est écrasé.
+- **Stats Valorant (Riot)** : actif seulement avec `RIOT_API_KEY`, `RIOT_RSO_CLIENT_ID`, `RIOT_RSO_CLIENT_SECRET`, `RIOT_RSO_REDIRECT_URI` (https, `/api/riot/retour`) et `LUGH_CLE_RIOT` (64 hex) ; sinon `/api/e/<jeu>/riot` répond `{ actif: false }`, les autres routes 503 et la page est masquée (`serveur.riot`). Clé API seulement dans l'en-tête `X-Riot-Token`, secret client seulement en Basic, codes et jetons dans le corps des POST : rien dans une URL (hors code et state du retour OAuth, imposés par le protocole). Opt-in : case `accord: true` vérifiée par le serveur, puis RSO ; state aléatoire de 24 octets gardé en empreinte, lié au compte, 10 minutes, usage unique ; retour accepté seulement avec la session du même compte (cookie `SameSite=Lax`, envoyé sur la navigation de retour). Un compte Riot ne se relie qu'à un compte Lugh. Jetons RSO chiffrés, jamais renvoyés au navigateur, PUUID jamais renvoyé. Rafraîchissement refusé par Riot = accord retiré : liaison et parties effacées (410). Tableau Équipe : `objectifs.fixer` (Responsable, head coach, coach adjoint), comptes actifs ayant accès à ce jeu ET reliés eux-mêmes. Aucun adversaire ni coéquipier stocké, aucun MMR, aucun temps réel. Jeux du modèle `valorant` seulement. La démo (`LUGH_RIOT_DEMO=1`, faux serveur et page d'autorisation locale) n'existe qu'en simulation.
 - **Séparation des jeux** : chaque requête d'un espace (`/api/e/<jeu>/…`) vérifie que le compte a un accès à ce jeu (ou est Administrateur général) ; sinon réponse « introuvable », comme pour un jeu qui n'existe pas. Les métiers et le membre lié sont ceux du compte **dans ce jeu**. Les autres comptes ne sont visibles qu'à travers le jeu partagé (nom affiché, métiers dans ce jeu).
 - **Deux niveaux d'administration** :
   - Administrateur général : jeux, tous les comptes, journal complet, état du service ; il doit toujours en rester un actif.
@@ -228,6 +236,7 @@ Base de chaque jeu `lugh_<jeu>` (mêmes collections pour tous les jeux) :
 | Bot Lugh sur le Raspberry Pi (facultatif) | rôles, rappels, commandes Discord | rien ne change dans l'appli ; l'onglet Discord de l'administration affiche « Silencieux » après 7 h sans nouvelles |
 | Sites de profil (tracker.gg, op.gg, Leetify…) | lien vers le profil public d'un joueur | lien seulement, aucune donnée lue |
 | Twitch | lien vers la chaîne d'un candidat | lien seulement |
+| API Riot + Riot Sign On (facultatif) | Stats Valorant | parties déjà gardées affichées avec un avertissement ; liaison impossible ; 429 : pause de Retry-After (au-delà de 10 s, la page rend la main et réessaie plus tard) |
 | Application d'authentification (au choix de chacun) | codes de double authentification | rien côté serveur : codes de secours, ou remise à zéro par l'Administrateur général |
 
 Vérification de la méta (par jeu) :
@@ -266,6 +275,7 @@ Vérification de la méta (par jeu) :
 | `concurrence.test.js`, `synchro.test.js` | écritures partielles simultanées (« lu », correction d'annonce, visite contre désactivation), verrou de suppression, semaine automatique ; fusion de la synchro du navigateur (fiche supprimée puis recréée) |
 | `chiffrement2fa.test.js` | chiffrement des clés 2FA, conversion des clés en clair, connexion avec clé chiffrée, refus 503 sans clé ou avec une autre |
 | `reprise.test.js` | sauvegarde de la structure v2 sans aucun secret, reprise refusée sans RESTAURER / hors format / non-admin, base vide recréée, mot de passe temporaire exigé, existant intact, deuxième reprise sans effet, lecture d'une v1 |
+| `riot.test.js` | sans secrets : inactif, masqué, rien ne plante ; configuration (variable manquante, clé ou adresse invalide, démo refusée en production) ; faux serveur Riot : opt-in exigé, RSO (secret en Basic, rien dans l'URL), jetons chiffrés jamais renvoyés, state à usage unique et lié au compte, annulation, un compte Riot pour un compte Lugh, mes parties (KDA, ACS, aucun autre joueur stocké), synchro limitée, tableau Équipe (staff, joueurs reliés seulement), rafraîchissement et accord retiré, déliaison (révocation, effacement), compte supprimé ; limiteur et 429 / Retry-After ; agrégats ; confidentialité |
 | `plafonds-historique.test.js` | adresse vue dans Service, plafonds mensuels méta et veille, historique des écritures (vue, exercice, tableur, sauvegarde) |
 | Parcours navigateur (Playwright) | plusieurs comptes et plusieurs jeux : activation, sélecteur de jeu, saisies, zéro erreur console |
 
@@ -302,5 +312,7 @@ Plus : captures PC (1440 px) et téléphone (390 px) en thème sombre, aucun dé
 | Reprise par erreur | Administrateur général seul, RESTAURER vérifié par le serveur, aperçu avant ; ne crée que ce qui manque, n'écrase jamais rien |
 | Fuite de `LUGH_CLE_BOT` | elle vaut un accès en lecture à toutes les données (`/api/bot/sauvegarde` exporte n'importe quel jeu et `_structure` : livre des comptes, autorisations), plus la pose d'absences, de liaisons (code exigé) et de webhooks manquants, sans 2FA ; elle n'existe que dans Render et le `.env` du Pi ; si elle fuit, la changer aux deux endroits |
 | Fuite de la base Atlas | mots de passe en scrypt, sessions en empreinte, clés 2FA chiffrées (`LUGH_CLE_2FA`) |
+| Clé Riot de production (une seule par produit) | jamais en clair ailleurs que dans Render ; règles Riot appliquées dans le code et testées ; démo seulement en simulation |
+| `LUGH_CLE_RIOT` changée | jetons illisibles : message clair, le joueur délie puis relie (aucun autre effet) |
 | Deux instances Render | non pris en charge : révisions, verrous, limiteurs en mémoire ; rester sur une instance |
 | Ouverture à d'autres structures | une installation par structure (voie A, `OUVRIR-A-UNE-STRUCTURE.md`) ; aucune donnée partagée |

@@ -3,7 +3,7 @@
 - **Disque Render effacé** à chaque redéploiement, redémarrage ou mise en veille : aucune donnée sur disque, tout est dans MongoDB Atlas.
 - **Atlas refuse Render** : le plan gratuit de Render n'a pas d'adresse IP fixe, l'accès réseau `0.0.0.0/0` est obligatoire (protégé par un mot de passe fort).
 - **Utilisateur Atlas** : il doit avoir le rôle *Read and write to any database* ; Lugh crée une base par jeu (`lugh_valorant`, `lugh_lol`…). Limité à une seule base, l'activation d'un jeu échoue.
-- **Limite d'Atlas gratuit** : 500 collections ; chaque jeu en utilise 27 et la base générale 8 (dont `ecrituresHistorique`), d'où 15 jeux au plus (413 collections). Désactiver un jeu ne libère rien (ses données restent).
+- **Limite d'Atlas gratuit** : 500 collections ; chaque jeu en utilise 27 et la base générale 10 (dont `ecrituresHistorique`, `riot`, `riotParties`), d'où 15 jeux au plus (415 collections). Désactiver un jeu ne libère rien (ses données restent).
 - **Identifiant d'un « Autre jeu »** : définitif (c'est le nom de sa base). Seuls son nom et son abrégé se changent ensuite.
 - **Render endormi** : les automatismes d'un jeu (semaine du lundi, méta du lundi et du jeudi) tournent à la première visite de ce jeu, pas à l'heure pile.
 - **Blueprint Render** : les valeurs `sync: false` ne sont demandées qu'à la création ; ensuite elles se changent dans *Environment*.
@@ -89,3 +89,19 @@
 | `e.currentTarget` après un `await` | il vaut `null` : le bouton ne se réactive pas | le garder dans une variable avant le premier `await` |
 | Identité publique | le contact s'affiche sans connexion | une adresse de l'association, jamais une adresse personnelle ; pas d'adresse postale ni de nom de dirigeant dans Lugh |
 | `/api/sante` qui ne regarde pas la base | Atlas coupé, la santé répondait quand même « ok » | ping de la base, 2 s au plus, 503 sinon. C'est aussi le `healthCheckPath` de Render : Atlas coupé, Render voit le service malade (redéploiement non promu, redémarrage possible) ; c'est voulu, sans base le service ne sert à rien |
+
+
+## Stats Valorant / API Riot (25/10)
+
+| Piège | Pourquoi | Ce qu'il faut faire |
+|---|---|---|
+| Utiliser une clé de développement Riot en ligne | elle expire toutes les 24 h et Riot l'interdit pour un produit | seulement la clé de **production** (`docs/DEMANDE-RIOT.md`) ; sans elle, la page reste masquée |
+| Une des 5 variables Riot oubliée ou mal recopiée | la fonction reste inactive (exprès, rien ne plante) | *Logs* Render : « Stats Valorant (Riot) inactives » ou « RIOT_RSO_REDIRECT_URI invalide » |
+| Adresse de retour différente de celle déclarée chez Riot | RSO refuse la connexion | exactement `https://lugh-esport.onrender.com/api/riot/retour` des deux côtés ; un nom de domaine à toi oblige à changer les deux |
+| `LUGH_CLE_RIOT` changée | les jetons chiffrés deviennent illisibles | chaque joueur clique *Délier* puis relie son compte ; rien d'autre n'est touché |
+| Retour RSO sans session | le cookie `SameSite=Lax` n'est envoyé que sur une navigation normale | le retour passe par une redirection classique (jamais une iframe ni une fenêtre surgissante) ; sans session, retour à l'accueil |
+| Ajouter une donnée « pour le scouting » (adversaires, rang, MMR, temps réel) | interdit par Riot : la clé serait retirée | ne jamais stocker les autres joueurs d'une partie (`resumerPartie` ne garde que le joueur relié) ; les tests le vérifient |
+| Limites de débit | `LIMITES_DEFAUT` = celles d'une clé de développement (20/s, 100/2 min) | les relever avec celles de la clé de production ; un 429 met tout en pause pendant Retry-After (au-delà de 10 s, la page affiche les parties déjà gardées et un avertissement) |
+| Adresse de révocation RSO | non publique avant l'accord de Riot ; `/token/revoke` supposée | à confirmer avec la documentation RSO ; un échec de révocation n'empêche jamais la suppression chez nous |
+| Synchro « figée » | une synchro par joueur toutes les 10 minutes au plus (« Actualiser » force) | normal ; « Actualiser » ramène l’écart à 1 minute ; Riot met aussi quelques minutes à publier une partie |
+| Démo en production | `LUGH_RIOT_DEMO` n'est lu qu'en mode simulation | ne pas chercher à l'activer sur Render |

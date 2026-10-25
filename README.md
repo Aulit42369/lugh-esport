@@ -30,6 +30,7 @@ Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été dépl
 | Une appli d'authentification (Google Authenticator, Aegis, Microsoft Authenticator…) | double authentification | gratuit, facultatif mais conseillé |
 | API Claude (facultatif) | vérifie la méta de chaque jeu ouvert | 0,10 à 0,35 $ par passage et par jeu |
 | Webhook Discord (facultatif, un par jeu) | annonces dans un salon | gratuit |
+| Clé de production Riot + Riot Sign On (facultatif) | page « Stats Valorant » (parties des joueurs qui relient leur compte) | gratuit, sur demande à Riot (`docs/DEMANDE-RIOT.md`) |
 
 ---
 
@@ -108,7 +109,13 @@ Rôles Discord synchronisés avec les métiers de Lugh, rappels avant les séanc
 
 Le bot interroge Lugh toutes les 3 h : l'appli gratuite se réveille environ 8 fois par jour, soit à peu près 90 h par mois sur les 750 h gratuites que Render partage entre tes services.
 
-### 9. Facultatif : Lugh comme une appli
+### 9. Facultatif : Stats Valorant (API Riot)
+Une page **Performance → Stats Valorant** dans chaque jeu Valorant : chaque joueur relie lui-même son compte Riot (connexion sur le site de Riot, case d'accord à cocher), voit ses 20 dernières parties (carte, agent, K/D/A, ACS, résultat), et le staff (Responsable, head coach, coach adjoint) voit un tableau d'équipe des seuls joueurs reliés. Rien sur les adversaires, aucun rang, rien en direct (règles Riot). *Délier* efface tout de suite la liaison et les parties.
+1. Il faut une **clé de production** Riot : marche à suivre complète et texte du formulaire dans **`docs/DEMANDE-RIOT.md`**.
+2. Une fois la clé reçue : Render → *Environment* → `RIOT_API_KEY`, `RIOT_RSO_CLIENT_ID`, `RIOT_RSO_CLIENT_SECRET`, `RIOT_RSO_REDIRECT_URI` (`https://lugh-esport.onrender.com/api/riot/retour`) et `LUGH_CLE_RIOT` (`openssl rand -hex 32`) → *Save Changes*.
+3. Tant qu'une des cinq manque, la page reste masquée et rien d'autre ne change.
+
+### 10. Facultatif : Lugh comme une appli
 - Android (Chrome) : menu ⋮ → *Installer l'application*.
 - iPhone (Safari) : *Partager* → *Sur l'écran d'accueil*.
 - Ordinateur : icône d'installation dans la barre d'adresse, ou **Mon compte** → *Installer l'appli*.
@@ -229,7 +236,7 @@ Pour une autre structure : chaque mise à jour arrive dans **un seul dossier** `
 
 ## Tester sur ton PC (facultatif)
 
-Avec Node.js 22 ou plus récent : `npm install`, `npm test`, `npm run simulation`, puis http://localhost:3000. La base est en mémoire, avec des données de démonstration : Valorant très rempli et League of Legends.
+Avec Node.js 22 ou plus récent : `npm install`, `npm test`, `npm run simulation`, puis http://localhost:3000. La base est en mémoire, avec des données de démonstration : Valorant très rempli et League of Legends. La page Stats Valorant y marche avec un **faux serveur Riot** (données inventées, bandeau « Démonstration ») : c'est elle qui sert aux captures de la demande Riot.
 
 | Identifiant | Mot de passe | Accès |
 |---|---|---|
