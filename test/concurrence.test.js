@@ -158,3 +158,24 @@ test('semaine automatique : créée seulement si elle n’existe pas, jamais par
   auto().verifier();
   await attendreQue(async () => (await stockage.lire('planning', '2026-W43'))?.blocs?.length === 1, { message: 'semaine créée' });
 });
+
+test('recrutement : une candidature refusée est effacée avec ses avis 6 mois après le refus, pas avant ni les autres', async () => {
+  const { purgerCandidatsRefuses } = await import('../src/domaine/automatismes.js');
+  const stockage = creerStockageMemoire();
+  let t = new Date('2026-01-10T10:00:00Z');
+  const depot = creerDepot({ stockage, maintenant: () => t, journal: { error() {} } });
+  await depot.initialiser();
+  await depot.enregistrer('candidats', 'k-aaaaaaaaaa', { pseudo: 'Pixel', statut: 'refuse' }, null);
+  await depot.enregistrer('votes', 'k-aaaaaaaaaa_c1', { cible: 'k-aaaaaaaaaa', avis: 'contre' }, null);
+  await depot.enregistrer('candidats', 'k-bbbbbbbbbb', { pseudo: 'Talus', statut: 'propose' }, null);
+  t = new Date('2026-06-01T10:00:00Z');
+  await depot.enregistrer('candidats', 'k-cccccccccc', { pseudo: 'Brume', statut: 'refuse' }, null);
+  t = new Date('2026-07-20T10:00:00Z');
+  assert.equal(await purgerCandidatsRefuses(depot, stockage, t), 1);
+  assert.equal(await stockage.lire('candidats', 'k-aaaaaaaaaa'), null, 'refusé depuis plus de 6 mois : effacé');
+  assert.equal(await stockage.lire('votes', 'k-aaaaaaaaaa_c1'), null, 'ses avis aussi');
+  assert.ok(await stockage.lire('candidats', 'k-bbbbbbbbbb'), 'candidature en cours gardée');
+  assert.ok(await stockage.lire('candidats', 'k-cccccccccc'), 'refusé depuis moins de 6 mois : gardé');
+  const { suppressions } = await depot.depuis(0);
+  assert.ok(suppressions.some((s) => s.coll === 'candidats' && s.id === 'k-aaaaaaaaaa'), 'suppression envoyée aux navigateurs');
+});

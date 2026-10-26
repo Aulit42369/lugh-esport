@@ -3,9 +3,9 @@
 // - Responsable d'un jeu (/api/e/:jeu/comptes) : les comptes de son jeu. Il ne change jamais le mot de passe, le nom
 //   ou l'activation d'un compte qui a accès à un jeu qu'il ne gère pas (sinon il pourrait entrer dans cet autre jeu).
 
-import { envoyerJson, erreurs } from '../http/outils.js';
-import { hacherMdp, genererMdpTemporaire } from '../auth/mdp.js';
-import { exigerConnexion, exigerAdmin, exigerEspace, exigerPerm, profilCompte, profilCompteJeu, modifierCompte } from '../auth/acces.js';
+import { envoyerJson, erreurs, ErreurHttp } from '../http/outils.js';
+import { hacherMdp, genererMdpTemporaire, verifierMdp } from '../auth/mdp.js';
+import { exigerConnexion, exigerAdmin, exigerEspace, exigerPerm, profilCompte, profilCompteJeu, modifierCompte, cookieEfface } from '../auth/acces.js';
 import { valider, nouvelId } from '../../shared/validation.js';
 import { creationCompte, creationCompteJeu, modificationCompte, modificationCompteJeu } from '../../shared/schemas-comptes.js';
 import { estMetier, ordonnerMetiers, jeuxDuCompte, estResponsable, accesEspace } from '../../shared/roles.js';
@@ -48,6 +48,14 @@ export function routesComptes(routeur, s) {
   async function verifierAutreAdmin(saufId) {
     const actifs = await s.global.lister('comptes', { actif: true });
     if (!actifs.some((c) => c._id !== saufId && c.admin)) throw erreurs.conflit('Il doit rester au moins un Administrateur général actif.');
+  }
+
+  // Compte, liaison Discord (rôles retirés par le bot), liaison Riot et sessions : effacés ensemble.
+  async function effacerCompte(cible) {
+    await s.global.supprimer('comptes', cible._id);
+    if (cible.discord?.id) await noterDelie(s.global, cible.discord.id, s.maintenant());
+    await s.riot.delier?.(cible._id); // liaison Riot, jetons et parties : effacés avec le compte
+    await s.sessions.supprimerPourCompte(cible._id);
   }
 
   // Le membre lié doit exister dans ce jeu et n'être lié à aucun autre compte dans ce jeu.
@@ -148,13 +156,28 @@ export function routesComptes(routeur, s) {
     const cible = await lire(r.params.id);
     if (cible._id === r.compteGlobal._id) throw erreurs.conflit('Tu ne peux pas supprimer ton propre compte.');
     if (cible.admin && cible.actif !== false) await verifierAutreAdmin(cible._id);
-    await s.global.supprimer('comptes', cible._id);
-    if (cible.discord?.id) await noterDelie(s.global, cible.discord.id, s.maintenant());
-    await s.riot.delier?.(cible._id); // liaison Riot, jetons et parties : effacés avec le compte
-    await s.sessions.supprimerPourCompte(cible._id);
+    await effacerCompte(cible);
     await journaliser(r.compteGlobal, 'compte supprimé', cible.identifiant);
     envoyerJson(r.res, 200, { ok: true });
   });
+
+  // ——— Mon compte : chacun peut supprimer le sien (droit à l'effacement), mot de passe exigé ———
+  routeur.post('/api/moi/supprimer', exigerConnexion(s), (r) => s.limiteurConnexion.exclusif(`mdp:${r.compte._id}`, async () => {
+    const cle = [`mdp:${r.compte._id}`];
+    const attente = s.limiteurConnexion.attente(cle);
+    if (attente) throw erreurs.tropDeRequetes(`Trop d’essais. Réessaie dans ${Math.ceil(attente / 60_000)} min.`);
+    const { mdp } = await r.corps();
+    const cible = await lire(r.compte._id);
+    if (cible.admin) throw erreurs.conflit('Un Administrateur général ne supprime pas son propre compte : demande-le à un autre Administrateur général.');
+    if (typeof mdp !== 'string' || !(await verifierMdp(mdp, cible.hash))) {
+      s.limiteurConnexion.echec(cle);
+      throw new ErreurHttp(400, 'ancien_mdp', 'Mot de passe incorrect.');
+    }
+    s.limiteurConnexion.reussite(cle);
+    await effacerCompte(cible);
+    await journaliser(null, 'compte supprimé par son titulaire', cible.identifiant);
+    envoyerJson(r.res, 200, { ok: true }, { 'Set-Cookie': cookieEfface(s.config) });
+  }));
 
   // ——— Responsable d'un jeu ———
 
@@ -258,10 +281,7 @@ export function routesComptes(routeur, s) {
     if (cible._id === r.compteGlobal._id) throw erreurs.conflit('Tu ne peux pas supprimer ton propre compte.');
     if (!gerable(r.compteGlobal, cible)) throw refus(cible, 'Ce compte a aussi accès à d’autres jeux : retire seulement son accès à ce jeu.');
     if (cible.admin) await verifierAutreAdmin(cible._id);
-    await s.global.supprimer('comptes', cible._id);
-    if (cible.discord?.id) await noterDelie(s.global, cible.discord.id, s.maintenant());
-    await s.riot.delier?.(cible._id); // liaison Riot, jetons et parties : effacés avec le compte
-    await s.sessions.supprimerPourCompte(cible._id);
+    await effacerCompte(cible);
     await journaliser(r.compteGlobal, 'compte supprimé', cible.identifiant, '', r.espace.id);
     envoyerJson(r.res, 200, { ok: true });
   });

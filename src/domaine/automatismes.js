@@ -1,6 +1,7 @@
 // Automatismes d'un jeu, déclenchés par les visites de ce jeu (Render gratuit dort entre deux visites) :
 // - méta : vérifiée à la première visite après chaque lundi et jeudi 7 h 45 (fuseau de la config : Paris), si elle est activée ;
-// - planning : la semaine en cours est créée depuis la semaine type si personne ne l'a fait.
+// - planning : la semaine en cours est créée depuis la semaine type si personne ne l'a fait ;
+// - recrutement : une candidature refusée est effacée (avec ses avis) 6 mois après le refus (RGPD : durée limitée).
 
 import { semaineIso, dateCivile, isoCivile, instantCivil } from '../../shared/temps.js';
 import { nouvelId } from '../../shared/validation.js';
@@ -10,6 +11,22 @@ const HEURE_META = '07:45';
 const INTERVALLE_MS = 60_000;
 const ATTENTE_APRES_ECHEC_MS = 3 * 3600_000;
 const TENTATIVES_MAX = 3;
+export const DUREE_CANDIDAT_REFUSE_MS = 183 * 86_400_000; // 6 mois
+
+// Candidatures refusées depuis plus de 6 mois (date de la dernière modification, donc du refus au plus tôt) :
+// supprimées par le dépôt, pour que la suppression parte aussi vers les navigateurs, avec leurs avis.
+export async function purgerCandidatsRefuses(depot, stockage, t) {
+  const limite = t.getTime() - DUREE_CANDIDAT_REFUSE_MS;
+  let n = 0;
+  for (const c of await stockage.lister('candidats', { statut: 'refuse' })) {
+    if (new Date(c.maj?.le || 0).getTime() > limite) continue;
+    if (!(await depot.supprimer('candidats', c._id, null))) continue;
+    for (const v of await stockage.lister('votes', { cible: c._id })) await depot.supprimer('votes', v._id, null);
+    await depot.journaliser(null, 'suppression candidats (refusé depuis 6 mois)', c._id);
+    n += 1;
+  }
+  return n;
+}
 
 // Dernier créneau (lundi ou jeudi 7 h 45, heure du fuseau de la config) passé à l'instant donné.
 export function creneauPrecedent(maintenant, fuseau) {
@@ -73,7 +90,7 @@ export function creerAutomatismes({
       if (enCours || t.getTime() - dernierPassage < INTERVALLE_MS) return;
       dernierPassage = t.getTime();
       enCours = true;
-      Promise.all([semaineAuto(t), metaAuto(t)])
+      Promise.all([semaineAuto(t), metaAuto(t), purgerCandidatsRefuses(depot, stockage, t)])
         .catch((e) => journal.error?.('[automatismes]', e?.message || e))
         .finally(() => { enCours = false; });
     },

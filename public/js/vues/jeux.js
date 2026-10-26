@@ -8,6 +8,7 @@ import * as E from '../etat.js';
 import { topo } from '../composants/topo.js';
 import { puce } from '../composants/jetons.js';
 import { puceJeu } from '../navigation.js';
+import { lienConfidentialite, lienMentionsLegales } from '../composants/confidentialite.js';
 import { nomsMetiers } from '/shared/roles.js';
 
 // Nombre stable tiré d'un texte : place le poste au même endroit du relief à chaque visite.
@@ -74,7 +75,7 @@ export function rendre(page) {
       h('a', { href: '#/admin/jeux', class: 'btn' }, icone('cadenas'), 'Gérer les jeux')) : null));
 
   if (!jeux.length) {
-    page.append(vide(admin));
+    page.append(vide(admin), liensLegaux());
     return;
   }
   page.append(h('div', { class: 'grille-jeux' }, jeux.map((j) => carteJeu(j, dernier))));

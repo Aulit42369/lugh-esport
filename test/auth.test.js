@@ -218,3 +218,14 @@ test('session : prolongée par l’activité, expirée après 30 jours sans visi
     await local.arreter();
   }
 });
+
+test('Mon compte : chacun supprime le sien avec son mot de passe ; jamais l’Administrateur général', async () => {
+  const joueur = await compteConnecte(sim, { identifiant: 'partant', acces: { valorant: 'joueur' } });
+  assert.equal((await joueur.post('/api/moi/supprimer', { mdp: 'mauvais-mot-de-passe' })).statut, 400, 'mot de passe exigé');
+  assert.ok(await compteGlobal(sim, 'partant'), 'toujours là après un mauvais mot de passe');
+  assert.equal((await joueur.post('/api/moi/supprimer', { mdp: MDP })).statut, 200);
+  assert.equal(await compteGlobal(sim, 'partant'), null, 'compte effacé');
+  assert.equal((await joueur.get('/api/auth/moi')).statut, 401, 'session fermée');
+  const admin = await adminPret(sim);
+  assert.equal((await admin.post('/api/moi/supprimer', { mdp: sim.mdpAdmin })).statut, 409);
+});

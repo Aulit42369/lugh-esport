@@ -2,7 +2,7 @@
 // mot de passe, double authentification, Discord, thème et installation sur cet appareil, déconnexion.
 
 import { h, vider, champ, saisie, onglets, bouton, toast, modale, messageErreur } from '../ui.js';
-import { lienConfidentialite } from '../composants/confidentialite.js';
+import { lienConfidentialite, lienMentionsLegales } from '../composants/confidentialite.js';
 import { api } from '../api.js';
 import { icone } from '../icones.js';
 import * as E from '../etat.js';
@@ -33,8 +33,41 @@ export function rendre(page, params, ctx) {
       ficheDeuxFacteurs(c),
       ficheDiscord(c),
       formulaireMdp(c),
-      ficheAppareil(ctx))));
-  page.append(h('p', { class: 'texte-3 petit section' }, 'Ce que Lugh garde sur toi et tes droits : ', lienConfidentialite(), '.'));
+      ficheAppareil(ctx),
+      c.admin ? null : ficheSuppression())));
+  page.append(h('p', { class: 'texte-3 petit section' }, 'Ce que Lugh garde sur toi et tes droits : ', lienConfidentialite(), ' · ', lienMentionsLegales(), '.'));
+}
+
+// Droit à l'effacement : le compte, ses liaisons Discord et Riot et ses sessions disparaissent ; ce qui a été écrit
+// pour l'équipe reste, signé « un ancien compte ». Pas pour l'Administrateur général (il doit en rester un).
+function ficheSuppression() {
+  return h('section', { class: 'fiche' },
+    h('h2', {}, 'Supprimer mon compte'),
+    h('p', { class: 'texte-2 petit' }, 'Efface ton compte et tes liaisons Discord et Riot. Ce que tu as écrit pour l’équipe reste, signé « un ancien compte ». Ta fiche du roster est gérée par le staff de ton jeu.'),
+    bouton('Supprimer mon compte', {
+      classe: 'btn--danger',
+      onclick: () => {
+        const mdp = saisie({ type: 'password', autocomplete: 'current-password', required: true });
+        modale({
+          titre: 'Supprimer mon compte',
+          contenu: h('div', { class: 'pile' },
+            h('p', {}, 'C’est définitif : ton compte ne pourra pas être récupéré. Confirme avec ton mot de passe.'),
+            champ('Mot de passe', mdp)),
+          actions: [
+            { libelle: 'Annuler' },
+            {
+              libelle: 'Supprimer définitivement',
+              classe: 'btn--danger',
+              action: async () => {
+                await api('POST', '/api/moi/supprimer', { mdp: mdp.value });
+                window.location.hash = '';
+                window.location.reload();
+              },
+            },
+          ],
+        });
+      },
+    }));
 }
 
 function ficheIdentite(c) {

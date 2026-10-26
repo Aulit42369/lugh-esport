@@ -290,3 +290,12 @@ test('veille légale : réponse hors format en échec, propositions en attente j
     await sim.arreter();
   }
 });
+
+test('mentions légales et confidentialité : éditeur, hébergeurs, bases légales, transferts, CNIL, candidatures', async () => {
+  const { texteMentionsLegales } = await import('../shared/administratif/mentions-legales.js');
+  const m = JSON.stringify(texteMentionsLegales({ nom: 'Lugh' }));
+  for (const motif of [/Aulit42369/, /2004-575/, /Render Services, Inc\./, /render\.com\/contact/, /MongoDB, Inc\./, /aulit42369@gmail\.com/]) assert.match(m, motif);
+  const c = JSON.stringify(texteConfidentialite({ nom: 'Lugh' }));
+  for (const motif of [/pour le compte de l’équipe Lugh/, /6-1-b/, /6-1-c/, /6-1-a/, /Data Privacy Framework/, /Discord Inc\./, /3 place de Fontenoy/, /6 mois après le refus/, /article 45/, /Supprimer mon compte/]) assert.match(c, motif);
+  assert.ok(!c.includes('undefined') && !m.includes('undefined'));
+});
