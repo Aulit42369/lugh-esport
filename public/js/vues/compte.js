@@ -2,7 +2,7 @@
 // mot de passe, double authentification, Discord, thème et installation sur cet appareil, déconnexion.
 
 import { h, vider, champ, saisie, onglets, bouton, toast, modale, messageErreur } from '../ui.js';
-import { lienConfidentialite, lienMentionsLegales } from '../composants/confidentialite.js';
+import { liensLegaux } from '../composants/confidentialite.js';
 import { api } from '../api.js';
 import { icone } from '../icones.js';
 import * as E from '../etat.js';
@@ -35,7 +35,7 @@ export function rendre(page, params, ctx) {
       formulaireMdp(c),
       ficheAppareil(ctx),
       c.admin ? null : ficheSuppression())));
-  page.append(h('p', { class: 'texte-3 petit section' }, 'Ce que Lugh garde sur toi et tes droits : ', lienConfidentialite(), ' · ', lienMentionsLegales(), '.'));
+  page.append(h('p', { class: 'texte-3 petit section' }, 'Ce que Lugh garde sur toi, tes droits et les règles : ', ...liensLegaux(), '.'));
 }
 
 // Droit à l'effacement : le compte, ses liaisons Discord et Riot et ses sessions disparaissent ; ce qui a été écrit

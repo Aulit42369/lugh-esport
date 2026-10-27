@@ -8,7 +8,7 @@ import * as E from '../etat.js';
 import { topo } from '../composants/topo.js';
 import { puce } from '../composants/jetons.js';
 import { puceJeu } from '../navigation.js';
-import { lienConfidentialite, lienMentionsLegales } from '../composants/confidentialite.js';
+import { liensLegaux } from '../composants/confidentialite.js';
 import { nomsMetiers } from '/shared/roles.js';
 
 // Nombre stable tiré d'un texte : place le poste au même endroit du relief à chaque visite.
@@ -75,7 +75,7 @@ export function rendre(page) {
       h('a', { href: '#/admin/jeux', class: 'btn' }, icone('cadenas'), 'Gérer les jeux')) : null));
 
   if (!jeux.length) {
-    page.append(vide(admin), liensLegaux());
+    page.append(vide(admin), piedLegal());
     return;
   }
   page.append(h('div', { class: 'grille-jeux' }, jeux.map((j) => carteJeu(j, dernier))));
@@ -83,4 +83,7 @@ export function rendre(page) {
     page.append(h('p', { class: 'texte-3 petit section jeux-aide' }, icone('info', { classe: 'icone-texte' }),
       ' Un jeu manque ? Demande l’accès à son Responsable ou à l’Administrateur général.'));
   }
+  page.append(piedLegal());
 }
+
+const piedLegal = () => h('p', { class: 'texte-3 petit section' }, ...liensLegaux());

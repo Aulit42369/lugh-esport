@@ -2,7 +2,7 @@
 // Éditeur anonyme (personne physique, à titre non professionnel) : son identité est connue de l'hébergeur.
 
 export const CONTACT_EDITEUR = 'aulit42369@gmail.com';
-export const MISE_A_JOUR_LEGALE = '26/10/2026';
+export const MISE_A_JOUR_LEGALE = '28/10/2026';
 
 export function texteMentionsLegales({ nom = '' } = {}) {
   return [

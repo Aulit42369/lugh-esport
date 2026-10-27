@@ -299,3 +299,38 @@ test('mentions légales et confidentialité : éditeur, hébergeurs, bases léga
   for (const motif of [/pour le compte de l’équipe Lugh/, /6-1-b/, /6-1-c/, /6-1-a/, /Data Privacy Framework/, /Discord Inc\./, /3 place de Fontenoy/, /6 mois après le refus/, /article 45/, /Supprimer mon compte/]) assert.match(c, motif);
   assert.ok(!c.includes('undefined') && !m.includes('undefined'));
 });
+
+test('conditions d’utilisation : accès sur invitation, règles, mineurs, suppression ; servies aux navigateurs sans compte', async () => {
+  const { texteConditions } = await import('../shared/administratif/conditions.js');
+  const t = JSON.stringify(texteConditions({ nom: 'Lugh', contact: 'contact@lugh.gg' }));
+  for (const motif of [/équipe esport Lugh/, /pas d’inscription/, /moins de 15 ans/, /mot de passe/, /reste dans l’équipe/, /un ancien compte/, /Supprimer mon compte/, /droit français/, /aulit42369@gmail\.com/, /contact@lugh\.gg/]) assert.match(t, motif);
+  assert.ok(!t.includes('undefined') && !JSON.stringify(texteConditions()).includes('undefined'));
+  const sim = await demarrer();
+  try {
+    const rep = await client(sim.base).get('/shared/administratif/conditions.js');
+    assert.equal(rep.statut, 200);
+    assert.match(rep.texte, /export function texteConditions/);
+  } finally {
+    await sim.arreter();
+  }
+});
+
+test('confidentialité : chaque clé gardée par le navigateur est nommée, avec le nom exact utilisé par le code', async () => {
+  const { readFileSync } = await import('node:fs');
+  const lire = (f) => readFileSync(new URL(`../${f}`, import.meta.url), 'utf8');
+  const c = JSON.stringify(texteConfidentialite({}));
+  // les noms cités doivent rester ceux du code : un renommage fait rougir ce test
+  assert.match(lire('src/auth/sessions.js'), /NOM_COOKIE = 'lugh_session'/);
+  assert.match(lire('public/js/theme.js'), /const CLE = 'lugh-theme'/);
+  assert.match(lire('public/js/etat.js'), /CLE_DERNIER_JEU = `\$\{MARQUE\.id\}-dernier-jeu`/);
+  assert.match(lire('shared/marque.js'), /id: 'lugh'/);
+  assert.match(lire('public/js/vues/accueil-sections.js'), /CLE_MASQUE = 'lugh-premiers-pas-masques'/);
+  assert.match(lire('public/sw.js'), /const CACHE = 'lugh-v1'/);
+  for (const cle of ['lugh_session', 'lugh-theme', 'lugh-dernier-jeu', 'lugh-premiers-pas-masques-<jeu>', 'lugh-v1', 'Ce que ton navigateur garde']) assert.ok(c.includes(cle), cle);
+  // aucune autre clé de stockage dans l'appli
+  const { readdirSync } = await import('node:fs');
+  const fichiers = (d) => readdirSync(new URL(`../${d}`, import.meta.url), { withFileTypes: true })
+    .flatMap((e) => (e.isDirectory() ? fichiers(`${d}/${e.name}`) : e.name.endsWith('.js') ? [`${d}/${e.name}`] : []));
+  const usages = fichiers('public/js').filter((f) => /localStorage|sessionStorage|indexedDB|document\.cookie/.test(lire(f)));
+  assert.deepEqual(usages.sort(), ['public/js/etat.js', 'public/js/theme.js', 'public/js/vues/accueil-sections.js']);
+});
