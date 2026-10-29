@@ -48,7 +48,7 @@
 .jeux-vide__fond { z-index: -1; opacity: 0.8; }
 .jeux-vide__texte {
   display: grid; gap: var(--e-3); justify-items: start; max-width: 34rem; padding: var(--e-5);
-  border-left: 3px solid var(--surimpression); background: color-mix(in srgb, var(--surface) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--surimpression) 45%, var(--trait)); border-radius: var(--r-fiche); background: color-mix(in srgb, var(--surimpression) 10%, var(--surface));
 }
 
 /* ——— Mon compte ——— */
