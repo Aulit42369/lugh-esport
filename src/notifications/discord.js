@@ -52,21 +52,25 @@ export function creerNotifications({
   }
 
   // Le planning se modifie bloc par bloc : un seul message, deux minutes après la dernière modification.
+  async function envoyerPlanning(id) {
+    try {
+      const p = await stockage.lire('planning', id);
+      if (!p?.blocs?.length) return;
+      const meta = await stockage.lire('meta', 'courante');
+      await envoyer('planning', texteSemaine({
+        def: definition(), titre: `Planning ${definition().nom}, semaine ${numeroSemaine(id)}`, blocs: p.blocs, nomMap: nomMapDepuis(meta), collectifSeulement: true,
+      }));
+    } catch (e) {
+      // Base momentanément indisponible : le message est perdu, le serveur continue.
+      journal.error?.('[Discord] planning :', e?.message || e);
+    }
+  }
+
   function planifierPlanning(id) {
     clearTimeout(minuteries.get(id));
-    const t = setTimeout(async () => {
+    const t = setTimeout(() => {
       minuteries.delete(id);
-      try {
-        const p = await stockage.lire('planning', id);
-        if (!p?.blocs?.length) return;
-        const meta = await stockage.lire('meta', 'courante');
-        await envoyer('planning', texteSemaine({
-          def: definition(), titre: `Planning ${definition().nom}, semaine ${numeroSemaine(id)}`, blocs: p.blocs, nomMap: nomMapDepuis(meta), collectifSeulement: true,
-        }));
-      } catch (e) {
-        // Base momentanément indisponible : le message est perdu, le serveur continue.
-        journal.error?.('[Discord] planning :', e?.message || e);
-      }
+      envoyerPlanning(id);
     }, delaiPlanningMs);
     t.unref?.();
     minuteries.set(id, t);
@@ -126,6 +130,13 @@ export function creerNotifications({
     },
     async meta(meta, ecart) {
       if (ecart && !ecart.vide) await envoyer('meta', texteMeta(definition(), meta, ecart));
+    },
+    // À l'arrêt du serveur : envoie tout de suite les annonces planning en attente au lieu de les perdre.
+    async vider() {
+      const ids = [...minuteries.keys()];
+      for (const id of ids) clearTimeout(minuteries.get(id));
+      minuteries.clear();
+      await Promise.all(ids.map(envoyerPlanning));
     },
     arreter() {
       for (const t of minuteries.values()) clearTimeout(t);

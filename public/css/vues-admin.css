@@ -48,7 +48,7 @@
 .adm-modele__nom { font-family: var(--police-titre); font-weight: 800; font-size: var(--t-xl); line-height: 1.05; }
 .adm-modele__genre { font-size: var(--t-xs); color: var(--encre-3); margin-top: 2px; }
 .adm-modele__pied { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--e-2); padding-top: var(--e-2); border-top: 1px solid var(--trait); }
-.adm-modele--actif { border-left: 3px solid var(--surimpression); }
+.adm-modele--actif { border-color: color-mix(in srgb, var(--surimpression) 50%, var(--trait)); box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--surimpression) 9%, transparent); }
 .adm-modele--actif .adm-modele__nom { color: var(--encre); }
 .adm-modele--inactif { border-style: dashed; border-color: var(--trait-fort); }
 .adm-modele--inactif .adm-modele__fond, .adm-modele--absent .adm-modele__fond { opacity: 0.35; }
@@ -85,11 +85,11 @@
 .adm-autre__titre { font-size: var(--t-s); color: var(--encre-2); }
 .adm-autre__jeu {
   display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--e-2) var(--e-3);
-  padding: var(--e-3) var(--e-4); border: 1px solid var(--trait); border-left: 3px solid var(--surimpression);
+  padding: var(--e-3) var(--e-4); border: 1px solid color-mix(in srgb, var(--surimpression) 50%, var(--trait)); box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--surimpression) 9%, transparent);
   border-radius: var(--r-fiche); background: var(--surface);
 }
 .adm-autre__jeu .adm-actions { grid-column: 1 / -1; }
-.adm-autre__jeu--inactif { border-style: dashed; border-left-color: var(--trait-fort); }
+.adm-autre__jeu--inactif { border-style: dashed; border-color: var(--trait-fort); box-shadow: none; }
 .adm-autre__texte { display: grid; min-width: 0; }
 .adm-autre__texte strong { overflow-wrap: anywhere; }
 /* ——— Comptes ——— */
@@ -185,9 +185,9 @@
 .adm-resume__attention { color: var(--champ-encre); }
 .adm-resume__date { margin-left: auto; }
 .adm-structure { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: var(--e-4); align-items: start; }
-.adm-carte { display: grid; gap: var(--e-3); min-width: 0; padding: var(--e-4); border: 1px solid var(--trait); border-left: 4px solid var(--jeu-sombre, var(--surimpression)); border-radius: var(--r-fiche); background: var(--surface); }
-:root[data-theme='clair'] .adm-carte { border-left-color: var(--jeu-clair, var(--surimpression)); }
-.adm-carte--inactive { border-style: dashed; border-left-color: var(--trait-fort); opacity: 0.6; filter: grayscale(1); }
+.adm-carte { display: grid; gap: var(--e-3); min-width: 0; padding: var(--e-4); border: 1px solid color-mix(in srgb, var(--jeu-sombre, var(--surimpression)) 50%, var(--trait)); box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--jeu-sombre, var(--surimpression)) 10%, transparent); border-radius: var(--r-fiche); background: var(--surface); }
+:root[data-theme='clair'] .adm-carte { border-color: color-mix(in srgb, var(--jeu-clair, var(--surimpression)) 50%, var(--trait)); box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--jeu-clair, var(--surimpression)) 10%, transparent); }
+.adm-carte--inactive { border-style: dashed; border-color: var(--trait-fort); box-shadow: none; opacity: 0.6; filter: grayscale(1); }
 .adm-carte__tete { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); }
 .adm-carte__nom { flex: 1 1 8rem; min-width: 0; font-family: var(--police-titre); font-weight: 800; font-size: var(--t-xl); line-height: 1.1; overflow-wrap: anywhere; }
 .adm-carte__effectif { font-weight: 600; color: var(--encre-2); }
@@ -201,8 +201,8 @@
 .adm-carte__alertes li { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: var(--e-2); }
 .adm-carte__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-1); }
 /* ——— Annonces ——— */
-.adm-annonce { display: grid; gap: var(--e-3); border-left: 3px solid var(--trait-fort); }
-.adm-annonce--importante { border-left-color: var(--surimpression); }
+.adm-annonce { display: grid; gap: var(--e-3); }
+.adm-annonce--importante { border-color: color-mix(in srgb, var(--surimpression) 55%, var(--trait)); box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--surimpression) 9%, transparent); }
 .adm-annonce--expiree { background: transparent; border-style: dashed; }
 .adm-annonce__tete { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); }
 .adm-annonce__titre { flex: 1 1 14rem; min-width: 0; font-size: var(--t-l); overflow-wrap: anywhere; }

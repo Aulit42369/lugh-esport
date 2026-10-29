@@ -50,6 +50,7 @@ serveur.listen(config.port, () => {
 function arreter(signal) {
   console.log(`Arrêt demandé (${signal})…`);
   serveur.close(async () => {
+    await app.vider(); // annonces planning en attente envoyées avant la fermeture de la base
     app.arreter();
     await fabrique.fermer();
     process.exit(0);

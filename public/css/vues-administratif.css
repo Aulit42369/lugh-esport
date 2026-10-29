@@ -45,22 +45,22 @@
 .admv-manuel ol { margin-top: var(--e-2); }
 .admv-manuel textarea { margin-top: var(--e-2); }
 .admv-propositions > h2 { color: var(--surimpression); }
-.admv-proposition { border-left: 3px solid var(--surimpression); }
+.admv-proposition { border-color: color-mix(in srgb, var(--surimpression) 55%, var(--trait)); box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--surimpression) 9%, transparent); }
 .admv-diff { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-3); }
 .admv-diff > div { padding: var(--e-2) var(--e-3); border-radius: 8px; background: var(--creux); }
 .admv-diff > div:last-child { background: var(--surimpression-voile); }
 .admv-points { display: grid; grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr)); gap: var(--e-3); }
 .admv-point {
   display: grid; gap: var(--e-2); align-content: start; padding: var(--e-4);
-  border: 1px solid var(--trait); border-left: 4px solid var(--trait-fort); border-radius: var(--r-fiche); background: var(--surface);
+  border: 1px solid var(--trait); border-radius: var(--r-fiche); background: var(--surface);
 }
 .admv-point h3 { font-size: var(--t-m); line-height: 1.25; }
 .admv-point__tete { display: grid; gap: var(--e-2); }
 .admv-point__pied { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2); margin-top: var(--e-1); padding-top: var(--e-2); border-top: 1px solid var(--trait); }
-.admv-point--fait { border-left-color: var(--foret); }
-.admv-point--en_cours { border-left-color: var(--champ); }
-.admv-point--non_concerne { opacity: 0.6; border-left-style: dashed; }
-.admv-point--a_faire { border-left-color: var(--surimpression); }
+.admv-point--fait { border-color: color-mix(in srgb, var(--foret) 55%, var(--trait)); box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--foret) 9%, transparent); }
+.admv-point--en_cours { border-color: color-mix(in srgb, var(--champ) 55%, var(--trait)); box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--champ) 9%, transparent); }
+.admv-point--non_concerne { opacity: 0.6; border-style: dashed; }
+.admv-point--a_faire { border-color: color-mix(in srgb, var(--surimpression) 55%, var(--trait)); box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--surimpression) 9%, transparent); }
 .admv-sources { display: flex; flex-wrap: wrap; gap: var(--e-1) var(--e-3); }
 
 /* ——— Documents types : la liste, puis la feuille ——— */

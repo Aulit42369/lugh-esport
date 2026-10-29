@@ -112,8 +112,9 @@
   min-width: 15rem;
   max-width: 24rem;
   padding: var(--e-3) var(--e-4);
-  border-left: 3px solid var(--surimpression);
-  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  border: 1px solid color-mix(in srgb, var(--surimpression) 45%, var(--trait));
+  border-radius: var(--r-fiche);
+  background: color-mix(in srgb, var(--surimpression) 10%, var(--surface));
 }
 .hero__etiquette { font-size: var(--t-xs); font-weight: 650; color: var(--surimpression); }
 .hero__quand { font-family: var(--police-titre); font-size: var(--t-xl); font-weight: 800; line-height: 1.1; }
@@ -161,7 +162,9 @@
   left: calc(1rem - 1.5px);
   top: calc(50% + 0.9rem);
   height: calc(100% - 1.8rem);
-  border-left: 3px solid var(--surimpression);
+  width: 3px;
+  border-radius: 2px;
+  background: var(--surimpression);
 }
 .parcours__pastille {
   display: grid;

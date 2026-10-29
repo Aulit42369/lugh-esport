@@ -57,7 +57,7 @@ Lugh-2.0.0/
 │   │   ├── tresorerie.js          livres des comptes association et société (admin ou Trésorier) : écritures, réglages, clôture, rapprochement, export, indicateur de passage
 │   │   ├── riot.js                Stats Valorant : état, relier (opt-in), retour RSO, délier, mes parties, équipe (staff)
 │   │   └── meta.js                santé (ping Atlas, 2 s, 503 si muette), vérification de la méta (Responsable ou cron facultatif)
-│   ├── notifications/discord.js   webhook secret par jeu, événements filtrés, planning regroupé (2 min)
+│   ├── notifications/discord.js   webhook secret par jeu, événements filtrés, planning regroupé (2 min, envoyé tout de suite à l'arrêt du serveur via vider())
 │   ├── riot/        Stats Valorant (facultatif, inactif sans les 5 variables Riot)
 │   │                client.js (adresses Riot, limiteur à fenêtres glissantes, 429 + Retry-After)  rso.js (Riot Sign On : autorisation,
 │   │                code, rafraîchissement, révocation)  service.js (liaisons, jetons chiffrés, synchro, déliaison)

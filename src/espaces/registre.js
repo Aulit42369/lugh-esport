@@ -138,6 +138,10 @@ export function creerRegistre({
       return true;
     },
 
+    async vider() {
+      await Promise.all([...espaces.values()].map((e) => e.notifications.vider()));
+    },
+
     arreter() {
       for (const e of espaces.values()) e.notifications.arreter();
     },

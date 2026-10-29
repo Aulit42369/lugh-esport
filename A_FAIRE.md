@@ -10,6 +10,7 @@
 - 19/10 : nouveautés N1 à N11 : vue d'ensemble de la structure, couleur par jeu, conflits d'agenda entre jeux et agenda .ics de tous ses jeux, tournois avec rappels, partenaires de scrim et fiabilité, comptes rendus de séance, Jour de match, annonces avec « lu par », double authentification (QR code, codes de secours, obligation activable), point de restauration automatique, charge d'entraînement.
 - 19/10 : nom « Lugh » (dieu celte aux mille talents) ; identité : écusson (soleil levant traversé par la lance) et lettrage maison n° 2 ; plus aucun « QG ».
 - 19/10 : 146 tests automatiques verts ; parcours navigateur sur 10 jeux et 6 comptes sans erreur ; relecture indépendante.
+- 29/10 : arrêt propre (SIGTERM, redéploiement Render) : les annonces planning en attente sont envoyées avant la fermeture de la base (`vider()`, test `discord-vider.test.js`). Design : bordures gauches colorées remplacées par bordure teintée + fond teinté (même couleur). Reste des `border-left` colorés dans vues-equipe.css, vues-jeu.css, vues-perf.css, à traiter plus tard.
 
 - 19/10 : design final validé par Olivier.
 - 19/10 : 2.1.0 : bot Discord côté appli (API `/api/bot/`, liaison par code puis confirmation du pseudo dans Mon compte, onglet Discord de l'administration : état du bot, réglages des rappels et des rôles, comptes liés).

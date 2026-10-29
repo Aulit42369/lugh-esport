@@ -165,6 +165,7 @@ export async function creerApp({
   return {
     traiter,
     services,
+    vider: () => registre.vider(),
     arreter() {
       clearInterval(purge);
       limiteurDebit.arreter();
