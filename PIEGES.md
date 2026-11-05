@@ -98,7 +98,7 @@
 |---|---|---|
 | Utiliser une clé de développement Riot en ligne | elle expire toutes les 24 h et Riot l'interdit pour un produit | seulement la clé de **production** (`docs/DEMANDE-RIOT.md`) ; sans elle, la page reste masquée |
 | Une des 5 variables Riot oubliée ou mal recopiée | la fonction reste inactive (exprès, rien ne plante) | *Logs* Render : « Stats Valorant (Riot) inactives » ou « RIOT_RSO_REDIRECT_URI invalide » |
-| Adresse de retour différente de celle déclarée chez Riot | RSO refuse la connexion | exactement `https://lugh-esport.onrender.com/api/riot/retour` des deux côtés ; un nom de domaine à toi oblige à changer les deux |
+| Adresse de retour différente de celle déclarée chez Riot | RSO refuse la connexion | exactement `https://lugh.aulit42369.fr/api/riot/retour` des deux côtés ; depuis le 05/11/2026 l'adresse est lugh.aulit42369.fr : déclarer celle-ci chez Riot |
 | `LUGH_CLE_RIOT` changée | les jetons chiffrés deviennent illisibles | chaque joueur clique *Délier* puis relie son compte ; rien d'autre n'est touché |
 | Retour RSO sans session | le cookie `SameSite=Lax` n'est envoyé que sur une navigation normale | le retour passe par une redirection classique (jamais une iframe ni une fenêtre surgissante) ; sans session, retour à l'accueil |
 | Ajouter une donnée « pour le scouting » (adversaires, rang, MMR, temps réel) | interdit par Riot : la clé serait retirée | ne jamais stocker les autres joueurs d'une partie (`resumerPartie` ne garde que le joueur relié) ; les tests le vérifient |

@@ -68,7 +68,7 @@ Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été dépl
 4. Clique *Apply* et attends « Live ». Dans *Logs*, tu dois lire : `Lugh prêt sur le port … (mode production, stockage mongo, 0 jeu(x))`.
 
 ### 4. Première connexion
-1. Ouvre l'adresse du service : `https://lugh-esport.onrender.com`, ou celle que Render affiche. Connecte-toi avec `LUGH_ADMIN_ID` et `LUGH_ADMIN_MDP`, puis choisis ton mot de passe personnel.
+1. Ouvre l'adresse du service : `https://lugh.aulit42369.fr` (serveur OVH depuis le 05/11/2026 ; l'ancienne adresse Render renvoie vers elle). Connecte-toi avec `LUGH_ADMIN_ID` et `LUGH_ADMIN_MDP`, puis choisis ton mot de passe personnel.
 2. **Mon compte → Double authentification → Activer** :
    - scanne le QR code avec ton application d'authentification ;
    - tape le code à 6 chiffres affiché ;
@@ -112,7 +112,7 @@ Le bot interroge Lugh toutes les 3 h : l'appli gratuite se réveille environ 8 f
 ### 9. Facultatif : Stats Valorant (API Riot)
 Une page **Performance → Stats Valorant** dans chaque jeu Valorant : chaque joueur relie lui-même son compte Riot (connexion sur le site de Riot, case d'accord à cocher), voit ses 20 dernières parties (carte, agent, K/D/A, ACS, résultat), et le staff (Responsable, head coach, coach adjoint) voit un tableau d'équipe des seuls joueurs reliés. Rien sur les adversaires, aucun rang, rien en direct (règles Riot). *Délier* efface tout de suite la liaison et les parties.
 1. Il faut une **clé de production** Riot : marche à suivre complète et texte du formulaire dans **`docs/DEMANDE-RIOT.md`**.
-2. Une fois la clé reçue : Render → *Environment* → `RIOT_API_KEY`, `RIOT_RSO_CLIENT_ID`, `RIOT_RSO_CLIENT_SECRET`, `RIOT_RSO_REDIRECT_URI` (`https://lugh-esport.onrender.com/api/riot/retour`) et `LUGH_CLE_RIOT` (`openssl rand -hex 32`) → *Save Changes*.
+2. Une fois la clé reçue : le fichier `/srv/lugh/.env` du serveur (`sudo nano /srv/lugh/.env`, puis `sudo systemctl restart lugh`) : `RIOT_API_KEY`, `RIOT_RSO_CLIENT_ID`, `RIOT_RSO_CLIENT_SECRET`, `RIOT_RSO_REDIRECT_URI` (`https://lugh.aulit42369.fr/api/riot/retour`) et `LUGH_CLE_RIOT` (`openssl rand -hex 32`).
 3. Tant qu'une des cinq manque, la page reste masquée et rien d'autre ne change.
 
 ### 10. Facultatif : Lugh comme une appli

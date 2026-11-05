@@ -37,9 +37,9 @@ Rappel des règles Riot vérifiées le 25/10/2026 :
 
 ### 4. Ce que Riot va demander (à prévoir)
 - **Un prototype qui fonctionne** : les captures/vidéo, et souvent un accès pour vérifier. Lugh est privé (tu as refusé une démo en ligne le 24/10) : si Riot demande à voir, crée un **compte Invité temporaire** dans Lugh pour leur relecteur (*Gestion du jeu → Comptes*, métier Invité, sur Valorant), puis supprime-le après la validation. C'est ton choix : on peut aussi répondre avec la vidéo seule.
-- **Une politique de confidentialité** accessible : la page « Données et confidentialité » est visible **sans connexion** (lien sous le formulaire de connexion). Donne l'adresse `https://lugh-esport.onrender.com` et indique ce lien. Pense à remplir *Administratif → Identité → contact public* avec une adresse de l'association : Riot veut un contact.
+- **Une politique de confidentialité** accessible : la page « Données et confidentialité » est visible **sans connexion** (lien sous le formulaire de connexion). Donne l'adresse `https://lugh.aulit42369.fr` et indique ce lien. Pense à remplir *Administratif → Identité → contact public* avec une adresse de l'association : Riot veut un contact.
 - **Des précisions** par message sur le portail (délai : de quelques jours à plusieurs semaines). Réponds en anglais ; les textes de la partie 2 contiennent déjà les réponses habituelles.
-- **L'adresse de retour RSO** : `https://lugh-esport.onrender.com/api/riot/retour` (exactement celle-là, en https).
+- **L'adresse de retour RSO** : `https://lugh.aulit42369.fr/api/riot/retour` (exactement celle-là, en https).
 - Riot peut **refuser** ou demander des changements : transmets-moi leur message tel quel.
 
 ### 5. Une fois la clé accordée : brancher Lugh (5 minutes)
@@ -52,7 +52,7 @@ Riot te donne : une **clé de production** (`RGAPI-…`) et, pour RSO, un **clie
 | `RIOT_API_KEY` | la clé de production `RGAPI-…` |
 | `RIOT_RSO_CLIENT_ID` | le client ID RSO |
 | `RIOT_RSO_CLIENT_SECRET` | le client secret RSO |
-| `RIOT_RSO_REDIRECT_URI` | `https://lugh-esport.onrender.com/api/riot/retour` |
+| `RIOT_RSO_REDIRECT_URI` | `https://lugh.aulit42369.fr/api/riot/retour` |
 | `LUGH_CLE_RIOT` | les 64 caractères de l'étape 1 (différente de `LUGH_CLE_2FA`) |
 
 3. *Save Changes* : Render redémarre (1–2 minutes).
@@ -71,7 +71,7 @@ Riot te donne : une **clé de production** (`RGAPI-…`) et, pour RSO, un **clie
 > VALORANT — private team management web app (non-commercial, esport association)
 
 **Product URL**
-> https://lugh-esport.onrender.com (private, login required; privacy policy link on the login page, no login needed)
+> https://lugh.aulit42369.fr (private, login required; privacy policy link on the login page, no login needed)
 
 **Product description**
 > Lugh is the private web app of a small French esports organization (non-profit association in creation). Each game has its own space where players and coaches organize practice: schedule, attendance, strategies, scrim results, VOD review and individual progression. It is used only by members of the organization (around 10 to 30 people), each with an account created by the staff — there is no public sign-up.
@@ -107,7 +107,7 @@ Riot te donne : une **clé de production** (`RGAPI-…`) et, pour RSO, un **clie
 > Screenshots come from our test environment with a fake Riot server (marked "Demonstration: fake Riot server").
 
 **RSO redirect URI**
-> https://lugh-esport.onrender.com/api/riot/retour
+> https://lugh.aulit42369.fr/api/riot/retour
 
 **Contact**
 > (the organization's public contact e-mail from Administratif → Identité)
