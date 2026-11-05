@@ -17,7 +17,7 @@ function vueReseau(r, config) {
   const liste = listeTransmise(r.req);
   const conseil = config.derriereProxy ? sautsConseilles(liste) : null;
   const alerte = alerteReseau({ ip: r.ip, elements: liste.length, derriereProxy: config.derriereProxy, sauts: config.proxySauts })
-    || (conseil && conseil !== config.proxySauts ? `Mettre LUGH_PROXY_SAUTS = ${conseil} dans Render (Environment), puis vérifier ici que l’adresse retenue est « publique ».` : null);
+    || (conseil && conseil !== config.proxySauts ? `Mettre LUGH_PROXY_SAUTS = ${conseil} dans /srv/lugh/.env du serveur (puis sudo systemctl restart lugh), puis vérifier ici que l’adresse retenue est « publique ».` : null);
   return {
     types: typesAdresses(liste), elements: liste.length, retenue: typesAdresses([r.ip])[0],
     derriereProxy: config.derriereProxy, sauts: config.proxySauts, conseil, alerte,

@@ -41,13 +41,13 @@ function contenu(d) {
         h('h2', {}, 'Serveur'),
         h('dl', { class: 'details' },
           h('dt', {}, 'Version'), h('dd', {}, etat.version),
-          h('dt', {}, 'Base de données'), h('dd', {}, etat.stockage === 'mongo' ? 'MongoDB Atlas' : puce('Mémoire (simulation : rien n’est conservé)', 'attention')),
+          h('dt', {}, 'Base de données'), h('dd', {}, etat.stockage === 'mongo' ? 'MongoDB (serveur OVH)' : puce('Mémoire (simulation : rien n’est conservé)', 'attention')),
           h('dt', {}, 'Clé API Claude'), h('dd', {}, etat.cleClaude
             ? puce('Configurée', 'positif')
             : [puce('Absente', 'attention'), h('span', { class: 'petit texte-2' }, ' la méta s’importe à la main, jeu par jeu')]),
           etat.cleClaude ? [h('dt', {}, 'Modèle'), h('dd', {}, etat.modele)] : null,
           etat.espace?.mo !== null && etat.espace?.mo !== undefined ? [h('dt', {}, 'Espace utilisé'), h('dd', {},
-            etat.espace.mo >= 400 ? puce(`${etat.espace.mo} Mo sur ${etat.espace.limiteMo} : à surveiller`, 'attention') : `${etat.espace.mo} Mo sur ${etat.espace.limiteMo} (offre gratuite d’Atlas)`)] : null,
+            etat.espace.mo >= 400 ? puce(`${etat.espace.mo} Mo sur ${etat.espace.limiteMo} : à surveiller`, 'attention') : `${etat.espace.mo} Mo sur ${etat.espace.limiteMo} (seuil de surveillance)`)] : null,
           h('dt', {}, 'Réveil externe'), h('dd', {}, etat.cronConfigure ? puce('Secret configuré', 'positif') : h('span', { class: 'texte-2' }, 'Non configuré (facultatif)'))),
         etat.reseau ? adresseVue(etat.reseau) : null,
         etat.avertissements?.length
@@ -73,7 +73,7 @@ function utilise(n = 0, plafond) {
 }
 
 // Adresse que Lugh attribue à l'Administrateur général : sert au blocage après 20 échecs et à la limite de débit.
-// Si ce n'est pas la sienne, tous les visiteurs partagent peut-être la même (celle d'un proxy de Render).
+// Si ce n'est pas la sienne, tous les visiteurs partagent peut-être la même (celle du proxy Caddy du serveur).
 function adresseVue(reseau) {
   return h('div', { class: 'pile-s adm-adresse' },
     h('dl', { class: 'details' },

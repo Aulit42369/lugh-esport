@@ -351,8 +351,8 @@ test('sauvegarde du Pi en retard : alerte dans la vue d’ensemble et l’état 
   try {
     const admin = await adminPret(sim);
     await bot(sim).post('/api/bot/synchro', { sauvegarde: { le: '2020-01-01T10:00:00.000Z', jeux: 1, octets: 10 } });
-    assert.match((await admin.get('/api/admin/structure')).json.alertes[0], /Raspberry Pi il y a \d+ jours/);
-    assert.ok((await admin.get('/api/admin/etat')).json.avertissements.some((a) => /Raspberry Pi/.test(a)));
+    assert.match((await admin.get('/api/admin/structure')).json.alertes[0], /par le bot il y a \d+ jours/);
+    assert.ok((await admin.get('/api/admin/etat')).json.avertissements.some((a) => /sauvegarde par le bot/.test(a)));
     await bot(sim).post('/api/bot/synchro', { sauvegarde: { le: new Date().toISOString(), jeux: 1, octets: 10 } });
     assert.deepEqual((await admin.get('/api/admin/structure')).json.alertes, []);
   } finally {

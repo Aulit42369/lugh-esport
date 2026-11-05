@@ -74,6 +74,6 @@ export async function reinitialiserAuDemarrage({ global, historique, identifiant
   delete compte.deuxFacteursEnAttente;
   await global.ecrire('comptes', compte);
   await historique.ecrire(null, 'double authentification réinitialisée au démarrage', compte.nomAffiche || identifiant);
-  journal.warn?.(`[2FA] Double authentification de « ${identifiant} » réinitialisée. Retire LUGH_REINITIALISER_2FA des variables Render.`);
+  journal.warn?.(`[2FA] Double authentification de « ${identifiant} » réinitialisée. Retire LUGH_REINITIALISER_2FA de /srv/lugh/.env du serveur.`);
   return true;
 }

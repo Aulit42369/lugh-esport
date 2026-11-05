@@ -50,7 +50,7 @@ export async function creerApp({
   const coffre2fa = creerCoffre(config.cle2fa);
   const illisibles = await convertirClesAuDemarrage({ global, coffre: coffre2fa });
   if (illisibles) {
-    config.avertissements.push(`${illisibles} clé(s) de double authentification illisible(s) : LUGH_CLE_2FA est absente ou n’est plus la même. Remets la valeur d’origine dans Render (sinon ces comptes ne peuvent plus se connecter).`);
+    config.avertissements.push(`${illisibles} clé(s) de double authentification illisible(s) : LUGH_CLE_2FA est absente ou n’est plus la même. Remets la valeur d’origine dans /srv/lugh/.env du serveur (sinon ces comptes ne peuvent plus se connecter).`);
   }
   const registre = creerRegistre({
     fabrique, global, config, historique, maintenant, journal, interrogerClaude, fetchDiscord, delaiPlanningMs, automatismes,

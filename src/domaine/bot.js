@@ -63,13 +63,13 @@ export const ecrireEtatBot = (global, etat) => global.ecrire('parametres', { _id
 export const RETARD_SAUVEGARDE_JOURS = 8;
 export function alerteSauvegarde(etat, maintenant, cleBot) {
   if (!cleBot) return null;
-  if (!etat?.dernierContact) return 'Le bot Discord ne s’est jamais présenté : aucune sauvegarde de Lugh sur le Raspberry Pi.';
+  if (!etat?.dernierContact) return 'Le bot Discord ne s’est jamais présenté : aucune sauvegarde de Lugh par le bot.';
   const le = etat.sauvegarde?.le;
   const jours = le ? Math.floor((maintenant.getTime() - new Date(le).getTime()) / 86_400_000) : null;
   if (jours !== null && jours < RETARD_SAUVEGARDE_JOURS) return null;
   return le
-    ? `Dernière sauvegarde sur le Raspberry Pi il y a ${jours} jours (une par semaine normalement) : le Pi est-il allumé ? Sur le Pi : pm2 status lugh-bot.`
-    : 'Aucune sauvegarde sur le Raspberry Pi pour l’instant : elle se fait à la première synchronisation du bot (voir l’onglet Discord).';
+    ? `Dernière sauvegarde par le bot il y a ${jours} jours (une par semaine normalement) : le bot tourne-t-il ? Sur le serveur : sudo systemctl status lugh-bot.`
+    : 'Aucune sauvegarde par le bot pour l’instant : elle se fait à la première synchronisation du bot (voir l’onglet Discord).';
 }
 
 // Un compte délié garde ses rôles Discord tant que le bot ne sait pas qu'il l'était : on le lui signale 14 jours.

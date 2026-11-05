@@ -1,5 +1,5 @@
 // Administration générale, onglet Discord : état du bot (dernier contact, serveur, problèmes signalés), réglages
-// des rôles synchronisés et des rappels, jeux branchés sur Discord, annonces reprises sur Discord, sauvegardes sur le Pi,
+// des rôles synchronisés et des rappels, jeux branchés sur Discord, annonces reprises sur Discord, sauvegardes faites par le bot,
 // comptes liés. Les réglages s'appliquent à la prochaine synchronisation du bot.
 
 import { h, bouton, toast, confirmer, liste, champ, saisie, caseACocher, messageErreur } from '../ui.js';
@@ -34,12 +34,12 @@ function ficheEtat(d) {
   if (!d.configure) {
     titre.append(puce('Non installé', 'attention'));
     return h('section', { class: 'fiche' }, titre,
-      h('p', { class: 'texte-2' }, 'Pour activer le bot : ajoute la variable LUGH_CLE_BOT dans Render (la même clé que dans le fichier .env du bot sur le Raspberry Pi), puis installe le bot. Le guide est dans le README de Lugh-Discord.'));
+      h('p', { class: 'texte-2' }, 'Pour activer le bot : ajoute la variable LUGH_CLE_BOT dans /srv/lugh/.env du serveur puis sudo systemctl restart lugh (la même clé que dans le fichier .env du bot, /srv/lugh-bot), puis installe le bot. Le guide est dans le README de Lugh-Discord.'));
   }
   if (!e?.dernierContact) {
     titre.append(puce('Jamais vu', 'attention'));
     return h('section', { class: 'fiche' }, titre,
-      h('p', { class: 'texte-2' }, 'La clé est en place mais le bot ne s’est encore jamais présenté. Vérifie sur le Pi : pm2 logs lugh-bot.'));
+      h('p', { class: 'texte-2' }, 'La clé est en place mais le bot ne s’est encore jamais présenté. Vérifie sur le serveur : sudo journalctl -u lugh-bot -n 50.'));
   }
   const silence = Date.now() - new Date(e.dernierContact).getTime() > SILENCE_INQUIETANT_MS;
   titre.append(silence ? puce('Silencieux', 'attention') : puce('En ligne', 'positif'));
@@ -51,12 +51,12 @@ function ficheEtat(d) {
       h('dt', {}, 'Version du bot'), h('dd', {}, e.version || '—'),
       st.membres !== null && st.membres !== undefined ? [h('dt', {}, 'Membres'), h('dd', {}, `${st.membres} sur le serveur, ${st.lies ?? 0} liés à Lugh`)] : null,
       st.ajoutes || st.retires ? [h('dt', {}, 'Dernière synchro'), h('dd', {}, `${st.ajoutes || 0} rôle(s) donné(s), ${st.retires || 0} retiré(s)`)] : null,
-      h('dt', {}, 'Sauvegarde sur le Pi'), h('dd', {}, e.sauvegarde
+      h('dt', {}, 'Sauvegarde du bot'), h('dd', {}, e.sauvegarde
         ? `${ilYA(e.sauvegarde.le)} : ${e.sauvegarde.jeux} jeu${e.sauvegarde.jeux > 1 ? 'x' : ''}, ${(e.sauvegarde.octets / 1_048_576).toFixed(1).replace('.', ',')} Mo`
         : 'pas encore (une fois par semaine)')),
-    silence ? h('p', { class: 'petit compte-2fa__alerte' }, icone('alerte'), 'Plus de nouvelles depuis plus de 7 h : le Pi est-il allumé ? Sur le Pi : pm2 status lugh-bot.') : null,
+    silence ? h('p', { class: 'petit compte-2fa__alerte' }, icone('alerte'), 'Plus de nouvelles depuis plus de 7 h : le bot tourne-t-il ? Sur le serveur : sudo systemctl status lugh-bot.') : null,
     e.sauvegarde && Date.now() - new Date(e.sauvegarde.le).getTime() > SAUVEGARDE_EN_RETARD_MS
-      ? h('p', { class: 'petit compte-2fa__alerte' }, icone('alerte'), 'Sauvegarde sur le Pi de plus de 8 jours : seule copie hors d’Atlas, vérifie le Pi (pm2 logs lugh-bot).') : null,
+      ? h('p', { class: 'petit compte-2fa__alerte' }, icone('alerte'), 'Sauvegarde du bot de plus de 8 jours : seule copie hors de la base, vérifie le bot (sudo journalctl -u lugh-bot -n 50).') : null,
     e.problemes?.length
       ? h('div', { class: 'pile-s' },
         h('h3', { class: 'sous-titre' }, 'Problèmes signalés par le bot'),

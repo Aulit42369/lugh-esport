@@ -64,7 +64,7 @@ function ficheEtat(etat) {
       h('dt', {}, 'Clé API Claude'), h('dd', {}, etat.cleClaude ? puce('Configurée', 'positif') : [puce('Absente', 'attention'), h('a', { href: J.lien('/meta'), class: 'petit' }, ' import manuel (page Méta)')]),
       etat.cleClaude ? [h('dt', {}, 'Modèle'), h('dd', {}, etat.modele)] : null,
       h('dt', {}, 'Discord'), h('dd', {}, etat.discord ? puce('Webhook configuré', 'positif') : h('span', { class: 'texte-3' }, 'Non configuré')),
-      h('dt', {}, 'Serveur'), h('dd', {}, `Version ${etat.version} · ${etat.stockage === 'mongo' ? 'MongoDB Atlas' : 'mémoire (simulation)'}`)),
+      h('dt', {}, 'Serveur'), h('dd', {}, `Version ${etat.version} · ${etat.stockage === 'mongo' ? 'MongoDB (serveur OVH)' : 'mémoire (simulation)'}`)),
     etat.cleClaude || Object.keys(etat.couts || {}).length
       ? [h('h3', { class: 'sous-titre' }, 'Coût estimé de la méta automatique'), tableauCouts(etat.couts)]
       : null);

@@ -33,7 +33,7 @@ try {
   await fabrique.init();
 } catch (e) {
   console.error(`✖ Connexion à MongoDB impossible : ${e.message}`);
-  console.error('  Vérifie MONGODB_URI et l’accès réseau 0.0.0.0/0 dans Atlas (Network Access).');
+  console.error('  Vérifie MONGODB_URI (/srv/lugh/.env du serveur) et que MongoDB tourne (sudo systemctl status mongod).');
   process.exit(1);
 }
 

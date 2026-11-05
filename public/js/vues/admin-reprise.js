@@ -109,7 +109,7 @@ function resultat({ bilan, motsDePasse }) {
           h('strong', {}, m.mdpTemporaire)))),
         h('div', {}, bouton('Tout copier', { icone: 'copier', onclick: () => copier(texte) }))) : null,
       h('div', { class: 'alerte alerte--info' }, icone('info'), h('span', {},
-        h('strong', {}, 'Étape suivante : '), 'restaure chaque jeu avec sa sauvegarde (fichiers du Pi, un par jeu) dans Gestion du jeu → Service → « Restaurer une sauvegarde ». Le roster, le planning et les liens entre comptes et joueurs reviennent avec elle.')),
+        h('strong', {}, 'Étape suivante : '), 'restaure chaque jeu avec sa sauvegarde (fichiers sauvegardés par le bot, un par jeu) dans Gestion du jeu → Service → « Restaurer une sauvegarde ». Le roster, le planning et les liens entre comptes et joueurs reviennent avec elle.')),
     ],
     actions: [{ libelle: motsDePasse.length ? 'C’est copié' : 'Fermer', classe: 'btn--principal', action: () => window.location.reload() }],
   });

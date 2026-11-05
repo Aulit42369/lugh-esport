@@ -66,7 +66,7 @@ function bilan(d) {
       h('div', {}, h('span', { class: 'chiffre chiffre--l' }, String(restants)), h('span', { class: 'texte-3 petit' }, restants > 1 ? 'places libres' : 'place libre'))),
     h('div', { class: 'adm-bilan__jauge' },
       jauge(Math.round((d.jeux.length / d.max) * 100), { legende: 'Jeux créés', droite: `${d.jeux.length} sur ${d.max}`, couleur: restants ? null : 'var(--brique)' }),
-      h('p', { class: 'texte-3 tres-petit' }, `Chaque jeu créé a sa propre base de données : ${d.max} jeux au maximum avec MongoDB Atlas gratuit. Un jeu désactivé compte toujours. Le nombre de comptes d’un jeu n’inclut pas l’Administrateur général, présent partout.`)));
+      h('p', { class: 'texte-3 tres-petit' }, `Chaque jeu créé a sa propre base de données : ${d.max} jeux au maximum. Un jeu désactivé compte toujours. Le nombre de comptes d’un jeu n’inclut pas l’Administrateur général, présent partout.`)));
 }
 
 // Jeux créés seulement : les actifs d'abord, puis les désactivés (données gardées), dans l'ordre de la navigation.

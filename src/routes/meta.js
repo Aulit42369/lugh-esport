@@ -31,7 +31,7 @@ export function routesMeta(routeur, s) {
       if (resultat.raison === 'plafond') {
         throw erreurs.tropDeRequetes(`Plafond de ${resultat.plafond} vérifications manuelles ce mois-ci atteint ; prochaine vérification automatique lundi ou jeudi (l’import manuel reste possible).`);
       }
-      throw erreurs.indisponible('Clé API Claude absente : ajoute ANTHROPIC_API_KEY dans les variables Render.');
+      throw erreurs.indisponible('Clé API Claude absente : ajoute ANTHROPIC_API_KEY dans /srv/lugh/.env du serveur.');
     }
     envoyerJson(r.res, 202, { lancee: true });
   });

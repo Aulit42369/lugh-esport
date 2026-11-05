@@ -23,7 +23,7 @@ export function lireConfig(env = process.env) {
 
   const mongodbUri = (env.MONGODB_URI || '').trim();
   if (mode === 'production' && !mongodbUri) {
-    erreurs.push('MONGODB_URI manquant : colle la chaîne de connexion Atlas dans les variables d’environnement Render.');
+    erreurs.push('MONGODB_URI manquant : indique la chaîne de connexion MongoDB dans /srv/lugh/.env du serveur.');
   }
 
   // Facultatif : la méta se vérifie déjà à la première visite après le lundi et le jeudi 7 h 45.
@@ -40,7 +40,7 @@ export function lireConfig(env = process.env) {
   const cle2fa = (env.LUGH_CLE_2FA || '').trim().toLowerCase();
   if (cle2fa && !/^[0-9a-f]{64}$/.test(cle2fa)) erreurs.push('LUGH_CLE_2FA invalide : 64 caractères hexadécimaux (openssl rand -hex 32).');
   if (!cle2fa && mode === 'production') {
-    avertissements.push('LUGH_CLE_2FA absente : les clés de double authentification sont enregistrées en clair dans Atlas.');
+    avertissements.push('LUGH_CLE_2FA absente : les clés de double authentification sont enregistrées en clair dans la base.');
   }
 
   const cleClaude = (env.ANTHROPIC_API_KEY || '').trim();
@@ -56,14 +56,14 @@ export function lireConfig(env = process.env) {
     try {
       origine = new URL(origine).origin;
     } catch {
-      erreurs.push('LUGH_ORIGINE invalide : indique l’adresse complète, par exemple https://qg-esport.onrender.com');
+      erreurs.push('LUGH_ORIGINE invalide : indique l’adresse complète, par exemple https://lugh.aulit42369.fr');
     }
   }
 
   // Dernier recours si l'Administrateur général perd son téléphone et ses codes de secours : l'identifiant d'un compte
   // dont la double authentification est remise à zéro au démarrage. À retirer dès la reconnexion.
   const reinitialiser2fa = (env.LUGH_REINITIALISER_2FA || '').trim().toLowerCase();
-  if (reinitialiser2fa) avertissements.push(`LUGH_REINITIALISER_2FA est défini (${reinitialiser2fa}) : retire-le des variables Render maintenant que le compte est débloqué.`);
+  if (reinitialiser2fa) avertissements.push(`LUGH_REINITIALISER_2FA est défini (${reinitialiser2fa}) : retire-le de /srv/lugh/.env du serveur maintenant que le compte est débloqué.`);
 
   // Nombre de proxys de confiance devant Lugh : l'adresse du client est le N-ième élément de X-Forwarded-For en
   // partant de la droite (1 = le dernier, celui qu'ajoute le proxy de Render). À vérifier dans Administration → Service.
