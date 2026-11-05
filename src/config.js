@@ -71,6 +71,11 @@ export function lireConfig(env = process.env) {
   if (!Number.isInteger(proxySauts) || proxySauts < 1 || proxySauts > 5) erreurs.push(`LUGH_PROXY_SAUTS invalide (reçu : « ${String(env.LUGH_PROXY_SAUTS).slice(0, 40)} ») : mets seulement un chiffre de 1 à 5, sans guillemets ni texte (ex. 2).`);
 
   const surRender = env.RENDER === 'true';
+  // Après un déménagement : l'ancienne adresse renvoie tout vers la nouvelle (ex. https://lugh.aulit42369.fr).
+  let demenageVers = (env.LUGH_DEMENAGE_VERS || '').trim().replace(/\/$/, '');
+  if (demenageVers) {
+    try { demenageVers = new URL(demenageVers).origin; } catch { erreurs.push('LUGH_DEMENAGE_VERS invalide : indique l’adresse complète, par exemple https://lugh.aulit42369.fr'); }
+  }
   const simulation = mode === 'simulation';
 
   // Facultatif : « Valorant · Stats de l'équipe » (API Riot + Riot Sign On). Inactif tant qu'il manque une valeur.
@@ -116,6 +121,7 @@ export function lireConfig(env = process.env) {
     proxySauts,
     cookieSecurise: surRender || origine.startsWith('https://'),
     hsts: surRender,
+    demenageVers,
     fuseau: 'Europe/Paris',
     version: '2.8.0',
     erreurs,

@@ -159,3 +159,9 @@ test('LUGH_REINITIALISER_2FA : une fois par pose ; retirée puis reposée, elle 
   (await lancer(fabrique, { LUGH_REINITIALISER_2FA: 'chef' })).app.arreter();
   assert.equal(await aLa2fa(), false, 'nouvelle pose : nouvelle remise à zéro');
 });
+
+test('LUGH_DEMENAGE_VERS : ancienne adresse en renvoi vers la nouvelle', () => {
+  assert.equal(lireConfig({ ...ENV, LUGH_DEMENAGE_VERS: 'https://lugh.aulit42369.fr/' }).demenageVers, 'https://lugh.aulit42369.fr');
+  assert.equal(lireConfig({ ...ENV }).demenageVers, '');
+  assert.ok(lireConfig({ ...ENV, LUGH_DEMENAGE_VERS: 'pas une adresse' }).erreurs.some((e) => e.includes('LUGH_DEMENAGE_VERS')));
+});
