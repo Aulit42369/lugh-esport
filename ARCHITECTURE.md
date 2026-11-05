@@ -208,6 +208,7 @@ Base de chaque jeu `lugh_<jeu>` (mêmes collections pour tous les jeux) :
 - Coût de l'API : vérifications lancées à la main plafonnées par mois (`PLAFONDS_MANUELS` de `config.js` : 10 par jeu pour la méta, 5 pour la veille légale ; échecs compris ; automatique et import non comptés ; au-delà, 429), affichées dans Service.
 - Livre des comptes : chaque modification ou suppression d'une écriture garde la version d'avant (qui, quand, avant, après) dans `ecrituresHistorique`, visible sous les écritures et exportable (`export?historique=1`).
 - Navigateur : CSP stricte (`'self'` uniquement, aucun script ni style en ligne, aucun site externe), aucun texte saisi interprété comme du HTML, liens acceptés seulement en `https://`. Le service worker ne met **jamais** `/api/` en cache.
+- Écoute réseau : `HOTE` (facultative) choisit l'adresse d'écoute. Serveur OVH : `HOTE=127.0.0.1` posé dans `lugh.service` (seul Caddy y accède) ; absente (Render) : toutes les interfaces.
 - Données personnelles : pseudo et identifiant en jeu facultatif uniquement — ni nom réel, ni âge, ni e-mail (une équipe peut compter des mineurs).
 
 ---

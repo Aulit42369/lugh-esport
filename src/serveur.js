@@ -21,7 +21,7 @@ for (const a of config.avertissements) console.warn(`⚠ ${a}`);
 // Ancienne adresse d'un Lugh déménagé : renvoi permanent vers la nouvelle, sans toucher à la base.
 if (config.demenageVers) {
   createServer((req, res) => { res.writeHead(301, { Location: config.demenageVers + req.url }); res.end(); })
-    .listen(config.port, () => console.log(`Lugh a déménagé : renvoi vers ${config.demenageVers}.`));
+    .listen(config.port, process.env.HOTE, () => console.log(`Lugh a déménagé : renvoi vers ${config.demenageVers}.`));
   await new Promise(() => {}); // le serveur de renvoi tourne seul
 }
 
@@ -49,7 +49,8 @@ const serveur = createServer((req, res) => {
 });
 serveur.headersTimeout = 30_000;
 serveur.requestTimeout = 60_000;
-serveur.listen(config.port, () => {
+// HOTE=127.0.0.1 sur le serveur OVH (derrière Caddy) ; absent sur Render = écoute partout.
+serveur.listen(config.port, process.env.HOTE, () => {
   console.log(`${MARQUE.nom} prêt sur le port ${config.port} (mode ${config.mode}, stockage ${fabrique.type}, ${app.services.registre.liste().length} jeu(x)).`);
   if (config.mode === 'simulation') console.log(`Ouvre http://localhost:${config.port} — comptes de démonstration dans le README.`);
 });
