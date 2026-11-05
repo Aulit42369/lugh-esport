@@ -101,7 +101,7 @@ function registreRgpd(id) {
       'Données : identifiant, nom affiché ou pseudo, accès et métiers par jeu, planning, disponibilités, absences, résultats et notes d’équipe, journal des connexions.',
       'Pourquoi : organiser les entraînements, les matchs et le suivi des joueurs.',
       'Qui y accède : les membres de chaque jeu selon leur rôle ; l’Administrateur général.',
-      'Où : Render (Francfort, Allemagne) et MongoDB Atlas (Europe) ; copie de sauvegarde hebdomadaire sur un ordinateur de la structure.',
+      'Où : serveur de l’éditeur chez OVH (Beauharnois, Canada, pays reconnu adéquat par la Commission européenne) ; sauvegarde chaque nuit sur l’ordinateur de l’éditeur, puis chiffrée chez Cloudflare R2.',
       'Combien de temps : tant que le compte existe ; journal des connexions 90 jours.',
     ] },
     { t: 'sous', texte: '2. Serveur Discord' },

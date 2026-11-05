@@ -32,6 +32,8 @@
 
 - 28/10/2026 : conditions d’utilisation (`shared/administratif/conditions.js`, 3e fenêtre lisible sans compte, liée depuis la connexion, Mes jeux et Mon compte ; chaque fenêtre légale ouvre les deux autres) ; confidentialité : « Ce que ton navigateur garde » (cookie `lugh_session`, `localStorage` `lugh-theme`, `lugh-dernier-jeu`, `lugh-premiers-pas-masques-<jeu>`, cache `lugh-v1`), test qui rougit si une clé change ou si une nouvelle apparaît ; Mes jeux : `liensLegaux` n’était pas défini (erreur sur la page d’un compte sans jeu), liens légaux ajoutés en pied de page ; date de mise à jour légale 28/10/2026 ; `docs/` : PRD, TRD, APP_FLOW, DESIGN_BRIEF, BACKEND_SCHEMA, IMPLEMENTATION_PLAN ; 240 tests.
 
+- 05/11/2026 : textes légaux après le déménagement : hébergeur OVH SAS (serveur à Beauharnois, Canada, adéquation UE 2002/2/CE), base MongoDB locale, Render = simple renvoi de l’ancienne adresse, Atlas = ancienne base gardée 1 à 2 semaines puis supprimée, sauvegarde chaque nuit chiffrée (Cloudflare R2) ; conditions : plus de « réveil » d’hébergement gratuit ; registre des traitements à jour ; 242 tests. **Quand Atlas et Render seront supprimés** : retirer leurs lignes de `confidentialite.js` et `mentions-legales.js`.
+
 ## En cours
 - Rien.
 
