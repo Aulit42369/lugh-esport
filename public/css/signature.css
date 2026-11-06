@@ -60,7 +60,12 @@
     radial-gradient(56rem 34rem at 14% 2%, color-mix(in srgb, var(--violet) 16%, transparent), transparent 60%),
     radial-gradient(70rem 40rem at 50% 100%, color-mix(in srgb, var(--surimpression) 10%, transparent), transparent 70%), var(--papier);
 }
-.accueil__fond { z-index: -1; opacity: 0.4; }
+.accueil__fond {
+  z-index: -1;
+  opacity: 0.4;
+  -webkit-mask: radial-gradient(58% 62% at 50% 44%, #000 30%, transparent 82%);
+  mask: radial-gradient(58% 62% at 50% 44%, #000 30%, transparent 82%);
+}
 .accueil__panneau {
   position: relative;
   width: min(29rem, 100%);
