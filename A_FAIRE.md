@@ -1,6 +1,7 @@
 # Lugh — À faire
 
 ## Fait
+- 06/11 : re-skin « Néon × Broadcast » (or dominant + touches violet), validé par Olivier. Via les jetons uniquement : titres condensés Saira Condensed, texte IBM Plex Sans, étiquettes/HUD en IBM Plex Mono (auto-hébergées, CSP inchangée) ; second accent violet (jetons `--violet`, deux thèmes) ; h1/h2 en capitales, marqueur violet sur la nav active, onglet actif souligné violet, filet or→violet sur les en-têtes de section, méta/signature/en-têtes de tableau en mono. Aucun nom de jeton changé : zéro perte de fonction, thèmes clair/sombre et couleur par jeu conservés. SW `lugh-v1`→`lugh-v2` (cité dans la confidentialité, test à jour). 243 tests verts, vérifié en ligne sur les deux thèmes, anciennes polices retirées du serveur. Déployé (`deployer-lugh.sh`).
 - 06/11 : default-deny des routes /api au démarrage (auth/acces.js `verifierAccesRoutes` + `ROUTES_PUBLIQUES`, gardes marqués `.acces`) : le serveur refuse de démarrer si une route n'a aucun contrôle d'accès et n'est pas publique.
 - 18/10 : cadrage, ARCHITECTURE.md validée (Render + MongoDB Atlas, comptes maison, méta par l'API Claude ou import manuel).
 - 18/10 : QG Valorant 1.0.0 puis 1.1.0 construits et testés, jamais déployés, remplacés par la 2.0.0 multi-jeux.
