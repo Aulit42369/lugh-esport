@@ -10,11 +10,12 @@ import { champCode, activation2fa, blocCodesSecours } from './deuxfacteurs.js';
 import { MARQUE } from '/shared/marque.js';
 import { liensLegaux } from '../composants/confidentialite.js';
 
-// Marque du produit : l'écusson complet en grand, le lettrage dessous (styles : identite.css).
+// Marque du produit (hors application) : kicker violet, écusson réduit, grand titre « LUGH » condensé or→violet.
 function marque() {
-  return h('div', { class: 'marque marque--grande marque--pile', role: 'img', 'aria-label': MARQUE.nom },
-    h('img', { class: 'marque__symbole', src: MARQUE.symbole, alt: '', width: '128', height: '128' }),
-    h('span', { class: 'marque__mot', style: { '--marque-mot': `url("${MARQUE.mot}")` } }));
+  return h('div', { class: 'accueil__hero', role: 'img', 'aria-label': MARQUE.nom },
+    h('span', { class: 'accueil__kicker' }, '// Espace privé · esport'),
+    h('img', { class: 'accueil__ecusson', src: MARQUE.symbole, alt: '', width: '72', height: '72' }),
+    h('div', { class: 'accueil__titre', 'aria-hidden': 'true' }, MARQUE.nom));
 }
 
 function cadre(racine, contenu, titre, { large = false, ecran = '' } = {}) {
