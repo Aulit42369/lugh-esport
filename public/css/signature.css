@@ -56,19 +56,30 @@
   padding: var(--e-5) var(--e-4);
   overflow: hidden;
   isolation: isolate;
-  background: radial-gradient(70rem 40rem at 50% 100%, color-mix(in srgb, var(--surimpression) 10%, transparent), transparent 70%), var(--papier);
+  background:
+    radial-gradient(56rem 34rem at 14% 2%, color-mix(in srgb, var(--violet) 16%, transparent), transparent 60%),
+    radial-gradient(70rem 40rem at 50% 100%, color-mix(in srgb, var(--surimpression) 10%, transparent), transparent 70%), var(--papier);
 }
 .accueil__fond { z-index: -1; }
 .accueil__panneau {
+  position: relative;
   width: min(26rem, 100%);
   display: grid;
   gap: var(--e-5);
   padding: var(--e-6);
   background: var(--surface);
   border: 1px solid var(--trait);
-  border-top: 3px solid var(--surimpression);
   border-radius: 6px;
   box-shadow: var(--ombre-modale);
+}
+/* Filet d'accent or→violet : la touche violet de l'identité, visible dès la connexion. */
+.accueil__panneau::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(90deg, var(--surimpression), var(--violet));
 }
 .accueil__marque { display: grid; gap: var(--e-3); justify-items: start; }
 .accueil__sous { color: var(--encre-2); font-weight: 600; }
