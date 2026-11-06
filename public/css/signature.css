@@ -62,9 +62,9 @@
 }
 .accueil__fond {
   z-index: -1;
-  opacity: 0.4;
-  -webkit-mask: radial-gradient(58% 62% at 50% 44%, #000 30%, transparent 82%);
-  mask: radial-gradient(58% 62% at 50% 44%, #000 30%, transparent 82%);
+  opacity: 0.6;
+  -webkit-mask: radial-gradient(62% 66% at 50% 44%, #000 34%, transparent 84%);
+  mask: radial-gradient(62% 66% at 50% 44%, #000 34%, transparent 84%);
 }
 .accueil__panneau {
   position: relative;
@@ -77,11 +77,11 @@
   clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px));
   box-shadow: var(--ombre-modale);
 }
-/* Filet d'accent or→violet en tête, qui s'arrête avant les biseaux. */
+/* Filet d'accent or→violet : touche le bord gauche, s'arrête pile au biseau à droite. */
 .accueil__panneau::before {
   content: "";
   position: absolute;
-  left: 24px; right: 24px; top: 0;
+  left: 0; right: 20px; top: 0;
   height: 3px;
   background: linear-gradient(90deg, var(--surimpression), var(--violet));
 }
@@ -146,23 +146,29 @@
 .hero__identite h1 { font-size: var(--t-2xl); }
 .hero__tag {
   font-family: var(--police-titre);
-  font-weight: 900;
-  font-size: 3.6rem;
-  line-height: 0.85;
-  color: var(--surimpression);
+  font-weight: 800;
+  font-style: italic;
+  font-size: 4.2rem;
+  line-height: 0.8;
   letter-spacing: 0.01em;
+  padding-right: 0.08em;
+  background: linear-gradient(176deg, #fff4d2, var(--surimpression) 48%, #cf8f22 78%, #ffe7a6);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--surimpression) 36%, transparent));
 }
 .hero__prochain {
+  position: relative;
   display: grid;
   gap: 2px;
   min-width: 15rem;
   max-width: 24rem;
-  padding: var(--e-3) var(--e-4);
+  padding: var(--e-4);
   border: 1px solid color-mix(in srgb, var(--surimpression) 45%, var(--trait));
-  border-radius: var(--r-fiche);
   background: color-mix(in srgb, var(--surimpression) 10%, var(--surface));
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
 }
-.hero__etiquette { font-size: var(--t-xs); font-weight: 650; color: var(--surimpression); }
+.hero__prochain::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, var(--surimpression), var(--violet)); }
+.hero__etiquette { font-family: var(--police-mono); font-size: var(--t-xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--surimpression); }
 .hero__quand { font-family: var(--police-titre); font-size: var(--t-xl); font-weight: 800; line-height: 1.1; }
 .hero__parcours { display: grid; gap: var(--e-2); }
 .hero__parcours h2 { font-size: var(--t-l); }
