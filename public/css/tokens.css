@@ -83,24 +83,25 @@
    Le thème clair (« parchemin ») reste disponible dans Mon compte ; l'impression se fait toujours sur fond blanc. */
 :root {
   color-scheme: dark;
-  --papier: #0f0c09;
-  --surface: #17120c;
-  --creux: #211a12;
-  --encre: #f6ecd9;
-  --encre-2: #d2c4a8;
-  --encre-3: #a8987c;
-  --trait: #2f261a;
-  --trait-fort: #7d6a50;
-  --courbe: #d3801a;
-  --courbe-pale: #4d3a22;
-  --surimpression: #ffc23d;
-  --surimpression-fonce: #ffd67a;
-  --surimpression-voile: #ffc23d24;
-  --sur-surimpression: #1a1206;
-  /* Second accent : violet « néon » (touches, filets dégradés or→violet, marqueurs de navigation) */
-  --violet: #c49bff;
-  --violet-fonce: #d9c2ff;
-  --violet-voile: #a24bff2e;
+  /* Palette « Néon × Broadcast » (maquette validée) : violet-noir froid, or vif, violet franc. */
+  --papier: #0b0813;
+  --surface: #140e26;
+  --creux: #1c1438;
+  --encre: #efe9f7;
+  --encre-2: #c9bce6;
+  --encre-3: #9a8fb8;
+  --trait: #2a2048;
+  --trait-fort: #574a82;
+  --courbe: #c7912f;
+  --courbe-pale: #352755;
+  --surimpression: #ffcf5a;
+  --surimpression-fonce: #ffe08f;
+  --surimpression-voile: #ffcf5a22;
+  --sur-surimpression: #1c1405;
+  /* Second accent : violet néon franc (filets or→violet, marqueurs, VS). Teinte lisible pour le texte. */
+  --violet: #b980ff;
+  --violet-fonce: #d3b6ff;
+  --violet-voile: #a24bff30;
   --sur-violet: #190a2e;
   --foret: #86c96f;
   --eau: #7db8ec;
