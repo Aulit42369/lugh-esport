@@ -97,7 +97,18 @@
   padding: var(--e-6);
   border: 1px solid var(--trait);
   border-radius: var(--r-fiche);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--surimpression) 5%, var(--surface)), var(--surface) 60%);
+  background:
+    radial-gradient(44rem 22rem at 100% 0%, color-mix(in srgb, var(--violet) 15%, transparent), transparent 62%),
+    linear-gradient(180deg, color-mix(in srgb, var(--surimpression) 6%, var(--surface)), var(--surface) 60%);
+}
+/* Filet or→violet en tête de l'en-tête de jeu : la touche violet, visible à l'intérieur. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  z-index: 1;
+  background: linear-gradient(90deg, var(--surimpression), var(--violet));
 }
 .hero__fond { z-index: -1; }
 .hero__tete {
