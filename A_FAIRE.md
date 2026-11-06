@@ -1,6 +1,7 @@
 # Lugh — À faire
 
 ## Fait
+- 06/11 : default-deny des routes /api au démarrage (auth/acces.js `verifierAccesRoutes` + `ROUTES_PUBLIQUES`, gardes marqués `.acces`) : le serveur refuse de démarrer si une route n'a aucun contrôle d'accès et n'est pas publique.
 - 18/10 : cadrage, ARCHITECTURE.md validée (Render + MongoDB Atlas, comptes maison, méta par l'API Claude ou import manuel).
 - 18/10 : QG Valorant 1.0.0 puis 1.1.0 construits et testés, jamais déployés, remplacés par la 2.0.0 multi-jeux.
 - 18/10 : décisions multi-jeux validées (M1 à M8, Q1, Q2, B6, D2, R1 à R4) ; ARCHITECTURE.md v3.
