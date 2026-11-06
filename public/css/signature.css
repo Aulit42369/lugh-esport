@@ -92,8 +92,11 @@
   font-style: italic;
   text-transform: uppercase;
   letter-spacing: 0.01em;
-  line-height: 0.8;
-  font-size: clamp(3.6rem, 13vw, 5.6rem);
+  line-height: 0.95;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.04em 0.22em 0.1em 0;
+  font-size: clamp(3.4rem, 12vw, 5.4rem);
   margin: 0.1rem 0 0;
   background: linear-gradient(176deg, #fff4d2, var(--surimpression) 44%, #cf8f22 72%, #ffe7a6);
   -webkit-background-clip: text; background-clip: text; color: transparent;
