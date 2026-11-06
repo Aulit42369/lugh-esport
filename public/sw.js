@@ -2,7 +2,7 @@
 // Les données (/api/) ne sont jamais mises en cache : elles passent toujours par le réseau.
 // Préfixe des caches fixé pour toujours (« lugh- ») : seuls nos propres caches sont supprimés.
 
-const CACHE = 'lugh-v1';
+const CACHE = 'lugh-v2';
 const DELAI_COQUILLE_MS = 3000;
 
 self.addEventListener('install', () => self.skipWaiting());

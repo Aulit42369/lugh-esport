@@ -46,7 +46,7 @@ export function texteConfidentialite({ nom = '', contact = '' } = {}) {
       '« lugh-theme » : ton thème, sombre ou clair (choisi dans Mon compte).',
       '« lugh-dernier-jeu » : le dernier jeu que tu as ouvert, pour y revenir directement.',
       '« lugh-premiers-pas-masques-<jeu> » (une clé par jeu, ex. lugh-premiers-pas-masques-valorant) : tu as masqué la liste « Premiers pas » de l’accueil de ce jeu.',
-      'Le cache « lugh-v1 » de l’appli (service worker) : une copie des pages, styles et polices pour que Lugh s’ouvre plus vite, même quand le réseau est lent. Jamais tes données : elles passent toujours par le réseau.',
+      'Le cache « lugh-v2 » de l’appli (service worker) : une copie des pages, styles et polices pour que Lugh s’ouvre plus vite, même quand le réseau est lent. Jamais tes données : elles passent toujours par le réseau.',
       'Pour tout effacer : déconnecte-toi, puis efface les données du site dans les réglages de ton navigateur.',
     ] },
     { titre: 'Combien de temps', texte: 'Tant que ton compte existe. Quand il est supprimé, tes données personnelles le sont aussi ; ce que tu as écrit pour l’équipe reste, signé « un ancien compte ». Parties Riot : 90 jours au plus ; « Délier » (page Stats Valorant), la suppression de ton compte ou le retrait de ton accord chez Riot effacent tout de suite ta liaison et tes parties. Candidature refusée : effacée automatiquement, avec les avis du staff, 6 mois après le refus ; candidature acceptée : elle devient ta fiche du roster.' },

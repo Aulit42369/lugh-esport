@@ -20,7 +20,7 @@ button { cursor: pointer; }
 a { color: var(--surimpression); text-underline-offset: 0.2em; }
 a:hover { color: var(--surimpression-fonce); }
 h1, h2, h3, h4 { margin: 0; line-height: 1.1; }
-h1, h2 { font-family: var(--police-titre); font-weight: 800; letter-spacing: 0.01em; font-variant-numeric: lining-nums tabular-nums; }
+h1, h2 { font-family: var(--police-titre); font-weight: 800; letter-spacing: 0.02em; text-transform: uppercase; font-variant-numeric: lining-nums tabular-nums; }
 h1 { font-size: var(--t-3xl); }
 h2 { font-size: var(--t-xl); }
 h3 { font-size: var(--t-m); font-weight: 650; }
@@ -96,7 +96,7 @@ hr { border: 0; border-top: 1px solid var(--trait); margin: var(--e-5) 0; }
   font-weight: 800;
   line-height: 1;
 }
-.rail__equipe { font-size: var(--t-xs); color: var(--encre-3); font-stretch: 87.5%; }
+.rail__equipe { font-size: var(--t-xs); color: var(--encre-3); font-family: var(--police-mono); letter-spacing: 0.03em; text-transform: uppercase; }
 
 /* Sélecteur de jeu : le jeu affiché, et la liste des autres jeux de la personne */
 /* Couleur du jeu (palette de shared/couleurs.js) : navigation.js pose --jeu-sombre et --jeu-clair sur la racine pour le
@@ -199,6 +199,7 @@ button.selecteur-jeu:hover { border-color: var(--trait-fort); }
   background: var(--surimpression-voile);
   color: var(--surimpression);
   font-weight: 650;
+  box-shadow: inset 3px 0 0 var(--violet);
 }
 .rail__badge {
   margin-left: auto;
@@ -261,6 +262,9 @@ button.selecteur-jeu:hover { border-color: var(--trait-fort); }
   justify-content: space-between;
   gap: var(--e-3);
   margin-bottom: var(--e-4);
+  padding-left: var(--e-3);
+  border-left: 3px solid transparent;
+  border-image: linear-gradient(var(--surimpression), var(--violet)) 1;
 }
 .section__aide { color: var(--encre-3); font-size: var(--t-s); }
 

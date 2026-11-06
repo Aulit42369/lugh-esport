@@ -326,8 +326,8 @@ test('confidentialité : chaque clé gardée par le navigateur est nommée, avec
   assert.match(lire('public/js/etat.js'), /CLE_DERNIER_JEU = `\$\{MARQUE\.id\}-dernier-jeu`/);
   assert.match(lire('shared/marque.js'), /id: 'lugh'/);
   assert.match(lire('public/js/vues/accueil-sections.js'), /CLE_MASQUE = 'lugh-premiers-pas-masques'/);
-  assert.match(lire('public/sw.js'), /const CACHE = 'lugh-v1'/);
-  for (const cle of ['lugh_session', 'lugh-theme', 'lugh-dernier-jeu', 'lugh-premiers-pas-masques-<jeu>', 'lugh-v1', 'Ce que ton navigateur garde']) assert.ok(c.includes(cle), cle);
+  assert.match(lire('public/sw.js'), /const CACHE = 'lugh-v2'/);
+  for (const cle of ['lugh_session', 'lugh-theme', 'lugh-dernier-jeu', 'lugh-premiers-pas-masques-<jeu>', 'lugh-v2', 'Ce que ton navigateur garde']) assert.ok(c.includes(cle), cle);
   // aucune autre clé de stockage dans l'appli
   const { readdirSync } = await import('node:fs');
   const fichiers = (d) => readdirSync(new URL(`../${d}`, import.meta.url), { withFileTypes: true })
