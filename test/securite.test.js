@@ -8,6 +8,8 @@ import {
   demarrer, adminPret, compteConnecte, client, requeteBrute, connecterEtChanger, stratPour, MDP,
 } from './simulation.js';
 import { nouvelId } from '../shared/validation.js';
+import { creerRouteur } from '../src/http/routeur.js';
+import { exigerConnexion, verifierAccesRoutes } from '../src/auth/acces.js';
 
 const CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
 
@@ -20,6 +22,16 @@ before(async () => {
   coach = await compteConnecte(sim, { identifiant: 'coach', acces: { valorant: ['headcoach'] } });
 });
 after(() => sim.arreter());
+
+test('default-deny : une route /api/ sans contrôle d’accès est signalée, les gardées et publiques passent', () => {
+  const r = creerRouteur();
+  r.get('/api/sante', async () => {});                              // publique (dans la liste)
+  r.get('/api/e/:jeu/truc', exigerConnexion({}), async () => {});   // gardée (étape marquée)
+  r.post('/api/cron/x', async () => {});                            // clé secrète dans le gestionnaire
+  r.get('/api/ouverte', async () => {});                            // oubli : aucune garde
+  assert.deepEqual(verifierAccesRoutes(r), ['GET /api/ouverte']);
+  // La vraie application démarre dans le before() : si une de ses routes était ouverte, creerApp aurait jeté.
+});
 
 test('en-têtes de sécurité et CSP stricte sur les pages, les fichiers et l’API, erreurs comprises', async () => {
   for (const chemin of ['/', '/api/sante', '/js/app.js', '/shared/roles.js', '/api/inconnue', '/page-inconnue']) {

@@ -6,6 +6,10 @@ import { NOM_COOKIE, DUREE_SESSION_MS } from './sessions.js';
 import { peut, accesEspace, ordonnerMetiers } from '../../shared/roles.js';
 import { soumisA2fa } from '../domaine/parametres.js';
 
+// Marque une étape comme « contrôle d'accès » : le démarrage refuse toute route /api/ sans une telle étape
+// (default-deny), sauf les routes publiques listées ci-dessous. Voir verifierAccesRoutes().
+const marquer = (fn) => { fn.acces = true; return fn; };
+
 function accesPropres(c) {
   return Object.fromEntries(Object.entries(c.acces || {})
     .filter(([, a]) => a?.metiers?.length || a?.membreId)
@@ -72,7 +76,7 @@ export function cookieEfface(config) {
 
 // autoriser2fa : route permise à un compte qui doit encore activer sa double authentification (activation, session).
 export function exigerConnexion(services, { autoriserMdpAChanger = false, autoriser2fa = false } = {}) {
-  return async (r) => {
+  return marquer(async (r) => {
     const jeton = lireCookies(r.req)[NOM_COOKIE];
     const session = await services.sessions.lire(jeton);
     if (!session) throw erreurs.nonConnecte();
@@ -86,7 +90,7 @@ export function exigerConnexion(services, { autoriserMdpAChanger = false, autori
     r.compte = compte;
     r.compteGlobal = compte;
     r.jeton = jeton;
-  };
+  });
 }
 
 // Écriture partielle d'un compte (seuls ces champs changent, rien n'est recréé) : une requête lente, lue avant une
@@ -103,15 +107,15 @@ export async function doitActiver2fa(services, compte) {
 }
 
 export function exigerAdmin() {
-  return async (r) => {
+  return marquer(async (r) => {
     if (!r.compteGlobal?.admin) throw erreurs.interdit('Réservé à l’Administrateur général.');
-  };
+  });
 }
 
 // Espace de jeu de l'adresse (/api/e/:jeu/…). Sans accès, la réponse est la même que pour un jeu inexistant.
 // Ensuite, r.compte est le compte VU DANS CE JEU : ses métiers et son membre lié dans ce jeu.
 export function exigerEspace(services) {
-  return async (r) => {
+  return marquer(async (r) => {
     const espace = services.registre.obtenir(r.params.jeu);
     const acces = espace ? accesEspace(r.compteGlobal, espace.id) : null;
     if (!espace || !acces || (!espace.doc.actif && !r.compteGlobal.admin)) throw erreurs.introuvable('Espace de jeu introuvable.');
@@ -119,11 +123,37 @@ export function exigerEspace(services) {
     r.compte = { ...r.compteGlobal, metiers: acces.metiers, membreId: acces.membreId };
     // Jeu désactivé ouvert par l'Administrateur général (export, suppression) : ni méta payante ni semaine créée.
     if (espace.doc.actif !== false) espace.automatismes?.verifier();
-  };
+  });
 }
 
 export function exigerPerm(perm) {
-  return async (r) => {
+  return marquer(async (r) => {
     if (!peut(r.compte, perm)) throw erreurs.interdit();
-  };
+  });
+}
+
+// Routes /api/ volontairement accessibles sans étape de contrôle d'accès :
+//  - points d'entrée (on ne peut exiger une session pour se connecter ou lire son état) ;
+//  - /api/public/structure : nom public + contact de la structure, choisi public ;
+//  - /api/riot/retour : retour OAuth de Riot, protégé à l'intérieur du gestionnaire (session + state) ;
+//  - /api/cron/* et /api/bot/* : authentifiés par clé secrète (/api/bot/* par exigerBot, étape marquée).
+const ROUTES_PUBLIQUES = new Set([
+  'GET /api/sante',
+  'GET /api/public/structure',
+  'GET /api/riot/retour',
+  'POST /api/auth/connexion',
+  'POST /api/auth/deconnexion',
+  'GET /api/auth/session',
+]);
+
+// Default-deny : renvoie la liste des routes /api/ qui n'ont aucune étape de contrôle d'accès et ne sont pas
+// explicitement publiques. Appelé au démarrage (app.js) : une route oubliée fait échouer le lancement, plutôt
+// que d'être servie ouverte. (/api/cron/* s'authentifie par clé à l'intérieur du gestionnaire.)
+export function verifierAccesRoutes(routeur) {
+  return routeur.lister()
+    .filter((r) => r.motif.startsWith('/api/')
+      && !ROUTES_PUBLIQUES.has(`${r.methode} ${r.motif}`)
+      && !r.motif.startsWith('/api/cron/')
+      && !r.etapes.some((e) => typeof e === 'function' && e.acces))
+    .map((r) => `${r.methode} ${r.motif}`);
 }

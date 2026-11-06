@@ -34,6 +34,7 @@ export function routesBot(routeur, s) {
     const recu = String(r.req.headers.authorization || '').replace(/^Bearer\s+/i, '');
     if (!recu || !egalTempsConstant(recu, s.config.cleBot)) throw erreurs.interdit('Clé du bot invalide.');
   };
+  exigerBot.acces = true; // étape de contrôle d'accès (default-deny, voir auth/acces.js)
 
   const espacesActifs = () => s.registre.liste().filter((d) => d.actif !== false).map((d) => s.registre.obtenir(d._id)).filter(Boolean);
 

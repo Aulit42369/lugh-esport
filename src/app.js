@@ -10,6 +10,7 @@ import { creerSessions } from './auth/sessions.js';
 import { creerLimiteurConnexion } from './auth/limiteur.js';
 import { creerJournal } from './domaine/journal.js';
 import { creerRegistre } from './espaces/registre.js';
+import { verifierAccesRoutes } from './auth/acces.js';
 import { routesAuth } from './routes/auth.js';
 import { routesAdmin } from './routes/admin.js';
 import { routesComptes } from './routes/comptes.js';
@@ -96,6 +97,11 @@ export async function creerApp({
   routesAdministratif(routeur, services);
   routesTresorerie(routeur, services);
   routesRiot(routeur, services);
+
+  // Default-deny : refuse de démarrer si une route /api/ n'a aucun contrôle d'accès et n'est pas explicitement
+  // publique (voir auth/acces.js). Un oubli de garde échoue au lancement au lieu d'ouvrir une route par mégarde.
+  const ouvertes = verifierAccesRoutes(routeur);
+  if (ouvertes.length) throw new Error(`Routes d'API sans contrôle d'accès (ajoute une étape exiger… ou déclare-la publique) : ${ouvertes.join(', ')}`);
 
   const servirStatique = creerStatique([
     { prefixe: '/shared/', dossier: join(RACINE, 'shared') },

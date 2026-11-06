@@ -28,9 +28,11 @@ export const livreDe = (e) => (e?.livre === 'societe' ? 'societe' : 'association
 const nomLivre = (livre) => LIVRES.find((l) => l.id === livre)?.nom.toLowerCase() || livre;
 
 export function exigerTresorier() {
-  return async (r) => {
+  const g = async (r) => {
     if (!r.compteGlobal?.admin && !r.compteGlobal?.tresorier) throw erreurs.interdit('Réservé au trésorier et à l’Administrateur général.');
   };
+  g.acces = true; // étape de contrôle d'accès (default-deny, voir auth/acces.js)
+  return g;
 }
 
 export function routesTresorerie(routeur, s) {

@@ -6,7 +6,7 @@ export function creerRouteur() {
   const routes = [];
 
   function ajouter(methode, motif, etapes) {
-    routes.push({ methode, segments: motif.split('/').filter(Boolean), etapes });
+    routes.push({ methode, motif, segments: motif.split('/').filter(Boolean), etapes });
   }
 
   function trouver(methode, chemin) {
@@ -46,5 +46,7 @@ export function creerRouteur() {
     put: (motif, ...etapes) => ajouter('PUT', motif, etapes),
     delete: (motif, ...etapes) => ajouter('DELETE', motif, etapes),
     trouver,
+    // Pour le contrôle « default-deny » au démarrage (voir auth/acces.js).
+    lister: () => routes.map((r) => ({ methode: r.methode, motif: r.motif, etapes: r.etapes })),
   };
 }
