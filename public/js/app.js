@@ -49,7 +49,9 @@ async function afficher({ conserver = false } = {}) {
     // Après connexion : on atterrit sur la page d'accueil « Mes jeux » (vue d'ensemble de la structure),
     // pas directement dans un jeu. Sans jeu : l'Administrateur crée le premier, un Trésorier arrive sur ses comptes.
     const sansJeu = E.estAdmin() && !E.jeux().length ? '#/admin/jeux' : E.estTresorier() && !E.jeux().length ? '#/tresorerie' : '#/jeux';
-    return remplacerEtAfficher(E.jeux().length ? '#/jeux' : sansJeu);
+    // Admin : la Vue d'ensemble de la structure (stats + matchs à venir, façon maquette) ; sinon « Mes jeux ».
+    const accueil = E.estAdmin() && E.jeux().length ? '#/admin/structure' : E.jeux().length ? '#/jeux' : sansJeu;
+    return remplacerEtAfficher(accueil);
   }
 
   const moi = ++jeton;

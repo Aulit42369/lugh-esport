@@ -149,7 +149,14 @@
 .structure-hero__devise { margin: 0.2rem 0 0; font-family: var(--police-titre); font-weight: 700; font-size: var(--t-l); letter-spacing: 0.01em; color: var(--surimpression); }
 .structure-hero__sous { margin: 0.3rem 0 0; color: var(--encre-2); max-width: 52ch; }
 .structure-hero__actions { margin-top: var(--e-4); }
-.structure-titre { font-size: var(--t-xl); }
+.structure-titre { font-size: var(--t-xl); margin-bottom: var(--e-3); }
+/* Bandeau défilant de la Vue d'ensemble (matchs/tournois à venir) */
+.struct-ticker { margin-top: var(--e-4); display: flex; align-items: stretch; overflow: hidden; white-space: nowrap; background: color-mix(in srgb, var(--violet) 12%, #07060b); border: 1px solid var(--trait); }
+.struct-onair { flex: none; display: flex; align-items: center; padding: 0 14px; font-family: var(--police-titre); font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: 0.04em; font-size: 12px; color: var(--sur-surimpression); background: linear-gradient(180deg, var(--surimpression-fonce), var(--surimpression)); clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+.struct-piste { display: inline-flex; padding-block: 8px; padding-left: 18px; font-family: var(--police-mono); font-size: 12px; letter-spacing: 0.03em; color: var(--encre-2); animation: accueil-tick 28s linear infinite; }
+.struct-piste span { padding: 0 16px; position: relative; }
+.struct-piste span::after { content: "◆"; position: absolute; right: -3px; top: 1px; color: var(--violet); font-size: 8px; }
+@media (prefers-reduced-motion: reduce) { .struct-piste { animation: none; } }
 
 /* ——— En-tête de l'accueil d'un jeu ——— */
 .hero {

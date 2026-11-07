@@ -4,6 +4,7 @@
 import { h, toast, messageErreur } from '../ui.js';
 import { icone } from '../icones.js';
 import { api } from '../api.js';
+import { MARQUE } from '/shared/marque.js';
 import { puce } from '../composants/jetons.js';
 import { puceJeu, styleCouleurJeu } from '../navigation.js';
 import { libelleStatutTournoi } from '/shared/organisation.js';
@@ -18,8 +19,9 @@ export function rendreStructure(zone) {
   const dessiner = (d) => {
     affiche = JSON.stringify(d);
     zone.replaceChildren(
+      enTete(d),
       d.alertes?.length ? h('ul', { class: 'pile-s adm-avertissements' }, d.alertes.map((a) => h('li', { class: 'alerte alerte--attention' }, icone('alerte'), h('span', {}, a)))) : '',
-      resume(d), h('div', { class: 'adm-structure' }, trier(d.jeux).map(carteJeu)));
+      resume(d), h('h2', { class: 'structure-titre' }, 'Les espaces'), h('div', { class: 'adm-structure' }, trier(d.jeux).map(carteJeu)));
   };
   if (cache) dessiner(cache);
   else zone.replaceChildren(chargement());
@@ -39,6 +41,23 @@ const trier = (jeux) => [...jeux.filter((j) => j.actif), ...jeux.filter((j) => !
 
 // Lien d'alerte relatif au jeu (« #/presences ») → « #/valorant/presences ».
 const lienDuJeu = (jeu, lien) => `#/${encodeURIComponent(jeu)}/${String(lien || '').replace(/^#?\/?/, '')}`.replace(/\/$/, '');
+
+// En-tête façon maquette : hero marqué + bandeau défilant des matchs/tournois à venir (vraies données).
+function enTete(d) {
+  const actifs = d.jeux.filter((j) => j.actif);
+  const msgs = [];
+  for (const j of actifs) for (const m of j.matchs) msgs.push(`${j.court || j.nom} vs ${m.adversaire} · ${formatDateCourte(m.date)}${m.heure ? ' ' + m.heure : ''}`);
+  for (const j of actifs) for (const t of (j.tournois || [])) if (t.nom) msgs.push(`Tournoi · ${t.nom}`);
+  if (!msgs.length) msgs.push('Aucun match programmé pour le moment', MARQUE.slogan);
+  const piste = h('div', { class: 'struct-piste' });
+  for (const m of [...msgs, ...msgs]) piste.append(h('span', {}, m));
+  return h('section', { class: 'structure-hero' },
+    h('div', { class: 'structure-hero__corps' },
+      h('span', { class: 'structure-hero__kick' }, '// Vue d’ensemble · esport'),
+      h('div', { class: 'structure-hero__titre', 'aria-label': MARQUE.nom }, MARQUE.nom),
+      h('p', { class: 'structure-hero__devise' }, MARQUE.slogan),
+      h('div', { class: 'struct-ticker', 'aria-hidden': 'true' }, h('span', { class: 'struct-onair' }, 'À venir'), piste)));
+}
 
 function resume(d) {
   const actifs = d.jeux.filter((j) => j.actif);

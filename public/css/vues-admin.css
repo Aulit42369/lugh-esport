@@ -180,10 +180,13 @@
 .adm-journal__cible { color: var(--encre); }
 .adm-droits { margin-top: var(--e-5); }
 /* ——— Vue d'ensemble ——— */
-.adm-resume { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--e-3) var(--e-7); margin-bottom: var(--e-5); }
-.adm-resume > div { display: grid; gap: var(--e-1); }
+/* Résumé de la structure en tuiles de stats (façon maquette) : anguleux, filet d'accent or/violet alterné. */
+.adm-resume { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-bottom: var(--e-5); border: 0; background: none; padding: 0; box-shadow: none; }
+.adm-resume > div { position: relative; display: grid; gap: 2px; background: color-mix(in srgb, var(--violet) 7%, var(--surface)); border: 1px solid var(--trait); border-top: 3px solid var(--surimpression); padding: 12px 16px; }
+.adm-resume > div:nth-child(even) { border-top-color: var(--violet); }
+.adm-resume .chiffre { font-style: italic; }
 .adm-resume__attention { color: var(--champ-encre); }
-.adm-resume__date { margin-left: auto; }
+.adm-resume__date { grid-column: 1 / -1; margin: 2px 0 0; }
 .adm-structure { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: var(--e-4); align-items: start; }
 .adm-carte { display: grid; gap: var(--e-3); min-width: 0; padding: var(--e-4); border: 1px solid color-mix(in srgb, var(--jeu-sombre, var(--surimpression)) 50%, var(--trait)); box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--jeu-sombre, var(--surimpression)) 10%, transparent); border-radius: var(--r-fiche); background: var(--surface); }
 :root[data-theme='clair'] .adm-carte { border-color: color-mix(in srgb, var(--jeu-clair, var(--surimpression)) 50%, var(--trait)); box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--jeu-clair, var(--surimpression)) 10%, transparent); }
