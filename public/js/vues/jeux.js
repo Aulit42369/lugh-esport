@@ -10,6 +10,7 @@ import { puce } from '../composants/jetons.js';
 import { puceJeu } from '../navigation.js';
 import { liensLegaux } from '../composants/confidentialite.js';
 import { nomsMetiers } from '/shared/roles.js';
+import { MARQUE } from '/shared/marque.js';
 
 // Nombre stable tiré d'un texte : place le poste au même endroit du relief à chaque visite.
 function graine(texte) {
@@ -65,9 +66,20 @@ export function rendre(page) {
   const admin = E.estAdmin();
   const dernier = jeux.length > 1 ? E.dernierJeu() : '';
 
+  // Hero d'accueil de la structure (façon maquette) : grand titre marqué au-dessus des jeux.
+  if (jeux.length) {
+    page.append(h('section', { class: 'structure-hero' },
+      topo({ largeur: 1600, hauteur: 420, graine: 'accueil-lugh', colonnes: 80, niveaux: 12, bosses: 8, classe: 'topo structure-hero__fond' }),
+      h('div', { class: 'structure-hero__corps' },
+        h('span', { class: 'structure-hero__kick' }, '// Espace équipe · esport'),
+        h('div', { class: 'structure-hero__titre', 'aria-label': MARQUE.nom }, MARQUE.nom),
+        h('p', { class: 'structure-hero__devise' }, MARQUE.slogan),
+        h('p', { class: 'structure-hero__sous' }, 'Choisis ton espace de jeu — roster, planning, matchs et stats, séparés par jeu.'))));
+  }
+
   page.append(h('header', { class: 'entete-page' },
     h('div', { class: 'entete-page__texte' },
-      h('h1', {}, 'Mes jeux'),
+      h(jeux.length ? 'h2' : 'h1', jeux.length ? { class: 'structure-titre' } : {}, jeux.length ? 'Les espaces' : 'Mes jeux'),
       h('p', { class: 'entete-page__intro' }, jeux.length
         ? 'Chaque jeu a son propre espace : roster, planning, stratbook et résultats ne se mélangent pas. Tes métiers peuvent changer d’un jeu à l’autre.'
         : 'Un espace par jeu, avec ses propres données et tes métiers dans ce jeu.')),

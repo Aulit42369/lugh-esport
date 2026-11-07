@@ -46,10 +46,10 @@ async function afficher({ conserver = false } = {}) {
     return remplacerEtAfficher(`#/${jeu}/${[r.route, ...r.params].join('/')}`);
   }
   if (!r.jeu && !r.route) {
-    const jeu = jeuParDefaut();
-    // Sans jeu : l'Administrateur crée le premier, un Trésorier arrive sur ses comptes.
+    // Après connexion : on atterrit sur la page d'accueil « Mes jeux » (vue d'ensemble de la structure),
+    // pas directement dans un jeu. Sans jeu : l'Administrateur crée le premier, un Trésorier arrive sur ses comptes.
     const sansJeu = E.estAdmin() && !E.jeux().length ? '#/admin/jeux' : E.estTresorier() && !E.jeux().length ? '#/tresorerie' : '#/jeux';
-    return remplacerEtAfficher(jeu ? `#/${jeu}` : sansJeu);
+    return remplacerEtAfficher(E.jeux().length ? '#/jeux' : sansJeu);
   }
 
   const moi = ++jeton;
