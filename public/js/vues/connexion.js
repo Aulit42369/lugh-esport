@@ -18,14 +18,25 @@ function marque() {
     h('div', { class: 'accueil__titre', 'aria-hidden': 'true' }, MARQUE.nom));
 }
 
+// Bandeau défilant (hors application) : messages génériques de la structure, AUCUNE donnée privée.
+function bandeau() {
+  const msgs = ['Équipe esport', 'Espace privé de la structure', 'Un espace par jeu', 'Planning · Roster · Matchs · Stats', MARQUE.slogan];
+  const piste = h('div', { class: 'accueil__piste' });
+  for (let r = 0; r < 2; r += 1) for (const m of msgs) piste.append(h('span', {}, m));
+  return h('div', { class: 'accueil__ticker', 'aria-hidden': 'true' },
+    h('span', { class: 'accueil__onair' }, MARQUE.nom), piste);
+}
+
 function cadre(racine, contenu, titre, { large = false, ecran = '' } = {}) {
   document.title = `${titre} | ${MARQUE.nom}`;
   vider(racine);
   racine.append(h('main', { class: 'accueil', dataset: ecran ? { ecran } : null },
     topo({ largeur: 1600, hauteur: 1000, graine: 'accueil-lugh', colonnes: 80, niveaux: 14, bosses: 9, classe: 'topo accueil__fond' }),
+    bandeau(),
     h('div', { class: ['accueil__panneau', large && 'accueil__panneau--large'] },
       h('div', { class: 'accueil__marque' },
         marque(),
+        h('p', { class: 'accueil__sub' }, 'La structure, le ', h('b', {}, 'collectif'), ', la gagne.'),
         h('p', { class: 'accueil__devise' }, MARQUE.slogan),
         h('p', { class: 'accueil__sous' }, 'L’espace privé de la structure, ', h('br'), 'un espace par jeu')),
       contenu)));

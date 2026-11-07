@@ -90,6 +90,16 @@
 /* Héros « maquette » : kicker violet, écusson réduit, grand titre LUGH condensé or. */
 .accueil__hero { display: grid; justify-items: start; gap: 0.35rem; }
 .accueil__kicker { font-family: var(--police-mono); font-size: 0.78rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--violet); }
+.accueil__sub { margin: 0.4rem 0 0.1rem; font-family: var(--police-titre); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; font-size: var(--t-m); color: var(--encre-2); }
+.accueil__sub b { color: var(--violet); }
+/* Bandeau défilant du landing (messages génériques, aucune donnée privée) */
+.accueil__ticker { position: absolute; top: 0; left: 0; right: 0; z-index: 3; display: flex; align-items: stretch; overflow: hidden; white-space: nowrap; background: color-mix(in srgb, var(--violet) 9%, #07060b); border-bottom: 1px solid var(--trait); }
+.accueil__onair { flex: none; display: flex; align-items: center; padding: 0 16px; font-family: var(--police-titre); font-weight: 800; font-style: italic; text-transform: uppercase; letter-spacing: 0.04em; font-size: 13px; color: var(--sur-surimpression); background: linear-gradient(180deg, var(--surimpression-fonce), var(--surimpression)); clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+.accueil__piste { display: inline-flex; padding-block: 8px; padding-left: 20px; font-family: var(--police-mono); font-size: 12px; letter-spacing: 0.04em; color: var(--encre-3); animation: accueil-tick 26s linear infinite; }
+.accueil__piste span { padding: 0 18px; position: relative; }
+.accueil__piste span::after { content: "◆"; position: absolute; right: -4px; top: 1px; color: var(--violet); font-size: 8px; }
+@keyframes accueil-tick { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .accueil__piste { animation: none; } }
 .accueil__ecusson { width: 3.1rem; height: 3.1rem; }
 .accueil__titre {
   font-family: var(--police-titre);
