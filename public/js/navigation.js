@@ -95,8 +95,17 @@ function lienPage(id, actif, { rail = true } = {}) {
 
 // Marque Lugh : écusson simplifié (lisible en 36 px) + lettrage, coloré par le thème (masque, voir identite.css).
 const SYMBOLE_PETIT = MARQUE.symbole.replace(/\.svg$/, '-petit.svg');
+// Accueil de la structure : la Vue d'ensemble pour un admin, sinon « Mes jeux ».
+export function accueilHref() {
+  return E.estAdmin() && E.jeux().length ? '#/admin/structure' : '#/jeux';
+}
+export function lienAccueil(actif) {
+  const href = accueilHref();
+  return h('a', { href, class: 'rail__lien', 'aria-current': (actif === 'jeux' || actif === 'structure') ? 'page' : null }, icone('jeux'), 'Accueil');
+}
+
 export function marque() {
-  return h('a', { href: '#/jeux', class: 'rail__marque marque', 'aria-label': `${MARQUE.nom}, mes jeux` },
+  return h('a', { href: accueilHref(), class: 'rail__marque marque', 'aria-label': `${MARQUE.nom}, accueil` },
     h('img', { class: 'marque__symbole', src: SYMBOLE_PETIT, alt: '', width: '36', height: '36' }),
     h('span', { class: 'marque__mot', 'aria-hidden': 'true', style: { '--marque-mot': `url("${MARQUE.mot}")` } }));
 }
@@ -184,6 +193,7 @@ export function construireNavigation({ rail, entete, barre, actif, dansJeu }) {
     vider(rail).append(
       marque(),
       selecteur(),
+      lienAccueil(),
       ...GROUPES.map((g) => {
         const ids = g.vues.filter(visible);
         return ids.length ? h('nav', { class: 'rail__groupe', 'aria-label': g.titre },
@@ -222,6 +232,7 @@ export function ouvrirMenu(actif) {
   const m = modale({
     titre: 'Toutes les rubriques',
     contenu: h('div', { class: 'menu-mobile' },
+      h('div', { class: 'rail__groupe' }, lienAccueil(actif)),
       h('div', { class: 'rail__groupe' }, selecteur()),
       GROUPES.map((g) => {
         const ids = g.vues.filter(visible);
