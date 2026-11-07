@@ -31,7 +31,7 @@ export function lireConfig(env = process.env) {
   const secretCron = (env.LUGH_SECRET_CRON || '').trim();
   if (secretCron && secretCron.length < 24) erreurs.push('LUGH_SECRET_CRON trop court : 24 caractères minimum.');
 
-  // Facultatif : clé partagée avec le bot Discord de Lugh (Raspberry Pi), dans l'en-tête Authorization.
+  // Facultatif : clé partagée avec le bot Discord de Lugh (serveur OVH depuis le 05/11/2026), dans l'en-tête Authorization.
   const cleBot = (env.LUGH_CLE_BOT || '').trim();
   if (cleBot && cleBot.length < 32) erreurs.push('LUGH_CLE_BOT trop courte : 32 caractères minimum.');
 
