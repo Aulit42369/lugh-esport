@@ -18,6 +18,23 @@ Ce qui tient tout ensemble :
 
 Version 2.0.0. Remplace le « QG Valorant » 1.1.0, qui n'a jamais été déployé.
 
+## Où tourne la version d'Olivier (depuis le 05/11/2026)
+
+- **Serveur OVH** d'Olivier (`ssh ubuntu@148.113.156.76`, config dans `F:\GITHUB\serveur-aulit`) : **https://lugh.aulit42369.fr**.
+- Service systemd `lugh` (`serveur-aulit\services\lugh.service`), Node 22, écoute `127.0.0.1:4610` derrière Caddy ; code `/srv/lugh/app`,
+  variables `/srv/lugh/.env` (jamais lues par Claude), **MongoDB 8 local** du serveur (`127.0.0.1:27017`, plus d'Atlas).
+- **Mise à jour** : `git push` (dépôt `/srv/git/lugh-esport.git` du serveur + copie GitHub), puis double-clic sur
+  `F:\GITHUB\serveur-aulit\deployer-lugh.bat` (dernier commit → `/srv/lugh/app`, `npm ci`, redémarrage, contrôle de `/api/sante`).
+  Rien ne se déploie tout seul.
+- **Variables** : partout où ce guide dit « Render → *Environment* », pour la version d'Olivier c'est :
+  `ssh ubuntu@148.113.156.76`, `sudo nano /srv/lugh/.env`, puis `sudo systemctl restart lugh`.
+- **Journal** : `ssh ubuntu@148.113.156.76 "sudo journalctl -u lugh -n 50 --no-pager"`.
+- L'ancienne adresse `lugh-esport.onrender.com` renvoie (301) vers la nouvelle. Le service Render et la base Atlas existent encore,
+  à supprimer (voir `A_FAIRE.md`).
+
+Les sections « Ce qu'il faut » et « Installation » ci-dessous décrivent l'installation de zéro **pour une autre structure**
+(Render + MongoDB Atlas gratuits), voir aussi `OUVRIR-A-UNE-STRUCTURE.md`.
+
 ---
 
 ## Ce qu'il faut
@@ -200,10 +217,10 @@ L'association d'abord ; une société (SAS ou SASU) le jour où les revenus devi
 
 **Gestion du jeu → Sauvegarde** :
 - **Exporter** télécharge un fichier JSON du jeu, sans mot de passe ni webhook. Fais-le une fois par mois.
-- **Sauvegarde automatique** (avec le bot Discord) : chaque semaine, l'export de chaque jeu est copié sur le Raspberry Pi (8 semaines gardées). Pour en récupérer une sur ton PC : `scp UTILISATEUR@ADRESSE-DU-PI:~/lugh-bot/data/sauvegardes/AAAA-MM-JJ/valorant.json .` (le dossier le plus récent : `ssh UTILISATEUR@ADRESSE-DU-PI ls ~/lugh-bot/data/sauvegardes`), puis *Restaurer* comme ci-dessous.
+- **Sauvegarde automatique** (avec le bot Discord) : chaque semaine, l'export de chaque jeu est copié par le bot sur la machine où il tourne (8 semaines gardées). Pour Olivier : serveur OVH, `/srv/lugh-bot/app/data/sauvegardes/AAAA-MM-JJ/` (rapatrié chaque nuit sur le PC par `F:\GITHUB\sauvegarde`, dans `serveur\courant\lugh-bot\app\data\sauvegardes`). Pour en récupérer une sans passer par le serveur, prends-la dans ce dossier du PC, puis *Restaurer* comme ci-dessous.
 - **Restaurer** n'accepte qu'une sauvegarde du même jeu, après avoir tapé `RESTAURER`. Les comptes, la méta et Discord ne bougent pas.
 - **Avant chaque restauration, l'état actuel du jeu est gardé automatiquement.** *Annuler la dernière restauration* le remet en place (il faut taper `ANNULER`). Il n'y a qu'un seul point, gardé jusqu'à la restauration suivante.
-- Les jeux **désactivés** sont aussi sauvegardés chaque semaine sur le Pi. Si la dernière sauvegarde a plus de 8 jours, la **Vue d'ensemble** et **Service** l'affichent en alerte : vérifie que le Pi est allumé.
+- Les jeux **désactivés** sont aussi sauvegardés chaque semaine. Si la dernière sauvegarde a plus de 8 jours, la **Vue d'ensemble** et **Service** l'affichent en alerte : vérifie que le bot tourne (`systemctl status lugh-bot` sur le serveur).
 
 ### Sauvegarde de la structure et reprise après sinistre
 
@@ -218,7 +235,7 @@ Chaque modification ou suppression d'une écriture garde la version d'avant (qui
 
 ## Mise à jour du code
 
-Pour toi (Olivier) : Claude publie directement sur GitHub, Render redéploie tout seul.
+Pour toi (Olivier) : Claude envoie le code (`git push` : serveur + GitHub) puis le met en ligne par `F:\GITHUB\serveur-aulit\deployer-lugh.bat` (voir « Où tourne la version d'Olivier »). Le paragraphe Render ci-dessous ne vaut que pour une structure hébergée sur Render.
 
 ### Tests automatiques (GitHub Actions)
 À chaque envoi sur GitHub, le workflow **Tests** (`.github/workflows/tests.yml`) lance `npm ci` puis `npm test` sous Node 22, sans aucun secret. Résultat : onglet **Actions** du dépôt (coche verte = tout passe, croix rouge = un test échoue).

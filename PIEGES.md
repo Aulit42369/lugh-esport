@@ -1,5 +1,12 @@
 # Pièges connus
 
+> La version d'Olivier tourne sur le serveur OVH depuis le 05/11/2026 (service `lugh`, MongoDB local, voir README).
+> Les pièges Render / Atlas ci-dessous valent pour une structure hébergée sur Render + Atlas.
+
+- **Serveur OVH : un seul proxy** (Caddy) devant Lugh : `LUGH_PROXY=1`, `LUGH_PROXY_SAUTS=1`, `LUGH_ORIGINE=https://lugh.aulit42369.fr`
+  dans `/srv/lugh/.env` ; sans `LUGH_ORIGINE`, toutes les écritures sont refusées (CSRF).
+- **Serveur OVH : rien ne se déploie au `git push`** : lancer `F:\GITHUB\serveur-aulit\deployer-lugh.bat` après l'envoi.
+
 - **Disque Render effacé** à chaque redéploiement, redémarrage ou mise en veille : aucune donnée sur disque, tout est dans MongoDB Atlas.
 - **Atlas refuse Render** : le plan gratuit de Render n'a pas d'adresse IP fixe, l'accès réseau `0.0.0.0/0` est obligatoire (protégé par un mot de passe fort).
 - **Utilisateur Atlas** : il doit avoir le rôle *Read and write to any database* ; Lugh crée une base par jeu (`lugh_valorant`, `lugh_lol`…). Limité à une seule base, l'activation d'un jeu échoue.

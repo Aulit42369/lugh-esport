@@ -41,7 +41,11 @@
 - Rien.
 
 ## À faire
-- Demande de clé de production Riot : suivre `docs/DEMANDE-RIOT.md` (captures en simulation, Register Product, puis les 5 variables dans Render).
+- Demande de clé de production Riot : suivre `docs/DEMANDE-RIOT.md` (captures en simulation, Register Product, puis les 5 variables dans `/srv/lugh/.env` du serveur OVH + `sudo systemctl restart lugh`).
+- **Ménage de l'ancien hébergement** (Olivier, déménagement fait le 05/11/2026, rien n'en dépend plus) : supprimer le service Render
+  `lugh-esport` (il ne fait que renvoyer vers https://lugh.aulit42369.fr) et la base MongoDB Atlas ; puis sur le serveur
+  `sudo rm /srv/lugh/atlas.env` ; puis retirer les lignes Render et Atlas de `confidentialite.js` et `mentions-legales.js` (code).
+- Commentaires du code qui parlent encore de Render / Atlas / Pi : à réécrire au fil des modifications (le README et l'ARCHITECTURE sont à jour depuis le 11/11).
 - Après la validation Riot : relever `LIMITES_DEFAUT` (src/riot/client.js) aux limites de la clé, confirmer l'adresse de révocation RSO (src/riot/rso.js), tester une vraie liaison.
 - Créer l'association (Administratif → Obligations → Créer l'association), puis renseigner son RNA dans Identité.
 - Lancer la veille légale de temps en temps (avant l'assemblée générale par exemple) et relire les propositions.
