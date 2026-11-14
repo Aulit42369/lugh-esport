@@ -150,6 +150,8 @@
 .v-recrut__nombre span { font-family: var(--police-mono); font-size: 0.76rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--encre-2); }
 .v-recrut__jeu { margin: 0; font-family: var(--police-titre); font-weight: 800; text-transform: uppercase; font-size: var(--t-xl); color: var(--jeu); }
 .v-recrut__equipe { margin: 0 0 var(--e-3); color: var(--encre-2); }
+.v-recrut__roles { margin: calc(-1 * var(--e-2)) 0 var(--e-3); color: var(--encre); }
+.v-recrut__roles span { display: block; font-family: var(--police-mono); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--encre-2); }
 .v-recrut-vide { display: grid; justify-items: start; gap: var(--e-4); max-width: 46rem; color: var(--encre-2); }
 .v-recrut-vide p { margin: 0; }
 

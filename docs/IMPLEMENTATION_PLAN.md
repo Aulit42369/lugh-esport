@@ -29,9 +29,7 @@ Voir `ARCHITECTURE.md` § 8 et `PIEGES.md` : un seul serveur, `LUGH_CLE_2FA` à 
 
 ## 5. Vitrine publique (14/11/2026)
 
-Fait (commits locaux, pas encore en ligne) : vitrine à la racine, espace privé sous `/app/`, API publique en liste blanche, consentement et photo dans Mon compte, masquage par le staff, places de recrutement, textes légaux mis à jour (14/11/2026), robots/sitemap, 248 tests, captures dans `docs/apercu-vitrine/`.
+Fait et en ligne depuis le 14/11/2026 (rôles recherchés par jeu ajoutés le même jour) : vitrine à la racine, espace privé sous `/app/`, API publique en liste blanche, consentement et photo dans Mon compte, masquage par le staff, places de recrutement, textes légaux mis à jour (14/11/2026), robots/sitemap, 248 tests, captures dans `docs/apercu-vitrine/`.
 Reste, dans l'ordre :
-1. Validation visuelle d'Olivier (captures).
-2. `git push` puis `F:\GITHUB\serveur-aulit\deployer-lugh.bat`.
-3. Dans l'appli en ligne : Administratif → Identité (présentation, lien « Postuler ») ; chaque jeu : Roster → Profil de l'équipe → places ; prévenir les joueurs qu'ils peuvent cocher la case dans Mon compte.
-4. Search Console : soumettre `https://lugh.aulit42369.fr/sitemap.xml`.
+1. Dans l'appli en ligne : Administratif → Identité (présentation, lien « Postuler ») ; chaque jeu : Roster → Profil de l'équipe → places et rôles recherchés ; prévenir les joueurs qu'ils peuvent cocher la case dans Mon compte.
+2. Search Console : soumettre `https://lugh.aulit42369.fr/sitemap.xml`.

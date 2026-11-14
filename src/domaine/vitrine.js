@@ -61,6 +61,8 @@ export async function construireVitrine({ global, registre, identite }) {
       equipe: { nom: equipe.nom || '', tag: equipe.tag || '', devise: equipe.devise || '', circuit: equipe.circuit || '' },
       membres: presents.map(({ ordre, ...p }) => p),
       places: Number.isInteger(equipe.placesRecrutement) ? equipe.placesRecrutement : 0,
+      // Rôles recherchés : seulement quand le jeu recrute.
+      recherche: equipe.placesRecrutement > 0 ? String(equipe.rolesRecherches || '') : '',
       resultats,
     });
   }

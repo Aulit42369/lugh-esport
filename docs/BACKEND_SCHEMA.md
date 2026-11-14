@@ -53,9 +53,9 @@ Cookie `lugh_session` ; `localStorage` : `lugh-theme`, `lugh-dernier-jeu`, `lugh
 
 ## 5. Vitrine publique (14/11/2026)
 
-- **Routes sans compte** : `GET /api/public/vitrine` → `{ structure: { nom, presentation, postuler }, jeux: [{ id, nom, court, couleur, equipe: { nom, tag, devise, circuit }, membres: [{ pseudo, type, role, statut, photo }], places, resultats: [{ nom, date, place, resultat }] }] }` ; `GET /api/public/photo/:cle` (JPEG, 404 si la photo n'est pas publiée à cet instant).
+- **Routes sans compte** : `GET /api/public/vitrine` → `{ structure: { nom, presentation, postuler }, jeux: [{ id, nom, court, couleur, equipe: { nom, tag, devise, circuit }, membres: [{ pseudo, type, role, statut, photo }], places, recherche, resultats: [{ nom, date, place, resultat }] }] }` ; `GET /api/public/photo/:cle` (JPEG, 404 si la photo n'est pas publiée à cet instant).
 - **Routes de Mon compte** : `PUT /api/moi/vitrine { visible }`, `PUT /api/moi/photo { image }` (JPEG en base64, 300 Ko), `DELETE /api/moi/photo`, `GET /api/moi/photo` (aperçu pour soi).
 - **Base globale** : `comptes.vitrine = { visible, photo: <clé> | null }` ; nouvelle collection **`photos`** `{ _id: compteId, cle, donnees (base64), le }`, index `cle` ; effacée avec le compte. Hors de la sauvegarde `_structure.json` (le consentement repart décoché après une reprise).
-- **Base d'un jeu** : `equipe/profil.placesRecrutement` (0 à 20, défaut 0) ; `membres.vitrineMasque` (booléen, staff).
+- **Base d'un jeu** : `equipe/profil.placesRecrutement` (0 à 20, défaut 0), `equipe/profil.rolesRecherches` (texte sur une ligne, 120 caractères, facultatif ; publié dans `recherche` seulement si places > 0) ; `membres.vitrineMasque` (booléen, staff).
 - **Identité** (`parametres/structure-identite`) : `presentation` (600 caractères), `postuler` (lien https).
 - **Navigateur** : cache du service worker `lugh-v3` ; la vitrine ne stocke rien.

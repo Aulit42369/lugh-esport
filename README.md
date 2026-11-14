@@ -41,7 +41,7 @@ Les sections « Ce qu'il faut » et « Installation » ci-dessous décrivent l'i
 
 - **https://lugh.aulit42369.fr** est la page publique de la structure ; l'espace privé est sur **https://lugh.aulit42369.fr/app/** (bouton « Connexion » ; les anciens liens `/#/…` y arrivent tout seuls).
 - **Administration générale → Administratif → Identité** : nom, *Présentation de l'équipe*, lien *Postuler* (invitation Discord ou formulaire en https ; vide = contact public).
-- **Dans chaque jeu, Roster → Profil de l'équipe** : *Places ouvertes au recrutement* (0 = rien d'affiché). **Fiche d'un membre → Modifier** : *Masquer de la vitrine publique*.
+- **Dans chaque jeu, Roster → Profil de l'équipe** : *Places ouvertes au recrutement* (0 = rien d'affiché) et *Rôles recherchés* (facultatif, ex. « un contrôleur et une sentinelle »). **Fiche d'un membre → Modifier** : *Masquer de la vitrine publique*.
 - **Mon compte → Vitrine publique** : chacun coche *Apparaître sur la vitrine publique* (décoché au départ) et ajoute ou retire sa photo. Rien n'apparaît sans ce choix ; un mineur n'a sa photo affichée qu'avec le droit à l'image coché dans le roster.
 
 ---

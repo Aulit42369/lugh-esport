@@ -83,6 +83,8 @@ function formes(def) {
     objectifSaison: texte({ max: 400, multi: true }),
     // Vitrine publique : places ouvertes au recrutement (0 = aucun recrutement affiché).
     placesRecrutement: entier({ min: 0, max: 20, defaut: 0 }),
+    // Rôles recherchés, texte court sur une ligne (affiché en texte brut, jamais en HTML). Optionnel.
+    rolesRecherches: texte({ max: 120 }),
   });
 
   const membres = avecControle(objet({

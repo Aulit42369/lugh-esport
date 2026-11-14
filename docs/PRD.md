@@ -56,7 +56,7 @@ Cibles à 6 mois (fin avril 2027) : espace Valorant utilisé chaque semaine (pla
 
 Une page d'accueil **publique** à https://lugh.aulit42369.fr présente la structure ; l'espace privé passe sous `/app/` (bouton « Connexion »), les anciens liens `/#/…` y sont renvoyés.
 - **Contenu** : nom public et présentation (Administratif → Identité), jeux actifs, profil public de chaque équipe (nom, tag, devise, circuit), membres **qui ont choisi d'apparaître** (pseudo, rôle, statut, photo), places ouvertes au recrutement par jeu, résultats des tournois terminés.
-- **Recrutement** : nombre de places réglé par le staff du jeu (Roster → Profil de l'équipe, défaut 0 = rien d'affiché) ; bouton « Postuler » vers le lien choisi dans Identité (invitation Discord…), sinon le contact public, sinon pas de bouton.
+- **Recrutement** : nombre de places (et, en option, les rôles recherchés, ex. « un contrôleur et une sentinelle ») réglé par le staff du jeu (Roster → Profil de l'équipe, défaut 0 = rien d'affiché) ; bouton « Postuler » vers le lien choisi dans Identité (invitation Discord…), sinon le contact public, sinon pas de bouton.
 - **Consentement** : case « Apparaître sur la vitrine publique » dans Mon compte, décochée par défaut ; photo ajoutée et retirée par la personne elle-même ; le staff peut masquer un membre ; photo d'un mineur montrée seulement avec le droit à l'image enregistré.
 - **Hors périmètre** : formulaire de candidature, statistiques détaillées, vrais noms, réseaux sociaux des joueurs.
 - **Succès** : chaque jeu qui recrute affiche ses places ; zéro donnée privée dans `/api/public/vitrine` (testé).

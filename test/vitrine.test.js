@@ -101,6 +101,15 @@ test('consentement : personne n’apparaît sans avoir coché, puis seulement ps
   for (const prive of ['solaris"', 'Jean Dupont', 'Solaris#EUW', 'note privée', m._id, joueur.id, 'chef']) assert.ok(!brut.includes(prive), `rien de privé : ${prive}`);
   assert.deepEqual(jeuDe(v, 'lol').membres, [], 'un seul jeu : celui où il est au roster');
 
+  // Le staff apparaît aussi s'il a coché la même case (type « staff », sa fonction pour rôle).
+  const sm = await membre('valorant', { type: 'staff', statut: 'actif', fonction: 'coach', pseudo: 'Orion' });
+  const staff = await compteConnecte(sim, { identifiant: 'orion', acces: { valorant: { metiers: ['coach'], membreId: sm._id } } });
+  assert.equal((await staff.put('/api/moi/vitrine', { visible: true })).statut, 200);
+  const orion = jeuDe(await vitrine(), 'valorant').membres.find((x) => x.pseudo === 'Orion');
+  assert.equal(orion?.type, 'staff');
+  assert.ok(orion.role);
+  await sim.espace('valorant').stockage.modifier('membres', sm._id, { statut: 'ancien' });
+
   // Le staff le masque : il disparaît, même consentant.
   await sim.espace('valorant').stockage.modifier('membres', m._id, { vitrineMasque: true });
   assert.deepEqual(jeuDe(await vitrine(), 'valorant').membres, []);
@@ -188,6 +197,17 @@ test('recrutement, résultats, présentation et lien « Postuler » ; jeu désac
   const ok = await coach.put('/api/e/lol/c/equipe/profil', { valeur: { ...profil, nom: 'Lugh Rift', placesRecrutement: 3 }, revBase: rev });
   assert.equal(ok.statut, 200, ok.texte);
   assert.equal(jeuDe(await vitrine(), 'lol').places, 3, 'réglé par le staff du jeu');
+
+  // Rôles recherchés : même endroit, même validation (texte court sur une ligne, gardé tel quel, jamais interprété).
+  const rev2 = (await eq.lire('equipe', 'profil')).rev;
+  assert.equal((await coach.put('/api/e/lol/c/equipe/profil', { valeur: { ...profil, placesRecrutement: 3, rolesRecherches: 'x'.repeat(121) }, revBase: rev2 })).statut, 400);
+  const avecRoles = await coach.put('/api/e/lol/c/equipe/profil', { valeur: { ...profil, nom: 'Lugh Rift', placesRecrutement: 3, rolesRecherches: '  un jungler\n et un <b>support</b> ' }, revBase: rev2 });
+  assert.equal(avecRoles.statut, 200, avecRoles.texte);
+  assert.equal(jeuDe(await vitrine(), 'lol').recherche, 'un jungler et un <b>support</b>');
+  const rev3 = (await eq.lire('equipe', 'profil')).rev;
+  await coach.put('/api/e/lol/c/equipe/profil', { valeur: { ...profil, placesRecrutement: 0, rolesRecherches: 'un jungler' }, revBase: rev3 });
+  assert.equal(jeuDe(await vitrine(), 'lol').recherche, '', 'pas de rôles affichés sans place ouverte');
+  assert.equal(jeuDe(await vitrine(), 'valorant').recherche, '', 'optionnel');
 
   // Jeu désactivé : absent de la vitrine.
   const doc = sim.registre.liste().find((j) => j._id === 'lol');

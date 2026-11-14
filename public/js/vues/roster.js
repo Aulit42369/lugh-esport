@@ -62,6 +62,7 @@ function editeurEquipe() {
   const creneaux = saisie({ valeur: eq.creneaux, maxlength: 120, placeholder: 'Ex. : du lundi au vendredi, 20 h à 23 h' });
   const objectif = zone({ valeur: eq.objectifSaison, lignes: 3, maxlength: 400 });
   const places = saisie({ type: 'number', valeur: eq.placesRecrutement ?? 0, min: 0, max: 20, step: 1, inputmode: 'numeric' });
+  const roles = saisie({ valeur: eq.rolesRecherches, maxlength: 120, placeholder: 'Ex. : un contrôleur et une sentinelle' });
   modale({
     titre: 'Profil de l’équipe',
     contenu: h('div', { class: 'grille-champs champs-alignes' },
@@ -70,7 +71,8 @@ function editeurEquipe() {
       champ('Palier visé cette saison', palier), champ('Circuit', circuit),
       champ('Créneaux habituels', creneaux, { large: true }),
       champ('Objectif de saison', objectif, { large: true }),
-      champ('Places ouvertes au recrutement', places, { aide: 'Affichées sur la vitrine publique avec le bouton « Postuler ». 0 = pas de recrutement affiché.' })),
+      champ('Places ouvertes au recrutement', places, { aide: 'Affichées sur la vitrine publique avec le bouton « Postuler ». 0 = pas de recrutement affiché.' }),
+      champ('Rôles recherchés', roles, { aide: 'Facultatif, affiché sous les places sur la vitrine.' })),
     actions: [{ libelle: 'Annuler' }, {
       libelle: 'Enregistrer',
       classe: 'btn--principal',
@@ -78,7 +80,7 @@ function editeurEquipe() {
         await E.enregistrer('equipe', 'profil', {
           nom: nom.value.trim(), tag: tag.value.trim(), devise: devise.value.trim(), palierVise: palier.value,
           circuit: circuit.value.trim(), creneaux: creneaux.value.trim(), objectifSaison: objectif.value.trim(),
-          placesRecrutement: Number(places.value) || 0,
+          placesRecrutement: Number(places.value) || 0, rolesRecherches: roles.value.trim(),
         }, { revBase: E.doc('equipe', 'profil')?.rev ?? 0 });
         toast('Profil de l’équipe enregistré.');
       },

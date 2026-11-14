@@ -61,6 +61,7 @@ function recrutement(v) {
     h('p', { class: 'v-recrut__nombre' }, h('strong', {}, String(j.places)), h('span', {}, j.places > 1 ? 'places ouvertes' : 'place ouverte')),
     h('h3', { class: 'v-recrut__jeu' }, j.nom),
     h('p', { class: 'v-recrut__equipe' }, j.equipe.nom || 'Équipe en construction'),
+    j.recherche ? h('p', { class: 'v-recrut__roles' }, h('span', {}, 'Recherche'), j.recherche) : null,
     lienPostuler(v.structure.postuler, `Postuler · ${j.nom}`) || h('p', { class: 'v-vide' }, 'Contact bientôt disponible.'))));
 }
 
@@ -90,7 +91,7 @@ function remplir(v) {
   const ouverts = v.jeux.filter((j) => j.places > 0);
   if (ouverts.length) {
     $('bandeau').hidden = false;
-    $('bandeau').querySelector('p').textContent = ouverts.map((j) => `${j.nom} recrute : ${pluriel(j.places, 'place')}`).join('  ·  ');
+    $('bandeau').querySelector('p').textContent = ouverts.map((j) => `${j.nom} recrute : ${pluriel(j.places, 'place')}${j.recherche ? ` (${j.recherche})` : ''}`).join('  ·  ');
   }
   $('jeux').replaceChildren(...(v.jeux.length ? v.jeux.map(blocJeu) : [h('p', { class: 'v-vide' }, 'Les équipes se présentent bientôt.')]));
   $('recrutement').replaceChildren(recrutement(v));
