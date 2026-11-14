@@ -39,3 +39,11 @@ Après connexion : seulement **Comptes de la structure** (livre, réglages, rapp
 ## 7. Retour Riot
 
 `/api/riot/retour` après l'accord sur le site de Riot → retour sur la page Stats Valorant du jeu.
+
+## 8. Vitrine publique (depuis le 14/11/2026)
+
+1. **https://lugh.aulit42369.fr** (sans compte) : barre (logo, Équipes, Recrutement, Résultats, **Connexion**) → héros (nom, devise, présentation, « Postuler », « Voir les joueurs », compteurs) → bandeau « En ce moment » (jeux qui recrutent) → **Nos équipes** (une équipe par jeu actif, cartes des membres consentants) → **Recrutement** (places par jeu, « Postuler · <jeu> ») → **Résultats** → pied de page (Données et confidentialité · Conditions d'utilisation · Mentions légales, « aucun cookie », Espace membres).
+2. **Connexion** → `/app/` (écran de connexion habituel, puis Mes jeux). Un ancien lien `/#/valorant/roster` arrive directement sur `/app/#/valorant/roster`.
+3. **Mon compte → Vitrine publique** : case « Apparaître sur la vitrine publique », Ajouter / Changer / Retirer ma photo (aperçu).
+4. **Roster → Profil de l'équipe** : « Places ouvertes au recrutement » ; **Roster → fiche d'un membre → Modifier** : « Masquer de la vitrine publique ».
+5. **Administration → Administratif → Identité** : « Présentation de l'équipe » et lien « Postuler ».

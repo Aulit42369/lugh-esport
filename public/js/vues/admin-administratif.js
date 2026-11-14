@@ -2,7 +2,7 @@
 // Obligations (suivi et veille légale), Comptes (livre des comptes), Documents types, Mineurs (autorisations de
 // chaque jeu) et Identité (nom de l'association, RNA, contact public, référent ; sauvegarde et reprise après sinistre).
 
-import { h, bouton, toast, champ, saisie, liste, caseACocher, messageErreur } from '../ui.js';
+import { h, bouton, toast, champ, saisie, liste, caseACocher, messageErreur, zone as zoneTexte } from '../ui.js';
 import { api } from '../api.js';
 import { icone } from '../icones.js';
 import { puce } from '../composants/jetons.js';
@@ -135,6 +135,8 @@ function identite(d, recharger) {
     contact: saisie({ valeur: i.contact, maxlength: 120, placeholder: 'contact@… ou https://…' }),
     referent: saisie({ valeur: i.referent, maxlength: 60, placeholder: 'pseudo ou fonction' }),
     assurance: saisie({ valeur: i.assurance, maxlength: 80, placeholder: 'assureur et n° de contrat' }),
+    presentation: zoneTexte({ valeur: i.presentation, lignes: 3, maxlength: 600 }),
+    postuler: saisie({ type: 'url', valeur: i.postuler, maxlength: 500, placeholder: 'https://discord.gg/…' }),
   };
   const enregistrer = async (btn) => {
     btn.disabled = true;
@@ -161,5 +163,9 @@ function identite(d, recharger) {
     h('div', { class: 'grille-champs' },
       champ('Contact public', champs.contact, { aide: 'Affiché sur « Données et confidentialité », visible sans connexion : une adresse de l’association, pas une adresse personnelle.' }),
       champ('Référent protection des mineurs', champs.referent, { aide: 'Repris dans la charte de protection des mineurs.' })),
+    h('h3', {}, 'Vitrine publique (page d’accueil du site)'),
+    h('div', { class: 'grille-champs' },
+      champ('Présentation de l’équipe', champs.presentation, { large: true, aide: 'Quelques lignes sous le nom, visibles par tout le monde.' }),
+      champ('Lien « Postuler »', champs.postuler, { large: true, aide: 'Invitation Discord ou formulaire (https://). Vide : le bouton mène au contact public ; sans contact, pas de bouton. Les places se règlent dans chaque jeu : Roster → Profil de l’équipe.' })),
     h('div', {}, bouton('Enregistrer', { classe: 'btn--principal', onclick: (e) => enregistrer(e.currentTarget) })));
 }

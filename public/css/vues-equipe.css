@@ -53,6 +53,7 @@
 
 /* ——— Mon compte ——— */
 .grille-compte { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--e-5); align-items: start; }
+.photo-vitrine { width: 72px; height: 72px; object-fit: cover; border-radius: var(--r-fiche); border: 1px solid var(--trait-fort); }
 .compte-identite { display: grid; gap: var(--e-4); justify-items: start; }
 .compte-identite__tete { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-2) var(--e-3); }
 .compte-identite__nom { font-size: var(--t-3xl); line-height: 1; overflow-wrap: anywhere; }

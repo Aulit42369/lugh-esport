@@ -12,6 +12,7 @@ import { themeActuel, definirTheme } from '../theme.js';
 import { dejaInstallee, installable, installer } from '../installation.js';
 import { champCode, activation2fa, blocCodesSecours, occupe } from './deuxfacteurs.js';
 import { ficheDiscord } from './compte-discord.js';
+import { ficheVitrine } from './compte-vitrine.js';
 import { nomsMetiers } from '/shared/roles.js';
 import { MARQUE } from '/shared/marque.js';
 
@@ -28,7 +29,8 @@ export function rendre(page, params, ctx) {
   page.append(h('div', { class: 'grille-compte' },
     h('div', { class: 'pile' },
       ficheIdentite(c),
-      ficheJeux(c)),
+      ficheJeux(c),
+      ficheVitrine(c)),
     h('div', { class: 'pile' },
       ficheDeuxFacteurs(c),
       ficheDiscord(c),

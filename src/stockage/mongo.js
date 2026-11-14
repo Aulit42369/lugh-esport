@@ -22,6 +22,7 @@ export const INDEX = {
     ['riot', { puuid: 1 }],
     ['riotParties', { _expire: 1 }, { expireAfterSeconds: 0 }],
     ['riotParties', { compteId: 1, debut: -1 }],
+    ['photos', { cle: 1 }],
   ],
   jeu: [
     ['suppressions', { _expire: 1 }, { expireAfterSeconds: 0 }],

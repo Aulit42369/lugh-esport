@@ -35,7 +35,7 @@ describe('sans les secrets Riot', () => {
     assert.equal((await j.post('/api/e/valorant/riot/relier', { accord: true })).statut, 503);
     assert.equal((await j.get('/api/e/valorant/riot/parties')).statut, 503);
     assert.equal((await j.get('/api/e/valorant/donnees')).json.serveur.riot, false);
-    assert.equal(await aller(sim, j, '/api/riot/retour?code=x&state=y'), '/#/jeux');
+    assert.equal(await aller(sim, j, '/api/riot/retour?code=x&state=y'), '/app/#/jeux');
     assert.equal((await j.get(`${AUTORISATION_DEMO}?state=x`)).statut, 404, 'page de démo absente');
   });
 
@@ -71,7 +71,7 @@ describe('avec le faux serveur Riot', () => {
   test('opt-in obligatoire, puis liaison par Riot Sign On', async () => {
     assert.equal((await c.vesper.post('/api/e/valorant/riot/relier', {})).statut, 400, 'sans accord');
     assert.equal((await c.vesper.get('/api/e/lol/riot')).statut, 404, 'jeu non Valorant');
-    assert.equal(await relier(sim, c.vesper), '/#/valorant/riot/relie');
+    assert.equal(await relier(sim, c.vesper), '/app/#/valorant/riot/relie');
     const etat = (await c.vesper.get('/api/e/valorant/riot')).json;
     assert.equal(etat.actif, true);
     assert.equal(etat.liaison.nomRiot, 'vesper#LUGH');
@@ -91,18 +91,18 @@ describe('avec le faux serveur Riot', () => {
   test('state : usage unique, lié au compte, annulation = rien de partagé', async () => {
     const r = await c.kairo.post('/api/e/valorant/riot/relier', { accord: true });
     const retour = (await aller(sim, c.kairo, r.json.url)).replace(/^https?:\/\/[^/]+/, '');
-    assert.equal(await aller(sim, c.sans, retour), '/#/jeux', 'state d’un autre compte refusé');
-    assert.equal(await aller(sim, c.kairo, retour), '/#/jeux', 'state déjà consommé');
+    assert.equal(await aller(sim, c.sans, retour), '/app/#/jeux', 'state d’un autre compte refusé');
+    assert.equal(await aller(sim, c.kairo, retour), '/app/#/jeux', 'state déjà consommé');
     const r2 = await c.kairo.post('/api/e/valorant/riot/relier', { accord: true });
     const state = new URL(r2.json.url, sim.base).searchParams.get('state');
-    assert.equal(await aller(sim, c.kairo, `/api/riot/retour?error=access_denied&state=${state}`), '/#/valorant/riot/annule');
+    assert.equal(await aller(sim, c.kairo, `/api/riot/retour?error=access_denied&state=${state}`), '/app/#/valorant/riot/annule');
     assert.equal((await c.kairo.get('/api/e/valorant/riot')).json.liaison, null);
-    assert.equal(await relier(sim, c.kairo), '/#/valorant/riot/relie');
+    assert.equal(await relier(sim, c.kairo), '/app/#/valorant/riot/relie');
   });
 
   test('un compte Riot ne se relie qu’à un seul compte Lugh', async () => {
     faux.comptes['demo-sansriot'] = { puuid: 'puuid-vesper', gameName: 'vesper', tagLine: 'LUGH' };
-    assert.equal(await relier(sim, c.sans), '/#/valorant/riot/deja');
+    assert.equal(await relier(sim, c.sans), '/app/#/valorant/riot/deja');
     assert.equal((await c.sans.get('/api/e/valorant/riot')).json.liaison, null);
     delete faux.comptes['demo-sansriot'];
   });
@@ -158,7 +158,7 @@ describe('avec le faux serveur Riot', () => {
   });
 
   test('compte supprimé : ses données Riot partent avec lui', async () => {
-    assert.equal(await relier(sim, c.sans), '/#/valorant/riot/relie');
+    assert.equal(await relier(sim, c.sans), '/app/#/valorant/riot/relie');
     await c.sans.get('/api/e/valorant/riot/parties');
     const admin = await adminPret(sim);
     assert.equal((await admin.del(`/api/admin/comptes/${c.sans.id}`)).statut, 200);

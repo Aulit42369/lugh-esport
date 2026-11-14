@@ -41,7 +41,7 @@ Un compte par personne, sans inscription, avec des métiers par jeu.
 
 ## 4. Hors périmètre
 
-- Inscription libre, page de candidature publique, démo en ligne (refusées le 24/10 : Lugh reste privé).
+- Inscription libre, formulaire de candidature hébergé par Lugh, démo en ligne (refusés le 24/10). Depuis le 14/11, une **vitrine publique** existe (voir § 6), sans aucune collecte : « Postuler » renvoie vers le Discord ou le contact.
 - Visuels officiels des éditeurs de jeux.
 - Abonnement d'agenda (jeton secret dans une adresse) : téléchargement seulement.
 - Rang, adversaires ou temps réel dans Stats Valorant (règles Riot).
@@ -51,3 +51,12 @@ Un compte par personne, sans inscription, avec des métiers par jeu.
 ## 5. Mesure du succès
 
 Cibles à 6 mois (fin avril 2027) : espace Valorant utilisé chaque semaine (planning et présences remplis) ; au moins 80 % des annonces lues par les membres concernés ; coût mensuel de la méta et de l'hébergement maintenu à 0 € (hors API Claude facultative). Appui : équipe naissante, hébergement gratuit visé. (proposé par Claude le 29/10/2026, à corriger si besoin). Indices disponibles : visites par jeu, « lu par » des annonces, présences, coût de la méta par mois.
+
+## 6. Vitrine publique (demande d'Olivier du 14/11/2026)
+
+Une page d'accueil **publique** à https://lugh.aulit42369.fr présente la structure ; l'espace privé passe sous `/app/` (bouton « Connexion »), les anciens liens `/#/…` y sont renvoyés.
+- **Contenu** : nom public et présentation (Administratif → Identité), jeux actifs, profil public de chaque équipe (nom, tag, devise, circuit), membres **qui ont choisi d'apparaître** (pseudo, rôle, statut, photo), places ouvertes au recrutement par jeu, résultats des tournois terminés.
+- **Recrutement** : nombre de places réglé par le staff du jeu (Roster → Profil de l'équipe, défaut 0 = rien d'affiché) ; bouton « Postuler » vers le lien choisi dans Identité (invitation Discord…), sinon le contact public, sinon pas de bouton.
+- **Consentement** : case « Apparaître sur la vitrine publique » dans Mon compte, décochée par défaut ; photo ajoutée et retirée par la personne elle-même ; le staff peut masquer un membre ; photo d'un mineur montrée seulement avec le droit à l'image enregistré.
+- **Hors périmètre** : formulaire de candidature, statistiques détaillées, vrais noms, réseaux sociaux des joueurs.
+- **Succès** : chaque jeu qui recrute affiche ses places ; zéro donnée privée dans `/api/public/vitrine` (testé).

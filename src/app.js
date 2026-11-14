@@ -28,6 +28,7 @@ import { routesAdministratif, lireIdentite } from './routes/administratif.js';
 import { contexteStructure } from '../shared/administratif/identite.js';
 import { routesTresorerie } from './routes/tresorerie.js';
 import { routesRiot } from './routes/riot.js';
+import { routesVitrine } from './routes/vitrine.js';
 import { creerServiceRiot } from './riot/service.js';
 import { creerVeille } from './domaine/veille.js';
 import { creerParametres } from './domaine/parametres.js';
@@ -97,6 +98,7 @@ export async function creerApp({
   routesAdministratif(routeur, services);
   routesTresorerie(routeur, services);
   routesRiot(routeur, services);
+  routesVitrine(routeur, services);
 
   // Default-deny : refuse de démarrer si une route /api/ n'a aucun contrôle d'accès et n'est pas explicitement
   // publique (voir auth/acces.js). Un oubli de garde échoue au lancement au lieu d'ouvrir une route par mégarde.
@@ -145,7 +147,13 @@ export async function creerApp({
         if (!res.headersSent) throw new Error(`Route sans réponse : ${req.method} ${chemin}`);
         return;
       }
-      if (await servirStatique(req, res, chemin)) return;
+      // Vitrine publique à la racine ; l'espace privé (même index.html, adresses en #/…) sous /app/.
+      if (chemin === '/app') {
+        res.writeHead(301, { Location: `/app/${url.search}` });
+        return res.end();
+      }
+      const fichier = chemin === '/' ? '/vitrine.html' : chemin === '/app/' ? '/index.html' : chemin;
+      if (await servirStatique(req, res, fichier)) return;
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       res.end('Page introuvable.');
     } catch (err) {

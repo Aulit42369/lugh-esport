@@ -2,7 +2,7 @@
 // Rien de personnel ici : pas d'adresse, pas de nom de dirigeant, pas d'âge. L'adresse de contact est publique
 // (page « Données et confidentialité ») : une adresse de la structure, pas une adresse personnelle.
 
-import { objet, texte, entier, choix, date, booleen } from '../validation.js';
+import { objet, texte, entier, choix, date, booleen, lien } from '../validation.js';
 import { STATUTS_SUIVI } from './obligations.js';
 
 const MOTIF_RNA = /^W\d{9}$/;
@@ -29,6 +29,10 @@ export const identite = objet({
   societeForme: choix(['SAS', 'SASU'], { defaut: 'SAS' }),
   siren: texte({ max: 9, motif: MOTIF_SIREN, message: '9 chiffres (extrait Kbis)' }),
   societeDate: date(),
+  // Vitrine publique (page d'accueil du site) : présentation de l'équipe et lien « Postuler » (invitation Discord,
+  // formulaire…). Sans lien, le bouton renvoie vers le contact public ; sans contact, pas de bouton.
+  presentation: texte({ max: 600, multi: true }),
+  postuler: lien(),
 });
 
 // Ce que la forme juridique implique : sections d'obligations visibles, livres des comptes, documents.

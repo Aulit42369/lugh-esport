@@ -2,7 +2,7 @@
 // Les données (/api/) ne sont jamais mises en cache : elles passent toujours par le réseau.
 // Préfixe des caches fixé pour toujours (« lugh- ») : seuls nos propres caches sont supprimés.
 
-const CACHE = 'lugh-v2';
+const CACHE = 'lugh-v3'; // v3 : vitrine publique à la racine, espace privé sous /app/
 const DELAI_COQUILLE_MS = 3000;
 
 self.addEventListener('install', () => self.skipWaiting());
@@ -39,7 +39,7 @@ async function reseauPuisCache(requete, { delai = 0 } = {}) {
   try {
     return await reseau;
   } catch (err) {
-    const copie = await cache.match(requete, { ignoreSearch: true }) || (requete.mode === 'navigate' ? await cache.match('/') : null);
+    const copie = await cache.match(requete, { ignoreSearch: true }) || (requete.mode === 'navigate' ? await cache.match(new URL(requete.url).pathname.startsWith('/app') ? '/app/' : '/') : null);
     if (copie) return copie;
     throw err;
   }

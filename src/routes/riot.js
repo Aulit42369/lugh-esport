@@ -45,21 +45,21 @@ export function routesRiot(routeur, s) {
 
   // Retour de Riot Sign On (navigation du navigateur, cookie de session SameSite=Lax envoyé).
   routeur.get('/api/riot/retour', async (r) => {
-    if (!riot.actif) return redirection(r.res, '/#/jeux');
+    if (!riot.actif) return redirection(r.res, '/app/#/jeux');
     try {
       await exigerConnexion(s)(r);
     } catch {
-      return redirection(r.res, '/');
+      return redirection(r.res, '/app/');
     }
     const code = r.query.get('error') ? '' : r.query.get('code') || '';
     try {
       const { jeu } = await riot.terminer(r.compteGlobal._id, r.query.get('state') || '', code);
       await s.historique.ecrire(r.compteGlobal, 'compte Riot relié', '', '', jeu);
-      redirection(r.res, `/#/${encodeURIComponent(jeu)}/riot/relie`);
+      redirection(r.res, `/app/#/${encodeURIComponent(jeu)}/riot/relie`);
     } catch (e) {
       if (!(e instanceof ErreurRiot)) s.journal.error?.('[riot] liaison :', e?.message);
       const motif = { 403: 'annule', 409: 'deja', 400: 'expire' }[e.statut] || 'erreur';
-      redirection(r.res, e.jeu ? `/#/${encodeURIComponent(e.jeu)}/riot/${motif}` : '/#/jeux');
+      redirection(r.res, e.jeu ? `/app/#/${encodeURIComponent(e.jeu)}/riot/${motif}` : '/app/#/jeux');
     }
   });
 

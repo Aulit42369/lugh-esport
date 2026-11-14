@@ -81,6 +81,8 @@ function formes(def) {
     circuit: texte({ max: 80 }),
     creneaux: texte({ max: 120 }),
     objectifSaison: texte({ max: 400, multi: true }),
+    // Vitrine publique : places ouvertes au recrutement (0 = aucun recrutement affiché).
+    placesRecrutement: entier({ min: 0, max: 20, defaut: 0 }),
   });
 
   const membres = avecControle(objet({
@@ -98,6 +100,7 @@ function formes(def) {
     }),
     forces: texte({ max: 500, multi: true }),
     axes: texte({ max: 500, multi: true }),
+    vitrineMasque: booleen(), // le staff retire ce membre de la vitrine publique, même s'il a choisi d'y apparaître
   }), (v, erreur) => {
     const statut = STATUTS_MEMBRE.find((s) => s.id === v.statut);
     if (statut && statut.pour !== 'tous' && statut.pour !== v.type) erreur('statut incompatible avec le type de membre');

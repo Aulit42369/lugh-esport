@@ -31,6 +31,7 @@ export function profilCompte(c) {
     derniereConnexion: c.derniereConnexion || null,
     deuxFacteurs: etatDeuxFacteurs(c),
     discord: c.discord?.id ? { pseudo: c.discord.pseudo || '', lieLe: c.discord.lieLe || null } : null,
+    vitrine: { visible: c.vitrine?.visible === true, photo: !!c.vitrine?.photo },
     discordAttente: c.discordAttente?.id ? { pseudo: c.discordAttente.pseudo || '', expire: c.discordAttente.expire } : null,
   };
 }
@@ -135,11 +136,14 @@ export function exigerPerm(perm) {
 // Routes /api/ volontairement accessibles sans étape de contrôle d'accès :
 //  - points d'entrée (on ne peut exiger une session pour se connecter ou lire son état) ;
 //  - /api/public/structure : nom public + contact de la structure, choisi public ;
+//  - /api/public/vitrine et /api/public/photo/:cle : la vitrine (liste blanche, membres qui ont choisi d'y apparaître) ;
 //  - /api/riot/retour : retour OAuth de Riot, protégé à l'intérieur du gestionnaire (session + state) ;
 //  - /api/cron/* et /api/bot/* : authentifiés par clé secrète (/api/bot/* par exigerBot, étape marquée).
 const ROUTES_PUBLIQUES = new Set([
   'GET /api/sante',
   'GET /api/public/structure',
+  'GET /api/public/vitrine',
+  'GET /api/public/photo/:cle',
   'GET /api/riot/retour',
   'POST /api/auth/connexion',
   'POST /api/auth/deconnexion',

@@ -38,9 +38,10 @@
 - 05/11/2026 : écrans d’administration et messages de configuration après le déménagement : « MongoDB (serveur OVH) » au lieu de « MongoDB Atlas » (Service, Gestion du jeu → Service), plus de « Atlas gratuit » (Jeux, espace « seuil de surveillance »), variables à poser dans `/srv/lugh/.env` du serveur (+ `sudo systemctl restart lugh`) au lieu de « Render », onglet Discord : bot et sauvegardes sur le serveur (`systemctl`/`journalctl -u lugh-bot`) au lieu du Pi/pm2. Commentaires du code et README (guide d’installation Render/Atlas) pas encore réécrits ; plafonds 512 Mo / jeux max gardés tels quels. 242 tests.
 
 ## En cours
-- Rien.
+- 14/11/2026 : **vitrine publique** (demande d'Olivier du 14/11) faite en commits locaux, **pas poussée ni déployée** (attente de la validation visuelle, captures dans `docs/apercu-vitrine/`) : `/` = vitrine (équipes, joueurs consentants avec photo, places de recrutement par jeu, résultats, « Postuler »), espace privé sous `/app/` (anciens liens `/#/…` renvoyés, manifest `/app/#/`, SW `lugh-v3`, retours Riot), case « Apparaître sur la vitrine publique » + photo dans Mon compte (JPEG nettoyé, sans dépendance), masquage par le staff (fiche du membre), places dans Roster → Profil de l'équipe, présentation + lien « Postuler » dans Identité ; confidentialité, conditions et mentions mises à jour (14/11/2026) ; robots/sitemap ; 6 docs ; 248 tests.
 
 ## À faire
+- Vitrine : après validation, `git push` + `deployer-lugh.bat` ; remplir Identité (présentation, lien « Postuler » = invitation Discord) et les places de chaque jeu ; soumettre `https://lugh.aulit42369.fr/sitemap.xml` à la Search Console. Le Riot « redirect URI » ne change pas (`/api/riot/retour`).
 - Demande de clé de production Riot : suivre `docs/DEMANDE-RIOT.md` (captures en simulation, Register Product, puis les 5 variables dans `/srv/lugh/.env` du serveur OVH + `sudo systemctl restart lugh`).
 - **Ménage de l'ancien hébergement** (Olivier, déménagement fait le 05/11/2026, rien n'en dépend plus) : supprimer le service Render
   `lugh-esport` (il ne fait que renvoyer vers https://lugh.aulit42369.fr) et la base MongoDB Atlas ; puis sur le serveur

@@ -49,3 +49,12 @@ Rayons gravés et lance à la place d'une carte d'orientation, reliefs « topo �
 ## 7. Accessibilité
 
 Contraste AA, navigation au clavier, modales `<dialog>` titrées, focus visible ; pensé pour le téléphone (Jour de match).
+
+## 8. Vitrine publique (14/11/2026)
+
+Même identité « Néon × Broadcast » que l'appli (06/11 : or dominant + violet, Saira Condensed / IBM Plex Sans / IBM Plex Mono), jetons de `tokens.css` uniquement, thème sombre. Feuille dédiée `public/css/vitrine.css`.
+- Héros façon plateau : étiquette mono « Structure esport » avec point « direct », nom en lettrage or dégradé géant, devise en italique or, rayons du soleil levant (`motif-soleil.svg`) en fond, filet or→violet.
+- Bandeau « En ce moment » biseauté (même pièce que l'accueil de l'appli) pour les jeux qui recrutent.
+- Cartes joueurs = habillage de diffusion : photo carrée, dégradé vers la surface, filet or→violet, pseudo condensé en capitales, rôle en mono teinté de la couleur du jeu ; sans photo, initiale sur trame diagonale de la couleur du jeu.
+- Recrutement : gros chiffre or, nom du jeu dans sa couleur, bouton biseauté « Postuler · <jeu> ».
+- Accessibilité : `lang="fr"`, lien d'évitement, landmarks (header, nav, main, footer), titres h1 → h2 → h3 → h4, `alt` « Photo de <pseudo> » sur chaque photo, focus violet visible, mouvement réduit respecté, pas de défilement horizontal à 390 px. Captures : `docs/apercu-vitrine/`.

@@ -50,9 +50,10 @@ export function routesComptes(routeur, s) {
     if (!actifs.some((c) => c._id !== saufId && c.admin)) throw erreurs.conflit('Il doit rester au moins un Administrateur général actif.');
   }
 
-  // Compte, liaison Discord (rôles retirés par le bot), liaison Riot et sessions : effacés ensemble.
+  // Compte, liaison Discord (rôles retirés par le bot), liaison Riot, photo de la vitrine et sessions : effacés ensemble.
   async function effacerCompte(cible) {
     await s.global.supprimer('comptes', cible._id);
+    await s.global.supprimer('photos', cible._id);
     if (cible.discord?.id) await noterDelie(s.global, cible.discord.id, s.maintenant());
     await s.riot.delier?.(cible._id); // liaison Riot, jetons et parties : effacés avec le compte
     await s.sessions.supprimerPourCompte(cible._id);

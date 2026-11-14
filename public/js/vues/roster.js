@@ -61,6 +61,7 @@ function editeurEquipe() {
   const circuit = saisie({ valeur: eq.circuit, maxlength: 80, placeholder: 'Ligue, circuit, tournois communautaires…' });
   const creneaux = saisie({ valeur: eq.creneaux, maxlength: 120, placeholder: 'Ex. : du lundi au vendredi, 20 h à 23 h' });
   const objectif = zone({ valeur: eq.objectifSaison, lignes: 3, maxlength: 400 });
+  const places = saisie({ type: 'number', valeur: eq.placesRecrutement ?? 0, min: 0, max: 20, step: 1, inputmode: 'numeric' });
   modale({
     titre: 'Profil de l’équipe',
     contenu: h('div', { class: 'grille-champs champs-alignes' },
@@ -68,7 +69,8 @@ function editeurEquipe() {
       champ('Devise', devise, { large: true }),
       champ('Palier visé cette saison', palier), champ('Circuit', circuit),
       champ('Créneaux habituels', creneaux, { large: true }),
-      champ('Objectif de saison', objectif, { large: true })),
+      champ('Objectif de saison', objectif, { large: true }),
+      champ('Places ouvertes au recrutement', places, { aide: 'Affichées sur la vitrine publique avec le bouton « Postuler ». 0 = pas de recrutement affiché.' })),
     actions: [{ libelle: 'Annuler' }, {
       libelle: 'Enregistrer',
       classe: 'btn--principal',
@@ -76,6 +78,7 @@ function editeurEquipe() {
         await E.enregistrer('equipe', 'profil', {
           nom: nom.value.trim(), tag: tag.value.trim(), devise: devise.value.trim(), palierVise: palier.value,
           circuit: circuit.value.trim(), creneaux: creneaux.value.trim(), objectifSaison: objectif.value.trim(),
+          placesRecrutement: Number(places.value) || 0,
         }, { revBase: E.doc('equipe', 'profil')?.rev ?? 0 });
         toast('Profil de l’équipe enregistré.');
       },
@@ -99,6 +102,7 @@ function editeurMembre(m = null) {
   const fonction = liste(FONCTIONS_STAFF.map((f) => ({ valeur: f.id, libelle: f.nom })), { valeur: d.fonction, vide: 'À définir' });
   const forces = zone({ valeur: d.forces, lignes: 3, maxlength: 500 });
   const axes = zone({ valeur: d.axes, lignes: 3, maxlength: 500 });
+  const masque = caseACocher('Masquer de la vitrine publique (même si la personne a choisi d’y apparaître)', { coche: d.vitrineMasque });
 
   // Personnages : seulement si le jeu en a ; un par map du pool seulement si le jeu a un map pool.
   const avecPersonnages = J.aPersonnages();
@@ -158,7 +162,7 @@ function editeurMembre(m = null) {
       await E.enregistrer('membres', m?._id || nouvelId('m'), {
         type: type.value, statut: statut.value, pseudo: pseudo.value.trim(), idJeu: idJeu.input.value.trim(),
         roleJeu: joueur ? roleJeu.value : '', igl: joueur && (igl ? igl.input.checked : !!d.igl), fonction: joueur ? '' : fonction.value,
-        personnages: personnages(joueur), forces: forces.value.trim(), axes: axes.value.trim(),
+        personnages: personnages(joueur), forces: forces.value.trim(), axes: axes.value.trim(), vitrineMasque: masque.input.checked,
       }, { revBase: nouveau ? 0 : m.rev });
       toast(nouveau ? 'Membre ajouté.' : 'Membre enregistré.');
     },
@@ -172,6 +176,7 @@ function editeurMembre(m = null) {
       h('div', { class: 'grille-champs champs-alignes' }, idJeu.element, zoneStaff),
       zoneJoueur,
       h('div', { class: 'grille-champs' }, champ('Points forts', forces), champ('Axes de progrès', axes)),
+      masque.element,
       h('p', { class: 'texte-3 petit' }, 'Aucun nom réel ni âge : uniquement ce qui sert au jeu.'),
     ],
     actions,

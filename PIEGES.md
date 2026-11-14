@@ -57,6 +57,15 @@
 - **Connexions simultanées sur un même identifiant** : elles passent une par une (une fraction de seconde chacune). Une rafale de mauvais mots de passe bloque l'identifiant dès le 5e échec ; les suivantes reçoivent 429.
 - **Méta sur Discord** : les caractères `* _ ~ | > [ ] ( ) # <` et la barre oblique inverse du patch, de la saison et des noms sont échappés ; Discord les affiche tels quels, sans mise en forme.
 
+## Vitrine publique (14/11/2026)
+
+- **L'espace privé est sous `/app/`** : tout nouveau lien vers l'appli (redirection serveur, message Discord, doc) doit viser `/app/#/…`, jamais `/#/…` (renvoyé seulement par `vitrine-renvoi.js`, donc avec JavaScript).
+- **Toute nouvelle donnée sur la vitrine passe par la liste blanche** de `src/domaine/vitrine.js` ; jamais un `...membre` ou `...compte` recopié (le test `vitrine.test.js` cherche l'identifiant, le nom affiché, l'identifiant en jeu et les notes dans la réponse).
+- **Photo** : pas de ré-encodage côté serveur (il faudrait une dépendance d'image) ; le serveur vérifie la signature JPEG et retire les métadonnées. Ne jamais accepter d'autre type (SVG = script).
+- **Une photo n'est servie que si elle est publiée à cet instant** (consentement, non masqué, droit à l'image d'un mineur) : la route recalcule la vitrine à chaque appel. Si la vitrine devient très visitée, ajouter un petit cache (30 s) plutôt que de servir toute clé connue.
+- **`sitemap.xml`, `robots.txt` et `<link rel=canonical>`** contiennent `lugh.aulit42369.fr` en dur : à changer pour une autre structure.
+- **Reprise après sinistre** : le consentement et les photos ne sont pas dans `_structure.json` : après une reprise, plus personne n'apparaît tant qu'il n'a pas recoché (voulu).
+
 ## Bot Discord (19/10)
 
 - **Nom de jeu = nom d'un rôle de fonction** (Administrateur, Responsable…) : refusé par Lugh depuis la 2.7.1 (`estNomJeuReserve`, shared/referentiel.js). La liste doit suivre les rôles de `lugh-bot/src/structure.js` si l'un d'eux change.

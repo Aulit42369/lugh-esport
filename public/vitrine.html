@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <script src="/js/vitrine-renvoi.js"></script>
+  <title>Lugh — équipe esport : joueurs, jeux et recrutement</title>
+  <meta name="description" content="Lugh, l’équipe esport : ses joueurs, ses jeux, ses résultats et les places ouvertes au recrutement. Postule pour nous rejoindre.">
+  <meta name="theme-color" content="#0b0813">
+  <link rel="canonical" href="https://lugh.aulit42369.fr/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icones/icone-180.png">
+  <link rel="preload" href="/fonts/saira-condensed-latin-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/ibm-plex-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/composants.css">
+  <link rel="stylesheet" href="/css/identite.css">
+  <link rel="stylesheet" href="/css/vitrine.css">
+  <script type="module" src="/js/vitrine.js"></script>
+</head>
+<body class="vitrine">
+  <a class="lien-evitement" href="#contenu">Aller au contenu</a>
+  <header class="v-barre">
+    <a class="marque" href="/" aria-label="Lugh, accueil">
+      <img class="marque__symbole" src="/icones/marque-symbole-petit.svg" alt="" width="36" height="36">
+      <span class="marque__mot"></span>
+    </a>
+    <nav class="v-nav" aria-label="Sections de la page">
+      <a href="#equipes">Équipes</a>
+      <a href="#recrutement">Recrutement</a>
+      <a href="#resultats">Résultats</a>
+    </nav>
+    <a class="btn btn--principal v-connexion" href="/app/">Connexion</a>
+  </header>
+
+  <main id="contenu" tabindex="-1">
+    <section class="v-hero" aria-labelledby="v-titre">
+      <div class="v-hero__fond" aria-hidden="true"></div>
+      <div class="v-hero__corps">
+        <p class="v-kick"><span class="v-direct" aria-hidden="true"></span>Structure esport</p>
+        <h1 id="v-titre" class="v-hero__titre" data-champ="nom">Lugh</h1>
+        <p class="v-hero__devise">Le soleil se lève avec nous.</p>
+        <p class="v-hero__texte" data-champ="presentation">Une équipe esport francophone : on s’entraîne, on joue, on progresse ensemble.</p>
+        <div class="v-hero__actions" data-champ="actions">
+          <a class="btn v-btn-or" href="#recrutement">Rejoindre l’équipe</a>
+          <a class="btn v-btn-ligne" href="#equipes">Voir les joueurs</a>
+        </div>
+      </div>
+      <dl class="v-compteurs" data-champ="compteurs" aria-label="En chiffres"></dl>
+    </section>
+
+    <div class="v-bandeau" data-champ="bandeau" hidden>
+      <span class="v-bandeau__onair">En ce moment</span>
+      <p class="v-bandeau__texte"></p>
+    </div>
+
+    <section id="equipes" class="v-section" aria-labelledby="titre-equipes">
+      <header class="v-section__tete">
+        <p class="v-kick">Le roster</p>
+        <h2 id="titre-equipes">Nos équipes</h2>
+      </header>
+      <div class="v-jeux" data-champ="jeux" aria-live="polite"><p class="v-vide">Chargement…</p></div>
+    </section>
+
+    <section id="recrutement" class="v-section v-section--recrutement" aria-labelledby="titre-recrutement">
+      <header class="v-section__tete">
+        <p class="v-kick">On recrute</p>
+        <h2 id="titre-recrutement">Recrutement</h2>
+      </header>
+      <div data-champ="recrutement"></div>
+    </section>
+
+    <section id="resultats" class="v-section" aria-labelledby="titre-resultats">
+      <header class="v-section__tete">
+        <p class="v-kick">Palmarès</p>
+        <h2 id="titre-resultats">Résultats</h2>
+      </header>
+      <div data-champ="resultats"></div>
+    </section>
+  </main>
+
+  <footer class="v-pied">
+    <p class="v-pied__legal" data-champ="legal"></p>
+    <p class="v-pied__note">Cette page ne dépose aucun cookie et n’utilise aucun traceur ni contenu tiers : rien à accepter. Seuls les membres qui l’ont choisi y apparaissent.</p>
+    <p class="v-pied__note"><a href="/app/">Espace membres</a></p>
+  </footer>
+  <noscript><p class="v-pied__note">Active JavaScript pour voir les équipes et le recrutement.</p></noscript>
+</body>
+</html>
