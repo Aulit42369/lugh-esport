@@ -1,6 +1,7 @@
 # Lugh — À faire
 
 ## Fait
+- 16/11 : passe vitesse : polices `.woff2` servies avec `Cache-Control: public, max-age=31536000, immutable` (`src/http/statique.js`), le reste reste `no-cache` + ETag ; test dans `test/securite.test.js`. Mesure Lighthouse mobile avant : 97 (LCP 1,2 s, CLS 0,104 : la section Équipes descend quand les compteurs et le bandeau arrivent de l'API ; non corrigé, demanderait de réserver la place = changement visuel).
 - 06/11 : re-skin « Néon × Broadcast » (or dominant + touches violet), validé par Olivier. Via les jetons uniquement : titres condensés Saira Condensed, texte IBM Plex Sans, étiquettes/HUD en IBM Plex Mono (auto-hébergées, CSP inchangée) ; second accent violet (jetons `--violet`, deux thèmes) ; h1/h2 en capitales, marqueur violet sur la nav active, onglet actif souligné violet, filet or→violet sur les en-têtes de section, méta/signature/en-têtes de tableau en mono. Aucun nom de jeton changé : zéro perte de fonction, thèmes clair/sombre et couleur par jeu conservés. SW `lugh-v1`→`lugh-v2` (cité dans la confidentialité, test à jour). 243 tests verts, vérifié en ligne sur les deux thèmes, anciennes polices retirées du serveur. Déployé (`deployer-lugh.sh`).
 - 06/11 : default-deny des routes /api au démarrage (auth/acces.js `verifierAccesRoutes` + `ROUTES_PUBLIQUES`, gardes marqués `.acces`) : le serveur refuse de démarrer si une route n'a aucun contrôle d'accès et n'est pas publique.
 - 18/10 : cadrage, ARCHITECTURE.md validée (Render + MongoDB Atlas, comptes maison, méta par l'API Claude ou import manuel).

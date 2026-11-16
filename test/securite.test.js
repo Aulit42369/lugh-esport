@@ -176,6 +176,10 @@ test('fichiers statiques : impossible de sortir des dossiers publics ; cache par
   assert.equal(index.statut, 200);
   assert.match(index.entetes['content-type'], /^text\/html/);
   assert.equal((await requeteBrute(sim.base, '/', { entetes: { 'If-None-Match': index.entetes.etag } })).statut, 304);
+  assert.equal(index.entetes['cache-control'], 'no-cache', 'la page est toujours revalidée');
+  const police = await requeteBrute(sim.base, '/fonts/ibm-plex-sans-latin-400-normal.woff2');
+  assert.equal(police.statut, 200);
+  assert.equal(police.entetes['cache-control'], 'public, max-age=31536000, immutable', 'polices gardées un an');
   const tete = await requeteBrute(sim.base, '/', { methode: 'HEAD' });
   assert.equal(tete.statut, 200);
   assert.equal(tete.corps.length, 0);

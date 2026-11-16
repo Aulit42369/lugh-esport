@@ -325,3 +325,7 @@ Plus : captures PC (1440 px) et téléphone (390 px) en thème sombre, aucun dé
 | `LUGH_CLE_RIOT` changée | jetons illisibles : message clair, le joueur délie puis relie (aucun autre effet) |
 | Deux instances Render | non pris en charge : révisions, verrous, limiteurs en mémoire ; rester sur une instance |
 | Ouverture à d'autres structures | une installation par structure (voie A, `OUVRIR-A-UNE-STRUCTURE.md`) ; aucune donnée partagée |
+
+## Cache des fichiers statiques (16/11/2026)
+- `src/http/statique.js` : polices `.woff2` gardées un an (`immutable`, nom de fichier figé : remplacer une police = nouveau nom) ;
+  tout le reste en `no-cache` + ETag (304 si inchangé). Compression : Caddy (`encode zstd gzip`) et le serveur pour les grosses réponses.

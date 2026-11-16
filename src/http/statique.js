@@ -46,7 +46,9 @@ export function creerStatique(racines) {
     if (!infos.isFile()) return false;
 
     const etag = `W/"${infos.size.toString(16)}-${Math.floor(infos.mtimeMs).toString(16)}"`;
-    const entetes = { 'Content-Type': type, 'Cache-Control': 'no-cache', ETag: etag };
+    // Polices : nom de fichier figé (fontsource), jamais modifiées sur place → cache d'un an ; le reste revalidé par ETag.
+    const cache = type === 'font/woff2' ? 'public, max-age=31536000, immutable' : 'no-cache';
+    const entetes = { 'Content-Type': type, 'Cache-Control': cache, ETag: etag };
     if (req.headers['if-none-match'] === etag) {
       res.writeHead(304, entetes);
       res.end();
