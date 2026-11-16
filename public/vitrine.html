@@ -47,7 +47,12 @@
           <a class="btn v-btn-ligne" href="#equipes">Voir les joueurs</a>
         </div>
       </div>
-      <dl class="v-compteurs" data-champ="compteurs" aria-label="En chiffres"></dl>
+      <!-- Compteurs provisoires de même taille : la page ne saute pas quand les vrais chiffres arrivent. -->
+      <dl class="v-compteurs" data-champ="compteurs" aria-label="En chiffres">
+        <div class="v-compteur"><dt>jeux actifs</dt><dd>–</dd></div>
+        <div class="v-compteur"><dt>membres</dt><dd>–</dd></div>
+        <div class="v-compteur"><dt>places ouvertes</dt><dd>–</dd></div>
+      </dl>
     </section>
 
     <div class="v-bandeau" data-champ="bandeau" hidden>
