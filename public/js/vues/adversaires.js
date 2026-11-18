@@ -48,7 +48,7 @@ function vueListe(page) {
       editable ? bouton('Nouvel adversaire', { icone: 'ajouter', classe: 'btn--principal', onclick: () => editeur() }) : null)));
   if (!advs.length) {
     page.append(etatVide('Aucune fiche adverse. Crée-en une avant votre prochain match officiel.',
-      editable ? bouton('Nouvel adversaire', { classe: 'btn--principal', onclick: () => editeur() }) : null));
+      editable ? bouton('Nouvel adversaire', { onclick: () => editeur() }) : null));
     return;
   }
   const total = J.checklist().length;
@@ -205,7 +205,7 @@ function vueDetail(page, id) {
         m.date ? puce(`Match ${quandMatch(m)}`, 'accent') : null)),
     h('div', { class: 'entete-page__actions' },
       m.date ? bouton('Copier pour Discord', { icone: 'discord', onclick: () => copierTexte(texteMatch(J.def(), a)) }) : null,
-      editable ? bouton('Modifier la fiche', { icone: 'modifier', classe: 'btn--principal', onclick: () => editeur(a) }) : null)));
+      editable ? bouton('Modifier la fiche', { icone: 'modifier', onclick: () => editeur(a) }) : null)));
 
   const regles = ficheRegles();
   if (regles) page.append(regles);

@@ -151,7 +151,7 @@ export function rendre(page, params, ctx) {
     page.append(etatVide(toutes.length
       ? 'Aucune strat ne correspond à ces filtres.'
       : `Le stratbook est vide. Commence par une strat simple${premier ? ` (${premier.toLowerCase()})` : ''}${parCarte ? ` sur votre ${accord(J.v('carte'), 'meilleur', 'meilleure')} ${J.v('carte')}` : ''}.`,
-    editable ? bouton('Nouvelle strat', { classe: 'btn--principal', onclick: nouvelle }) : null));
+    editable ? bouton('Nouvelle strat', { onclick: nouvelle }) : null));
     return;
   }
   const options = { editable, pool };

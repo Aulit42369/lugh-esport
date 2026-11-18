@@ -51,6 +51,9 @@ async function afficher({ conserver = false } = {}) {
     const sansJeu = E.estAdmin() && !E.jeux().length ? '#/admin/jeux' : E.estTresorier() && !E.jeux().length ? '#/tresorerie' : '#/jeux';
     // Admin : la Vue d'ensemble de la structure (stats + matchs à venir, façon maquette) ; sinon « Mes jeux ».
     const accueil = E.estAdmin() && E.jeux().length ? '#/admin/structure' : E.jeux().length ? '#/jeux' : sansJeu;
+    // Un seul jeu (et rien d'autre à administrer) : on entre directement dedans, « Mes jeux » n'aurait qu'une carte.
+    const actifs = E.jeux().filter((j) => j.actif);
+    if (!E.estAdmin() && E.jeux().length === 1 && actifs.length === 1) return remplacerEtAfficher(`#/${actifs[0].id}`);
     return remplacerEtAfficher(accueil);
   }
 

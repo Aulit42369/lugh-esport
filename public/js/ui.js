@@ -63,13 +63,36 @@ export function idUnique(prefixe = 'c') {
 
 // ——— Champs de formulaire ———
 
+// L'aide est reliée au contrôle (aria-describedby) : un lecteur d'écran la lit avec le libellé.
 export function champ(libelle, controle, { aide = '', large = false } = {}) {
   const id = controle.id || idUnique('champ');
   controle.id = id;
+  const zoneAide = aide ? h('span', { class: 'champ__aide', id: `${id}-aide` }, aide) : null;
+  if (zoneAide) decrirePar(controle, zoneAide.id);
   return h('div', { class: ['champ', large && 'champ--large'] },
     h('label', { class: 'champ__label', for: id }, libelle),
     controle,
-    aide ? h('span', { class: 'champ__aide' }, aide) : null);
+    zoneAide);
+}
+
+function decrirePar(controle, id) {
+  const ids = new Set((controle.getAttribute('aria-describedby') || '').split(' ').filter(Boolean));
+  ids.add(id);
+  controle.setAttribute('aria-describedby', [...ids].join(' '));
+}
+
+// Erreur d'un champ : le message est relié au contrôle, le contrôle marqué invalide et le focus posé dessus.
+// Sans message : l'erreur est effacée.
+export function erreurChamp(controle, zoneErreur, message = '') {
+  zoneErreur.textContent = message;
+  if (!message) {
+    controle.removeAttribute('aria-invalid');
+    return;
+  }
+  zoneErreur.id ||= idUnique('erreur');
+  decrirePar(controle, zoneErreur.id);
+  controle.setAttribute('aria-invalid', 'true');
+  controle.focus();
 }
 
 export function saisie({ type = 'text', valeur = '', ...attrs } = {}) {

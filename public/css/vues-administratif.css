@@ -93,9 +93,11 @@
 .admv-papier__note { font-size: 0.85rem; color: #5c5246; font-style: italic; }
 
 /* ——— Confidentialité, liens-boutons, roster ——— */
-.btn-lien { padding: 0; border: 0; background: none; color: var(--surimpression); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
-.btn-lien:hover { color: var(--surimpression-fonce); }
-.connexion__confidentialite { margin-top: var(--e-2); }
+/* Liens vers les pages légales : cible de 24 px au moins, 44 px au doigt. */
+.lien-legal { display: inline-flex; align-items: center; min-height: 1.5rem; color: var(--surimpression); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.lien-legal:hover { color: var(--surimpression-fonce); }
+@media (pointer: coarse) { .lien-legal { min-height: 2.75rem; } }
+.connexion__confidentialite { margin-top: var(--e-2); display: flex; flex-wrap: wrap; align-items: center; column-gap: 0.35rem; }
 .confidentialite h3 { font-size: var(--t-m); color: var(--surimpression); }
 .roster-autorisations { padding-top: var(--e-3); border-top: 1px dashed var(--trait-fort); }
 

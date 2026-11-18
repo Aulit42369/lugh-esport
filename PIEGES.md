@@ -64,6 +64,14 @@
 - **Photo** : pas de ré-encodage côté serveur (il faudrait une dépendance d'image) ; le serveur vérifie la signature JPEG et retire les métadonnées. Ne jamais accepter d'autre type (SVG = script).
 - **Une photo n'est servie que si elle est publiée à cet instant** (consentement, non masqué, droit à l'image d'un mineur) : la route recalcule la vitrine à chaque appel. Si la vitrine devient très visitée, ajouter un petit cache (30 s) plutôt que de servir toute clé connue.
 - **`sitemap.xml`, `robots.txt` et `<link rel=canonical>`** contiennent `lugh.aulit42369.fr` en dur : à changer pour une autre structure.
+- **Pas de fiche d'autorisations = pas de vitrine** (18/11) : même coché, un membre n'apparaît (ni pseudo ni photo) que si sa
+  fiche dit « majeur », ou « mineur » + droit à l'image (+ accord du jeune s'il a moins de 15 ans). Règle unique :
+  `vitrineAutorisee` (`shared/administratif/identite.js`), utilisée par la vitrine et par « Mon compte ».
+- **Pages légales** : texte dans `shared/administratif/` seulement ; `src/http/pages.js` le rend en HTML échappé (aucun script,
+  aucun style en ligne : CSP). Ne jamais recopier le texte dans un fichier HTML.
+- **Image d'aperçu** : régénérer par `node scripts/generer-og.js` (Playwright du Site), puis monter le `?v=` dans `vitrine.html`.
+  Le masque CSS du lettrage ne marche pas en `file://` : le script le passe en adresse `data:`.
+- **Lien d'évitement de la vitrine** : `.vitrine a` repeint les liens en or ; `.vitrine .lien-evitement` remet sa couleur.
 - **Reprise après sinistre** : le consentement et les photos ne sont pas dans `_structure.json` : après une reprise, plus personne n'apparaît tant qu'il n'a pas recoché (voulu).
 
 ## Bot Discord (19/10)

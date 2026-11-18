@@ -1,6 +1,19 @@
 # Lugh — À faire
 
 ## Fait
+- 18/11 : corrections de l'audit de la vitrine et de l'appli. **Mineurs** : pseudo et photo d'un membre publiés seulement
+  avec une fiche d'autorisations qui dit « majeur », ou « mineur » avec le droit à l'image (et, avant 15 ans, l'accord du
+  jeune : nouvelle case « Moins de 15 ans » + date « Accord du jeune » sur la fiche) ; « Mon compte » affiche « En attente
+  d'autorisation (jeu) » (`GET /api/moi/vitrine`). **Vitrine** : compteurs à zéro et boutons sans destination masqués,
+  « Connexion » en bouton ligne, point « direct » retiré, étiquette du jeu masquée si l'équipe n'a pas de nom, lien
+  d'évitement lisible, Open Graph + carte X + JSON-LD `SportsTeam`, image `public/og-image.jpg` (`node scripts/generer-og.js`).
+  **Pages légales** `/mentions-legales`, `/confidentialite`, `/conditions` rendues par le serveur (même texte que les
+  fenêtres, `noindex`), liées en `<a href>` ; **404** habillée (l'API garde ses erreurs JSON). **Appli** : plus aucun
+  bandeau défilant, connexion avec une seule accroche et le lettrage maison, un seul bouton primaire par zone, aides et
+  erreurs reliées aux champs (`aria-describedby`, `aria-invalid`, focus), cibles ≥ 24 px (44 px au doigt), « Mes jeux » /
+  « Vue d'ensemble » au lieu du 2e « Accueil », un joueur avec un seul jeu entre directement dedans, phrase « Gestion du
+  jeu » du roster réservée à qui la voit. DESIGN_BRIEF corrigé (or + violet, Saira / IBM Plex) et la ligne Lugh du
+  DESIGN_BRIEF du Site.
 - 16/11 : passe vitesse : polices `.woff2` servies avec `Cache-Control: public, max-age=31536000, immutable` (`src/http/statique.js`), le reste reste `no-cache` + ETag ; test dans `test/securite.test.js`. Mesure Lighthouse mobile avant : 97 (LCP 1,2 s, CLS 0,104 : la section Équipes descend quand les compteurs et le bandeau arrivent de l'API ; non corrigé, demanderait de réserver la place = changement visuel).
 - 06/11 : re-skin « Néon × Broadcast » (or dominant + touches violet), validé par Olivier. Via les jetons uniquement : titres condensés Saira Condensed, texte IBM Plex Sans, étiquettes/HUD en IBM Plex Mono (auto-hébergées, CSP inchangée) ; second accent violet (jetons `--violet`, deux thèmes) ; h1/h2 en capitales, marqueur violet sur la nav active, onglet actif souligné violet, filet or→violet sur les en-têtes de section, méta/signature/en-têtes de tableau en mono. Aucun nom de jeton changé : zéro perte de fonction, thèmes clair/sombre et couleur par jeu conservés. SW `lugh-v1`→`lugh-v2` (cité dans la confidentialité, test à jour). 243 tests verts, vérifié en ligne sur les deux thèmes, anciennes polices retirées du serveur. Déployé (`deployer-lugh.sh`).
 - 06/11 : default-deny des routes /api au démarrage (auth/acces.js `verifierAccesRoutes` + `ROUTES_PUBLIQUES`, gardes marqués `.acces`) : le serveur refuse de démarrer si une route n'a aucun contrôle d'accès et n'est pas publique.
@@ -44,6 +57,11 @@
 ## En cours
 
 ## À faire
+- **Après le déploiement du 18/11** : chaque membre déjà visible sur la vitrine disparaît tant que le Responsable de son
+  jeu n'a pas enregistré sa fiche d'autorisations (Roster → fiche du membre → Autorisations → Mettre à jour, même pour un
+  majeur : décocher « Mineur » et Enregistrer).
+- JS chargé après connexion : ~156 Ko compressé pour un capitaine (budget 150 Ko) ; découpage proposé (voir ARCHITECTURE,
+  « Poids du JavaScript ») à valider.
 - Vitrine (en ligne depuis le 14/11) : remplir Identité (présentation, lien « Postuler » = invitation Discord) et, dans chaque jeu, les places et les rôles recherchés ; soumettre `https://lugh.aulit42369.fr/sitemap.xml` à la Search Console. Le Riot « redirect URI » ne change pas (`/api/riot/retour`).
 - Demande de clé de production Riot : suivre `docs/DEMANDE-RIOT.md` (captures en simulation, Register Product, puis les 5 variables dans `/srv/lugh/.env` du serveur OVH + `sudo systemctl restart lugh`).
 - **Ménage de l'ancien hébergement** (Olivier, déménagement fait le 05/11/2026, rien n'en dépend plus) : supprimer le service Render

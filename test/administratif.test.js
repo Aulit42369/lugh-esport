@@ -153,7 +153,7 @@ test('autorisations des mineurs : le Responsable les coche, le joueur ne les voi
     const r = await resp.put(`/api/e/valorant/autorisations/${membre._id}`, { mineur: true, parentale: '2026-10-01' });
     assert.equal(r.statut, 200);
     assert.deepEqual(r.json.manques, ['droit à l’image']);
-    assert.deepEqual((await resp.get('/api/e/valorant/autorisations')).json.autorisations[membre._id], { mineur: true, parentale: '2026-10-01', image: '', note: '' });
+    assert.deepEqual((await resp.get('/api/e/valorant/autorisations')).json.autorisations[membre._id], { mineur: true, parentale: '2026-10-01', image: '', moins15: false, accordJeune: '', note: '' });
     const vue = (await admin.get('/api/admin/administratif')).json.mineurs[0];
     assert.equal(vue.id, 'valorant');
     assert.deepEqual(vue.membres[0].manques, ['droit à l’image']);

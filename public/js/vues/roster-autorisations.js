@@ -45,8 +45,9 @@ export function bloc(m, surChange) {
       ? h('dl', { class: 'details' },
         h('dt', {}, 'Mineur'), h('dd', {}, 'oui'),
         h('dt', {}, 'Autorisation parentale'), h('dd', {}, a.parentale ? `reçue le ${formatDate(a.parentale)}` : puce('manquante', 'attention')),
-        h('dt', {}, 'Droit à l’image'), h('dd', {}, a.image ? `reçu le ${formatDate(a.image)}` : puce('manquant : pas de webcam, de voix ni de photo diffusées', 'attention')))
-      : h('p', { class: 'texte-3 petit' }, a ? 'Majeur, ou non signalé comme mineur.' : 'Pas encore renseigné.'),
+        h('dt', {}, 'Droit à l’image'), h('dd', {}, a.image ? `reçu le ${formatDate(a.image)}` : puce('manquant : pas de webcam, de voix ni de photo diffusées', 'attention')),
+        a.moins15 ? [h('dt', {}, 'Accord du jeune (moins de 15 ans)'), h('dd', {}, a.accordJeune ? `reçu le ${formatDate(a.accordJeune)}` : puce('manquant : pas de vitrine publique', 'attention'))] : null)
+      : h('p', { class: 'texte-3 petit' }, a ? 'Majeur, ou non signalé comme mineur.' : 'Pas encore renseigné : ce membre n’apparaît pas sur la vitrine publique.'),
     h('p', { class: 'texte-3 tres-petit' }, 'Visible seulement par le Responsable du jeu et l’Administrateur général. Aucun âge n’est enregistré.'),
     h('div', {}, bouton('Mettre à jour', { classe: 'btn--petit', onclick: () => editer(m, a, surChange) })));
 }
@@ -56,12 +57,18 @@ function editer(m, a, surChange) {
   const mineur = caseACocher('Mineur (moins de 18 ans)', { coche: !!a.mineur });
   const parentale = saisie({ type: 'date', valeur: a.parentale || '' });
   const image = saisie({ type: 'date', valeur: a.image || '' });
+  const moins15 = caseACocher('Moins de 15 ans (son propre accord est aussi demandé)', { coche: !!a.moins15 });
+  const accordJeune = saisie({ type: 'date', valeur: a.accordJeune || '' });
+  const zoneJeune = h('div', {}, champ('Accord du jeune reçu le', accordJeune));
   const note = saisie({ valeur: a.note || '', maxlength: 200, placeholder: 'ex. papiers rangés par le secrétaire' });
   const zoneDates = h('div', { class: 'grille-champs' },
     champ('Autorisation parentale reçue le', parentale),
-    champ('Droit à l’image reçu le', image));
-  const majDates = () => { zoneDates.hidden = !mineur.input.checked; };
+    champ('Droit à l’image reçu le', image),
+    moins15.element,
+    zoneJeune);
+  const majDates = () => { zoneDates.hidden = !mineur.input.checked; zoneJeune.hidden = !moins15.input.checked; };
   mineur.input.addEventListener('change', majDates);
+  moins15.input.addEventListener('change', majDates);
   majDates();
   modale({
     titre: `Autorisations de ${m.pseudo || 'ce membre'}`,
@@ -75,7 +82,7 @@ function editer(m, a, surChange) {
       libelle: 'Enregistrer',
       classe: 'btn--principal',
       action: async () => {
-        const corps = { mineur: mineur.input.checked, parentale: mineur.input.checked ? parentale.value : '', image: mineur.input.checked ? image.value : '', note: note.value.trim() };
+        const corps = { mineur: mineur.input.checked, parentale: mineur.input.checked ? parentale.value : '', image: mineur.input.checked ? image.value : '', moins15: mineur.input.checked && moins15.input.checked, accordJeune: mineur.input.checked && moins15.input.checked ? accordJeune.value : '', note: note.value.trim() };
         await E.appeler('PUT', `/autorisations/${encodeURIComponent(m._id)}`, corps);
         if (cache.autorisations) cache.autorisations[m._id] = corps;
         toast('Autorisations enregistrées.');

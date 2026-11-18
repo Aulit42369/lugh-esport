@@ -248,7 +248,7 @@ export function rendre(page, params, ctx) {
       h('h1', {}, 'Présences'),
       h('p', { class: 'entete-page__intro' }, 'L’appel de chaque séance collective. Les absences déclarées à l’avance apparaissent dans l’appel et comptent comme excusées.')),
     h('div', { class: 'entete-page__actions' },
-      peutDeclarer ? bouton('Déclarer une absence', { icone: 'ajouter', classe: 'btn--principal', onclick: declarerAbsence }) : null,
+      peutDeclarer ? bouton('Déclarer une absence', { icone: 'ajouter', onclick: declarerAbsence }) : null,
       bouton('Exporter (CSV)', { icone: 'telecharger', onclick: exporter }))));
   page.append(h('div', { class: 'barre-outils' }, navSemaine(semaine, courante, (s) => ctx.aller(J.lien(`/presences/${s}`)))));
 

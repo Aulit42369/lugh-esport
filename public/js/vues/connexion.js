@@ -2,7 +2,7 @@
 // première connexion, activation obligatoire de la double authentification, erreur de démarrage.
 // Même seuil pour tous les jeux : la marque (MARQUE) sur le soleil levant de Lug.
 
-import { h, vider, champ, saisie, messageErreur } from '../ui.js';
+import { h, vider, champ, saisie, messageErreur, erreurChamp } from '../ui.js';
 import { api } from '../api.js';
 import { icone } from '../icones.js';
 import { topo } from '../composants/topo.js';
@@ -10,21 +10,19 @@ import { champCode, activation2fa, blocCodesSecours } from './deuxfacteurs.js';
 import { MARQUE } from '/shared/marque.js';
 import { liensLegaux } from '../composants/confidentialite.js';
 
-// Marque du produit (hors application) : kicker violet, écusson réduit, grand titre « LUGH » condensé or→violet.
+// Marque du produit (hors application) : kicker violet, écusson réduit, lettrage maison « LUGH » en or.
 function marque() {
   return h('div', { class: 'accueil__hero', role: 'img', 'aria-label': MARQUE.nom },
     h('span', { class: 'accueil__kicker' }, '// Espace privé · esport'),
     h('img', { class: 'accueil__ecusson', src: MARQUE.symbole, alt: '', width: '72', height: '72' }),
-    h('div', { class: 'accueil__titre', 'aria-hidden': 'true' }, MARQUE.nom));
+    h('span', { class: 'marque__mot accueil__mot', 'aria-hidden': 'true' }));
 }
 
-// Bandeau défilant (hors application) : messages génériques de la structure, AUCUNE donnée privée.
+// Bandeau fixe (hors application) : une ligne générique, AUCUNE donnée privée. Pas de défilement (sobre, lisible).
 function bandeau() {
-  const msgs = ['Équipe esport', 'Espace privé de la structure', 'Un espace par jeu', 'Planning · Roster · Matchs · Stats', MARQUE.slogan];
-  const piste = h('div', { class: 'accueil__piste' });
-  for (let r = 0; r < 2; r += 1) for (const m of msgs) piste.append(h('span', {}, m));
   return h('div', { class: 'accueil__ticker', 'aria-hidden': 'true' },
-    h('span', { class: 'accueil__onair' }, MARQUE.nom), piste);
+    h('span', { class: 'accueil__onair' }, MARQUE.nom),
+    h('p', { class: 'accueil__piste' }, 'Espace privé de la structure · un espace par jeu'));
 }
 
 function cadre(racine, contenu, titre, { large = false, ecran = '' } = {}) {
@@ -36,9 +34,7 @@ function cadre(racine, contenu, titre, { large = false, ecran = '' } = {}) {
     h('div', { class: ['accueil__panneau', large && 'accueil__panneau--large'] },
       h('div', { class: 'accueil__marque' },
         marque(),
-        h('p', { class: 'accueil__sub' }, 'La structure, le ', h('b', {}, 'collectif'), ', la gagne.'),
-        h('p', { class: 'accueil__devise' }, MARQUE.slogan),
-        h('p', { class: 'accueil__sous' }, 'L’espace privé de la structure, ', h('br'), 'un espace par jeu')),
+        h('p', { class: 'accueil__devise' }, MARQUE.slogan)),
       contenu)));
 }
 
@@ -66,7 +62,7 @@ export function ecranConnexion(racine, { message = '', surConnecte }) {
     class: 'formulaire',
     onsubmit: async (e) => {
       e.preventDefault();
-      erreur.textContent = '';
+      erreurChamp(mdp, erreur);
       const id = identifiant.value.trim().toLowerCase();
       const fin = attenteServeur(bouton, info);
       try {
@@ -80,9 +76,8 @@ export function ecranConnexion(racine, { message = '', surConnecte }) {
         info.textContent = '';
         // Double authentification active : le mot de passe est bon, il manque le code.
         if (err.code === 'code_2fa') return etapeCode(racine, { identifiant: id, mdp: mdp.value, surConnecte });
-        erreur.textContent = messageErreur(err);
         mdp.value = '';
-        mdp.focus();
+        erreurChamp(mdp, erreur, messageErreur(err));
       }
     },
   },
@@ -118,13 +113,12 @@ function etapeCode(racine, { identifiant, mdp: mdpSaisi, surConnecte }) {
     onsubmit: async (e) => {
       e.preventDefault();
       if (enCours) return;
-      erreur.textContent = '';
+      erreurChamp(code.input, erreur);
       let valeur;
       try {
         valeur = code.lire();
       } catch (err) {
-        erreur.textContent = err.message;
-        code.input.focus();
+        erreurChamp(code.input, erreur, err.message);
         return;
       }
       enCours = true;
@@ -139,11 +133,10 @@ function etapeCode(racine, { identifiant, mdp: mdpSaisi, surConnecte }) {
         fin();
         info.textContent = '';
         if (err.code === 'identifiants') return revenir('Identifiant ou mot de passe refusé : recommence la connexion.');
-        erreur.textContent = err.code === 'code_2fa'
-          ? (code.estSecours() ? 'Code de secours incorrect ou déjà utilisé.' : 'Code incorrect ou déjà utilisé : attends le code suivant (il change toutes les 30 secondes).')
-          : messageErreur(err);
         code.vider();
-        code.input.focus();
+        erreurChamp(code.input, erreur, err.code === 'code_2fa'
+          ? (code.estSecours() ? 'Code de secours incorrect ou déjà utilisé.' : 'Code incorrect ou déjà utilisé : attends le code suivant (il change toutes les 30 secondes).')
+          : messageErreur(err));
       } finally {
         enCours = false;
       }
@@ -206,8 +199,9 @@ export function ecranChangementMdp(racine, { identifiant = '', mdpActuel = '', s
     onsubmit: async (e) => {
       e.preventDefault();
       erreur.textContent = '';
+      erreurChamp(confirmation, erreur);
       if (nouveau.value !== confirmation.value) {
-        erreur.textContent = 'Les deux nouveaux mots de passe ne sont pas identiques.';
+        erreurChamp(confirmation, erreur, 'Les deux nouveaux mots de passe ne sont pas identiques.');
         return;
       }
       const fin = attenteServeur(bouton, info);

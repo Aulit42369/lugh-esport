@@ -59,7 +59,7 @@ function entete(d, recharger) {
 
 // Vérification sans clé API : la consigne part dans une conversation claude.ai, la réponse revient ici.
 function manuel(recharger, ouvert) {
-  const reponse = zone({ lignes: 4, placeholder: 'Colle ici toute la réponse de Claude' });
+  const reponse = zone({ lignes: 4, placeholder: 'Colle ici toute la réponse de Claude', 'aria-label': 'Réponse de Claude à coller' });
   return h('details', { class: 'petit admv-manuel', open: ouvert },
     h('summary', {}, 'Vérifier sans la clé API (copier-coller)'),
     h('ol', { class: 'liste-puces' },

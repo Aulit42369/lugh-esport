@@ -286,7 +286,7 @@ function formulaireMdp(c) {
   const nouveau = saisie({ type: 'password', autocomplete: 'new-password', required: true, minlength: 10 });
   const confirmation = saisie({ type: 'password', autocomplete: 'new-password', required: true });
   const erreur = h('p', { class: 'champ__erreur', role: 'alert' });
-  const envoi = h('button', { type: 'submit', class: 'btn btn--principal' }, 'Changer le mot de passe');
+  const envoi = h('button', { type: 'submit', class: 'btn' }, 'Changer le mot de passe');
   return h('form', {
     class: 'fiche formulaire',
     dataset: { brouillon: 'mdp' },

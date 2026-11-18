@@ -165,7 +165,7 @@ export function rendre(page) {
     page.append(etatVide(editable
       ? 'Aucun tournoi pour l’instant. Ajoute ceux que l’équipe envisage avec leur date limite d’inscription : l’accueil te préviendra à temps.'
       : 'Aucun tournoi pour l’instant. Le staff les ajoute ici dès qu’une inscription se prépare.',
-    editable ? bouton('Nouveau tournoi', { classe: 'btn--principal', onclick: () => editeur() }) : null));
+    editable ? bouton('Nouveau tournoi', { onclick: () => editeur() }) : null));
     return;
   }
 

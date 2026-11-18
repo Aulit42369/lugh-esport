@@ -65,10 +65,19 @@ export const autorisation = objet({
   mineur: booleen(),
   parentale: date(),
   image: date(),
+  // Moins de 15 ans : ce qui repose sur le consentement (photo, vitrine) demande aussi l'accord du jeune (page Administratif).
+  moins15: booleen(),
+  accordJeune: date(),
   note: texte({ max: 200 }),
 });
 
-// Un joueur à surveiller : mineur sans l'une des deux autorisations.
-export const manques = (a) => (a?.mineur ? [!a.parentale && 'autorisation parentale', !a.image && 'droit à l’image'].filter(Boolean) : []);
+// Un joueur à surveiller : mineur sans l'une des autorisations.
+export const manques = (a) => (a?.mineur
+  ? [!a.parentale && 'autorisation parentale', !a.image && 'droit à l’image', a.moins15 && !a.accordJeune && 'accord du jeune'].filter(Boolean)
+  : []);
+
+// Vitrine publique : pseudo et photo seulement si la fiche d'autorisations existe et dit « majeur », ou « mineur »
+// avec le droit à l'image (et, avant 15 ans, l'accord du jeune en plus de celui des parents). Sans fiche : rien.
+export const vitrineAutorisee = (a) => !!a && (!a.mineur || (!!a.image && (!a.moins15 || !!a.accordJeune)));
 
 export const exerciceValide = entier({ min: 2000, max: 2100 });

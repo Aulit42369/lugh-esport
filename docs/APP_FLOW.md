@@ -5,7 +5,7 @@ Rédigé le 28/10/2026 d'après `public/js/vues/` et `ARCHITECTURE.md`. Adresses
 ## 1. Arrivée
 
 1. **Ouverture…** : écran d'attente pendant le réveil de Render (copie locale de la coquille par le service worker).
-2. **Connexion** : écusson, lettrage LUGH, devise « Le soleil se lève avec nous. », identifiant + mot de passe, « Pas encore de compte ? Demande-le au Responsable de ton jeu », liens **Données et confidentialité · Conditions d'utilisation · Mentions légales** (fenêtres lisibles sans compte ; chacune ouvre les deux autres).
+2. **Connexion** : écusson, lettrage LUGH, devise « Le soleil se lève avec nous. », identifiant + mot de passe, « Pas encore de compte ? Demande-le au Responsable de ton jeu », liens **Données et confidentialité · Conditions d'utilisation · Mentions légales** (vrais liens vers `/confidentialite`, `/conditions`, `/mentions-legales`, lisibles sans JavaScript ; un clic simple dans l'appli ouvre la fenêtre).
 3. **Code de double authentification** (si activée) : code de l'application ou code de secours.
 4. **Nouveau mot de passe** : imposé à la première connexion (mot de passe temporaire).
 5. **Activer la double authentification** : imposé si l'Administrateur général l'exige pour ce compte.
@@ -42,8 +42,8 @@ Après connexion : seulement **Comptes de la structure** (livre, réglages, rapp
 
 ## 8. Vitrine publique (depuis le 14/11/2026)
 
-1. **https://lugh.aulit42369.fr** (sans compte) : barre (logo, Équipes, Recrutement, Résultats, **Connexion**) → héros (nom, devise, présentation, « Postuler », « Voir les joueurs », compteurs) → bandeau « En ce moment » (jeux qui recrutent) → **Nos équipes** (une équipe par jeu actif, cartes des membres consentants) → **Recrutement** (places par jeu, « Postuler · <jeu> ») → **Résultats** → pied de page (Données et confidentialité · Conditions d'utilisation · Mentions légales, « aucun cookie », Espace membres).
+1. **https://lugh.aulit42369.fr** (sans compte) : barre (logo, Équipes, Recrutement, Résultats, **Connexion**) → héros (nom, devise, présentation, « Postuler » s'il y a un lien, sinon « Voir les places » s'il y en a, « Voir les joueurs » s'il y en a, sinon « Le recrutement ouvre bientôt » ; compteurs non nuls) → bandeau « En ce moment » (jeux qui recrutent) → **Nos équipes** (une équipe par jeu actif, cartes des membres consentants) → **Recrutement** (places par jeu, « Postuler · <jeu> ») → **Résultats** → pied de page (Données et confidentialité · Conditions d'utilisation · Mentions légales, « aucun cookie », Espace membres).
 2. **Connexion** → `/app/` (écran de connexion habituel, puis Mes jeux). Un ancien lien `/#/valorant/roster` arrive directement sur `/app/#/valorant/roster`.
-3. **Mon compte → Vitrine publique** : case « Apparaître sur la vitrine publique », Ajouter / Changer / Retirer ma photo (aperçu).
+3. **Mon compte → Vitrine publique** : case « Apparaître sur la vitrine publique », Ajouter / Changer / Retirer ma photo (aperçu) ; « En attente d'autorisation (jeu) » tant que la fiche d'autorisations manque (Roster → fiche → Autorisations, avec « Moins de 15 ans » et « Accord du jeune »).
 4. **Roster → Profil de l'équipe** : « Places ouvertes au recrutement » et « Rôles recherchés » (facultatif, affiché sous les places et dans le bandeau) ; **Roster → fiche d'un membre → Modifier** : « Masquer de la vitrine publique ».
 5. **Administration → Administratif → Identité** : « Présentation de l'équipe » et lien « Postuler ».

@@ -101,7 +101,8 @@ export function accueilHref() {
 }
 export function lienAccueil(actif) {
   const href = accueilHref();
-  return h('a', { href, class: 'rail__lien', 'aria-current': (actif === 'jeux' || actif === 'structure') ? 'page' : null }, icone('jeux'), 'Accueil');
+  // « Accueil » est déjà la première rubrique d'un jeu : ici, le nom de la page d'arrivée.
+  return h('a', { href, class: 'rail__lien', 'aria-current': (actif === 'jeux' || actif === 'structure') ? 'page' : null }, icone('jeux'), href === '#/jeux' ? 'Mes jeux' : 'Vue d’ensemble');
 }
 
 export function marque() {

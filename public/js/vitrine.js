@@ -2,7 +2,6 @@
 // Aucun stockage dans le navigateur, aucun cookie, aucun contenu tiers.
 
 import { h } from './ui.js';
-import { liensLegaux } from './composants/confidentialite.js';
 import { couleurJeu } from '/shared/couleurs.js';
 
 const $ = (champ) => document.querySelector(`[data-champ="${champ}"]`);
@@ -37,7 +36,7 @@ function blocJeu(j) {
   const nomEquipe = j.equipe.nom || j.nom;
   return h('article', { class: 'v-jeu', style: styleJeu(j), 'aria-labelledby': `jeu-${j.id}` },
     h('header', { class: 'v-jeu__tete' },
-      h('p', { class: 'v-jeu__jeu' }, j.nom),
+      j.equipe.nom ? h('p', { class: 'v-jeu__jeu' }, j.nom) : null,
       h('h3', { id: `jeu-${j.id}`, class: 'v-jeu__equipe' }, nomEquipe, j.equipe.tag ? h('span', { class: 'v-jeu__tag' }, j.equipe.tag) : null),
       j.equipe.devise ? h('p', { class: 'v-jeu__devise' }, j.equipe.devise) : null,
       j.equipe.circuit ? h('p', { class: 'v-jeu__circuit' }, j.equipe.circuit) : null,
@@ -54,7 +53,9 @@ function recrutement(v) {
   const ouverts = v.jeux.filter((j) => j.places > 0);
   if (!ouverts.length) {
     return h('div', { class: 'v-recrut-vide' },
-      h('p', {}, 'Aucune place ouverte pour le moment. Repasse bientôt : les places s’affichent ici dès qu’une équipe recrute.'),
+      h('p', {}, v.structure.postuler
+        ? 'Aucune place ouverte pour le moment. Tu peux quand même nous écrire pour te présenter : on garde les profils sous la main.'
+        : 'Aucune place ouverte pour le moment. Les places s’affichent ici dès qu’une équipe recrute.'),
       lienPostuler(v.structure.postuler, 'Nous contacter', 'v-btn-ligne'));
   }
   return h('ul', { class: 'v-recrut' }, ouverts.map((j) => h('li', { class: 'v-recrut__carte', style: styleJeu(j) },
@@ -80,13 +81,20 @@ function remplir(v) {
   const nom = v.structure.nom || 'Lugh';
   $('nom').textContent = nom;
   if (v.structure.presentation) $('presentation').textContent = v.structure.presentation;
-  const postuler = lienPostuler(v.structure.postuler);
-  if (postuler) $('actions').replaceChildren(postuler, h('a', { class: 'btn v-btn-ligne', href: '#equipes' }, 'Voir les joueurs'));
-
   const membres = v.jeux.reduce((n, j) => n + j.membres.length, 0);
   const places = v.jeux.reduce((n, j) => n + j.places, 0);
-  $('compteurs').replaceChildren(...[[v.jeux.length, v.jeux.length > 1 ? 'jeux actifs' : 'jeu actif'], [membres, membres > 1 ? 'membres' : 'membre'], [places, places > 1 ? 'places ouvertes' : 'place ouverte']]
-    .map(([n, l]) => h('div', { class: 'v-compteur' }, h('dt', {}, l), h('dd', {}, String(n)))));
+  // Pas de bouton mort : « Postuler » s'il y a un lien, « Voir les places » s'il y en a, « Voir les joueurs » s'il y en a.
+  const actions = [
+    lienPostuler(v.structure.postuler) || (places ? h('a', { class: 'btn v-btn-or', href: '#recrutement' }, 'Voir les places') : null),
+    membres ? h('a', { class: 'btn v-btn-ligne', href: '#equipes' }, 'Voir les joueurs') : null,
+  ].filter(Boolean);
+  $('actions').replaceChildren(...(actions.length ? actions : [h('p', { class: 'v-hero__attente' }, 'Le recrutement ouvre bientôt : repasse nous voir.')]));
+
+  // Compteurs à zéro cachés (« 0 membre » ne dit rien de bon) ; la rangée garde sa hauteur s'il en reste un.
+  const chiffres = [[v.jeux.length, v.jeux.length > 1 ? 'jeux actifs' : 'jeu actif'], [membres, membres > 1 ? 'membres' : 'membre'], [places, places > 1 ? 'places ouvertes' : 'place ouverte']]
+    .filter(([n]) => n > 0);
+  $('compteurs').replaceChildren(...chiffres.map(([n, l]) => h('div', { class: 'v-compteur' }, h('dt', {}, l), h('dd', {}, String(n)))));
+  $('compteurs').hidden = !chiffres.length;
 
   const ouverts = v.jeux.filter((j) => j.places > 0);
   if (ouverts.length) {
@@ -98,7 +106,6 @@ function remplir(v) {
   $('resultats').replaceChildren(resultats(v));
 }
 
-$('legal').replaceChildren(...liensLegaux('v-lien-legal'));
 fetch('/api/public/vitrine', { credentials: 'omit' })
   .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
   .then(remplir)

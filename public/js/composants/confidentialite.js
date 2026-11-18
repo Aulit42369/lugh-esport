@@ -39,10 +39,20 @@ export const ouvrirConfidentialite = () => fenetre('confidentialite');
 export const ouvrirConditions = () => fenetre('conditions');
 export const ouvrirMentionsLegales = () => fenetre('mentions');
 
-const lien = (libelle, ouvrir) => (classe = 'lien-discret') => h('button', { type: 'button', class: ['btn-lien', classe], onclick: () => ouvrir() }, libelle);
-export const lienConfidentialite = lien('Données et confidentialité', ouvrirConfidentialite);
-export const lienConditions = lien('Conditions d’utilisation', ouvrirConditions);
-export const lienMentionsLegales = lien('Mentions légales', ouvrirMentionsLegales);
+// Vrais liens vers les pages servies par le serveur (lisibles sans JavaScript, partageables) ; dans l'appli, un clic
+// simple ouvre la fenêtre (on reste où on est), un clic molette ou Ctrl+clic ouvre la page.
+const lien = (libelle, href, ouvrir) => (classe = 'lien-discret') => h('a', {
+  href,
+  class: ['lien-legal', classe],
+  onclick: (e) => {
+    if (e.button || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    e.preventDefault();
+    ouvrir();
+  },
+}, libelle);
+export const lienConfidentialite = lien('Données et confidentialité', '/confidentialite', ouvrirConfidentialite);
+export const lienConditions = lien('Conditions d’utilisation', '/conditions', ouvrirConditions);
+export const lienMentionsLegales = lien('Mentions légales', '/mentions-legales', ouvrirMentionsLegales);
 
-// Les trois liens côte à côte (connexion, Mes jeux, Mon compte).
+// Les trois liens côte à côte (connexion, Mes jeux, Mon compte). La vitrine les a en HTML (vitrine.html).
 export const liensLegaux = (classe) => [lienConfidentialite(classe), ' · ', lienConditions(classe), ' · ', lienMentionsLegales(classe)];

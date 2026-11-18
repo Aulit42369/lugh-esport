@@ -138,7 +138,7 @@ textarea.saisie { min-height: 6rem; resize: vertical; line-height: 1.45; }
 select.saisie { padding-right: 2rem; }
 .saisie[aria-invalid='true'] { border-color: var(--brique); }
 .case { display: inline-flex; align-items: center; gap: var(--e-2); font-size: var(--t-s); cursor: pointer; }
-.case input { flex: none; width: 1.1rem; height: 1.1rem; accent-color: var(--surimpression); }
+.case input { flex: none; width: 1.5rem; height: 1.5rem; accent-color: var(--surimpression); }
 .cases { display: flex; flex-wrap: wrap; gap: var(--e-2) var(--e-4); }
 .curseur { width: 100%; accent-color: var(--surimpression); }
 
@@ -309,4 +309,15 @@ a.alerte:hover { color: var(--encre); outline: 1px solid var(--trait-fort); }
   .modale[open] { display: flex; flex-direction: column; }
   .toasts { left: var(--e-4); right: var(--e-4); bottom: calc(var(--hauteur-barre) + var(--e-3)); width: auto; }
   .fiche { padding: var(--e-4); }
+}
+
+/* ——— Cibles (WCAG 2.5.8) : 24 px au moins partout, 44 px au doigt ———
+   Liens isolés (« Tout voir », « Retour… », « Source »), résumés dépliables, cases à cocher et boutons de carte.
+   Les liens au fil d'une phrase gardent la hauteur de la ligne (exception admise par la règle). */
+a.petit, a.tres-petit, a.retour, .candidat__ouvrir, .adm-carte__alertes a, .admv-sources a, .rangee > a { display: inline-flex; align-items: center; min-height: 1.5rem; }
+summary { padding-block: 0.2rem; }
+input[type="checkbox"], input[type="radio"] { min-width: 1.5rem; min-height: 1.5rem; accent-color: var(--surimpression); }
+@media (pointer: coarse) {
+  a.petit, a.tres-petit, a.retour, .candidat__ouvrir, .adm-carte__alertes a, .admv-sources a, .rangee > a { min-height: 2.75rem; }
+  summary { padding-block: 0.65rem; }
 }

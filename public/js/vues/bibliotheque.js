@@ -158,7 +158,7 @@ export function rendre(page, params, ctx) {
   if (!visibles.length) {
     page.append(etatVide(duType.length ? 'Rien ne correspond à ces filtres.'
       : (onglet === 'astuce' ? 'Rien ici pour l’instant. Ajoute ce que l’équipe utilise déjà, avec un lien vidéo ou image.' : 'Aucune ressource pour l’instant.'),
-    editable ? bouton('Ajouter', { classe: 'btn--principal', onclick: () => editeur(null, onglet) }) : null));
+    editable ? bouton('Ajouter', { onclick: () => editeur(null, onglet) }) : null));
     return;
   }
   page.append(h('div', { class: 'grille-biblio' }, visibles.map((b) => carte(b, editable))));

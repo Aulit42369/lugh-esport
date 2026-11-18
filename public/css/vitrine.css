@@ -5,6 +5,8 @@
 .vitrine { --jeu: var(--surimpression); overflow-x: hidden; }
 .vitrine a { color: var(--surimpression); }
 .vitrine a.btn--principal { color: var(--sur-surimpression); }
+/* Le lien d'évitement garde ses couleurs de base.css (sombre sur crème) : « .vitrine a » le passerait en or sur crème. */
+.vitrine .lien-evitement { color: var(--papier); }
 .vitrine a:focus-visible, .vitrine button:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
 #contenu:focus { outline: none; }
 
@@ -22,6 +24,7 @@
 .v-nav a { color: var(--encre-2); text-decoration: none; padding: var(--e-2) 0; border-bottom: 2px solid transparent; }
 .v-nav a:hover { color: var(--encre); border-bottom-color: var(--violet); }
 .v-connexion { flex: none; }
+.v-barre--simple { justify-content: space-between; }
 
 /* ——— Boutons ——— */
 .v-btn-or {
@@ -37,8 +40,6 @@
 
 /* ——— Étiquettes « régie » ——— */
 .v-kick { margin: 0; font-family: var(--police-mono); font-size: 0.76rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--violet); display: inline-flex; align-items: center; gap: 0.6em; }
-.v-direct { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--brique); box-shadow: 0 0 0 0 var(--brique); animation: v-pouls 2.4s ease-out infinite; }
-@keyframes v-pouls { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--brique) 70%, transparent); } 70%, 100% { box-shadow: 0 0 0 0.6rem transparent; } }
 
 /* ——— Héros ——— */
 .v-hero {
@@ -67,11 +68,13 @@
 }
 .v-hero__devise { margin: 0; font-family: var(--police-titre); font-weight: 700; font-style: italic; font-size: var(--t-xl); color: var(--surimpression); }
 .v-hero__texte { margin: 0; max-width: 56ch; color: var(--encre-2); font-size: var(--t-l); white-space: pre-line; }
-.v-hero__actions { display: flex; flex-wrap: wrap; gap: var(--e-3); margin-top: var(--e-3); }
+.v-hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--e-3); margin-top: var(--e-3); min-height: 2.75rem; }
+.v-hero__attente { margin: 0; color: var(--encre-2); }
+.v-compteurs[hidden] { display: none; }
 
 .v-compteurs { display: flex; flex-wrap: wrap; gap: var(--e-3); margin: 0; }
 .v-compteur {
-  display: flex; flex-direction: column-reverse; min-width: 8.5rem;
+  display: flex; flex-direction: column-reverse; justify-content: flex-end; min-width: 8.5rem;
   padding: var(--e-3) var(--e-4); border: 1px solid var(--trait); border-radius: var(--r-fiche);
   background: color-mix(in srgb, var(--surface) 80%, transparent);
 }
@@ -166,7 +169,19 @@
 .v-pied { display: grid; gap: var(--e-2); justify-items: center; text-align: center; padding: var(--e-6) clamp(1rem, 4vw, 3rem) var(--e-7); border-top: 1px solid var(--trait); background: var(--surface); }
 .v-pied__legal { margin: 0; color: var(--encre-3); }
 .v-pied__note { margin: 0; font-size: var(--t-s); color: var(--encre-3); max-width: 60ch; }
-.v-lien-legal { color: var(--encre-2); text-decoration: underline; text-underline-offset: 3px; background: none; border: 0; padding: 0; cursor: pointer; font-size: var(--t-s); }
+.v-lien-legal { display: inline-flex; align-items: center; min-height: 1.5rem; color: var(--encre-2); text-decoration: underline; text-underline-offset: 3px; font-size: var(--t-s); }
+.v-pied__note a { display: inline-flex; align-items: center; min-height: 1.5rem; }
+@media (pointer: coarse) { .v-lien-legal, .v-pied__note a { min-height: 2.75rem; } }
+
+/* ——— Pages légales et 404 (rendues par le serveur, src/http/pages.js) ——— */
+.v-texte { max-width: 52rem; }
+.v-texte h1 { margin: 0; font-family: var(--police-titre); font-weight: 800; text-transform: uppercase; font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1; overflow-wrap: anywhere; }
+.v-texte h1::after { content: ""; display: block; width: 4.5rem; height: 3px; margin-top: var(--e-3); background: linear-gradient(90deg, var(--surimpression), var(--violet)); }
+.v-texte section { margin-top: var(--e-6); }
+.v-texte h2 { margin: 0 0 var(--e-2); font-family: var(--police-titre); font-weight: 700; text-transform: uppercase; font-size: var(--t-xl); }
+.v-texte p, .v-texte li { max-width: 65ch; color: var(--encre-2); line-height: 1.6; overflow-wrap: anywhere; }
+.v-texte ul { padding-left: 1.2rem; }
+.v-texte__actions { display: flex; flex-wrap: wrap; gap: var(--e-3); margin-top: var(--e-5); }
 .v-lien-legal:hover { color: var(--surimpression); }
 
 /* ——— Téléphone ——— */
@@ -181,7 +196,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .v-direct { animation: none; }
   .v-carte { transition: none; }
   .v-carte:hover { transform: none; }
 }

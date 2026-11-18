@@ -278,7 +278,7 @@ export function rendre(page) {
     h('div', { class: 'entete-page__texte' },
       h('h1', {}, 'Roster'),
       h('p', { class: 'entete-page__intro' },
-        `Joueurs et staff, rôle en jeu${J.aPersonnages() ? ` et ${J.v('personnages')} de chacun` : ''}. Les comptes de connexion se gèrent à part, dans Gestion du jeu.`)),
+        `Joueurs et staff, rôle en jeu${J.aPersonnages() ? ` et ${J.v('personnages')} de chacun` : ''}.${E.peut('comptes.gerer') ? ' Les comptes de connexion se gèrent à part, dans Gestion du jeu.' : ''}`)),
     h('div', { class: 'entete-page__actions' },
       E.peut('roster.modifier') ? bouton('Ajouter un membre', { icone: 'ajouter', classe: 'btn--principal', onclick: () => editeurMembre() }) : null,
       E.peut('equipe.profil') ? bouton('Profil de l’équipe', { icone: 'modifier', onclick: editeurEquipe }) : null)));

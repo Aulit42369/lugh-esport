@@ -25,10 +25,11 @@ import { routesStructure } from './routes/structure.js';
 import { routesBot } from './routes/bot.js';
 import { routesDiscord } from './routes/discord.js';
 import { routesAdministratif, lireIdentite } from './routes/administratif.js';
-import { contexteStructure } from '../shared/administratif/identite.js';
+import { contexteStructure, nomPublic } from '../shared/administratif/identite.js';
 import { routesTresorerie } from './routes/tresorerie.js';
 import { routesRiot } from './routes/riot.js';
 import { routesVitrine } from './routes/vitrine.js';
+import { pageLegale, page404, envoyerHtml, PAGES_LEGALES } from './http/pages.js';
 import { creerServiceRiot } from './riot/service.js';
 import { creerVeille } from './domaine/veille.js';
 import { creerParametres } from './domaine/parametres.js';
@@ -152,10 +153,14 @@ export async function creerApp({
         res.writeHead(301, { Location: `/app/${url.search}` });
         return res.end();
       }
+      // Pages légales lisibles sans JavaScript, rendues depuis la même source que les fenêtres de l'appli.
+      if (PAGES_LEGALES[chemin] && (req.method === 'GET' || req.method === 'HEAD')) {
+        const i = await lireIdentite(global).catch(() => ({}));
+        return envoyerHtml(res, 200, pageLegale(chemin, { nom: nomPublic(i), contact: i.contact }), req);
+      }
       const fichier = chemin === '/' ? '/vitrine.html' : chemin === '/app/' ? '/index.html' : chemin;
       if (await servirStatique(req, res, fichier)) return;
-      res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
-      res.end('Page introuvable.');
+      envoyerHtml(res, 404, page404(), req);
     } catch (err) {
       if (err instanceof ErreurHttp) return envoyerErreur(res, err);
       if (err?.sature) return envoyerErreur(res, erreurs.tropDeRequetes('Serveur très sollicité : réessaie dans un instant.'));

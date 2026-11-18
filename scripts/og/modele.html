@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Modèle de l'image d'aperçu</title>
+<!-- Modèle de l'image d'aperçu (og:image 1200×630) : rendu par scripts/generer-og.js, jamais servi. -->
+<style>
+  @font-face { font-family: Saira; src: url(../../public/fonts/saira-condensed-latin-800-normal.woff2) format('woff2'); font-weight: 800; }
+  @font-face { font-family: Plex; src: url(../../public/fonts/ibm-plex-sans-latin-500-normal.woff2) format('woff2'); font-weight: 500; }
+  @font-face { font-family: Mono; src: url(../../public/fonts/ibm-plex-mono-latin-500-normal.woff2) format('woff2'); font-weight: 500; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    position: relative; display: grid; grid-template-columns: 1fr 360px; align-items: center; gap: 40px; padding: 0 80px;
+    color: #f6ecd9; font-family: Plex, sans-serif;
+    background:
+      radial-gradient(760px 460px at 8% 0%, rgba(185, 128, 255, 0.24), transparent 62%),
+      radial-gradient(900px 520px at 96% 110%, rgba(255, 207, 90, 0.16), transparent 70%),
+      #0b0813;
+  }
+  body::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: linear-gradient(90deg, #ffcf5a, #b980ff 70%, transparent); }
+  .rayons { position: absolute; right: -120px; bottom: -40px; width: 900px; opacity: 0.22; }
+  .kick { margin: 0 0 22px; font-family: Mono, monospace; font-size: 24px; letter-spacing: 0.26em; text-transform: uppercase; color: #b980ff; }
+  .mot { display: block; width: 520px; height: 178px; background: linear-gradient(176deg, #fff4d2, #ffcf5a 46%, #cf8f22 74%, #ffe7a6);
+    -webkit-mask: left center / contain no-repeat; mask: left center / contain no-repeat; }
+  .devise { margin: 26px 0 0; font-family: Saira, sans-serif; font-weight: 800; font-style: italic; font-size: 46px; color: #ffcf5a; }
+  .sous { margin: 18px 0 0; font-size: 28px; color: #d2c4a8; max-width: 640px; }
+  .ecusson { position: relative; width: 360px; height: 360px; }
+</style>
+</head>
+<body>
+  <img class="rayons" src="../../public/icones/motif-soleil.svg" alt="">
+  <div>
+    <p class="kick">Structure esport</p>
+    <span class="mot" role="img" aria-label="Lugh"></span>
+    <p class="devise">Le soleil se lève avec nous.</p>
+    <p class="sous">Les joueurs, les jeux, les résultats et les places ouvertes au recrutement.</p>
+  </div>
+  <img class="ecusson" src="../../public/icones/marque-symbole.svg" alt="">
+</body>
+</html>

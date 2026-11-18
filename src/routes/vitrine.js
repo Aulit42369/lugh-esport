@@ -5,7 +5,7 @@ import { randomBytes } from 'node:crypto';
 import { envoyerJson, erreurs } from '../http/outils.js';
 import { exigerConnexion, modifierCompte } from '../auth/acces.js';
 import { lireIdentite } from './administratif.js';
-import { construireVitrine, photosPubliees } from '../domaine/vitrine.js';
+import { construireVitrine, photosPubliees, vitrineEnAttente } from '../domaine/vitrine.js';
 import { nettoyerJpeg, PHOTO_OCTETS_MAX } from '../domaine/photo.js';
 
 function envoyerImage(r, photo, cache) {
@@ -30,6 +30,11 @@ export function routesVitrine(routeur, s) {
     const [photo] = await s.global.lister('photos', { cle });
     if (!photo) throw erreurs.introuvable('Photo introuvable.');
     envoyerImage(r, photo, 'public, max-age=300');
+  });
+
+  // Mon compte : jeux où la case est cochée mais où la fiche d'autorisations manque encore (rien d'autre n'est dit).
+  routeur.get('/api/moi/vitrine', connecte, async (r) => {
+    envoyerJson(r.res, 200, { enAttente: await vitrineEnAttente(s, r.compte) });
   });
 
   routeur.put('/api/moi/vitrine', connecte, async (r) => {

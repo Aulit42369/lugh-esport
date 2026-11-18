@@ -49,7 +49,7 @@ function formulaire(p) {
   const date = saisie({ type: 'date', valeur: jour(), max: jour(), required: true });
   const type = liste(INCIDENTS_PARTENAIRE.map((x) => ({ valeur: x.id, libelle: x.nom })), { valeur: 'annule' });
   const note = saisie({ maxlength: 120, placeholder: 'Facultatif : ce qui s’est passé' });
-  const ajouter = bouton('Ajouter au journal', { icone: 'ajouter', classe: 'btn--petit btn--principal' });
+  const ajouter = bouton('Ajouter au journal', { icone: 'ajouter', classe: 'btn--petit' });
   ajouter.addEventListener('click', async () => {
     if (!date.value) {
       toast('Indique la date de l’incident.', { type: 'erreur' });

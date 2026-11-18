@@ -4,7 +4,7 @@
 // au recrutement et les résultats de tournois terminés. Jamais : identifiant de connexion, nom affiché, identifiant
 // en jeu, Discord, notes, disponibilités, objectifs, autorisations.
 
-import { nomPublic } from '../../shared/administratif/identite.js';
+import { nomPublic, vitrineAutorisee } from '../../shared/administratif/identite.js';
 import { trouverDans } from '../../shared/jeux/definition.js';
 import { libelle, FONCTIONS_STAFF, STATUTS_MEMBRE } from '../../shared/referentiel.js';
 
@@ -14,12 +14,7 @@ const RESULTATS_MAX = 6;
 // Un compte apparaît s'il est actif et a coché « Apparaître sur la vitrine publique ».
 export const consent = (c) => !!c && c.actif !== false && c.vitrine?.visible === true;
 
-// Photo publiée seulement si le joueur l'a mise, et, pour un mineur, avec le droit à l'image enregistré.
-function photoPubliable(c, autorisation) {
-  if (!c.vitrine?.photo) return null;
-  if (autorisation?.mineur && !autorisation.image) return null;
-  return `/api/public/photo/${c.vitrine.photo}`;
-}
+const autorisationDe = (autorisations, jeu, membreId) => autorisations.find((a) => a.jeu === jeu && a.membreId === membreId);
 
 export async function construireVitrine({ global, registre, identite }) {
   const comptes = (await global.lister('comptes')).filter(consent);
@@ -36,14 +31,15 @@ export async function construireVitrine({ global, registre, identite }) {
     for (const c of comptes) {
       const m = membres.get(c.acces?.[doc._id]?.membreId);
       if (!m || !m.pseudo || m.statut === 'ancien' || m.vitrineMasque) continue;
-      const auto = autorisations.find((a) => a.jeu === doc._id && a.membreId === m._id);
+      // Ni pseudo ni photo sans fiche d'autorisations valable (voir vitrineAutorisee).
+      if (!vitrineAutorisee(autorisationDe(autorisations, doc._id, m._id))) continue;
       const joueur = m.type === 'joueur';
       presents.push({
         pseudo: m.pseudo,
         type: joueur ? 'joueur' : 'staff',
         role: joueur ? (trouverDans(def.roles, m.roleJeu)?.nom || '') : libelle(FONCTIONS_STAFF, m.fonction, 'Staff'),
         statut: libelle(STATUTS_MEMBRE, m.statut, ''),
-        photo: photoPubliable(c, auto),
+        photo: c.vitrine?.photo ? `/api/public/photo/${c.vitrine.photo}` : null,
         ordre: ORDRE_STATUT[m.statut] ?? 9,
       });
     }
@@ -70,6 +66,21 @@ export async function construireVitrine({ global, registre, identite }) {
     structure: { nom: nomPublic(identite), presentation: identite.presentation || '', postuler: identite.postuler || identite.contact || '' },
     jeux,
   };
+}
+
+// Mon compte : jeux où la personne a coché la case mais n'apparaît pas encore, faute de fiche d'autorisations valable.
+export async function vitrineEnAttente({ global, registre }, compte) {
+  if (!consent(compte)) return [];
+  const autorisations = await global.lister('autorisations');
+  const attente = [];
+  for (const doc of registre.liste()) {
+    const membreId = compte.acces?.[doc._id]?.membreId;
+    const espace = doc.actif !== false && membreId && registre.obtenir(doc._id);
+    if (!espace) continue;
+    const m = await espace.stockage.lire('membres', membreId);
+    if (m?.pseudo && m.statut !== 'ancien' && !vitrineAutorisee(autorisationDe(autorisations, doc._id, membreId))) attente.push(doc.nom);
+  }
+  return attente;
 }
 
 // Clés des photos actuellement publiées : une photo retirée, masquée ou non consentie n'est plus servie.

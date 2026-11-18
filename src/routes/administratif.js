@@ -163,7 +163,7 @@ export function routesAdministratif(routeur, s) {
   // ——— Autorisations des joueurs d'un jeu (Responsable du jeu, ou Administrateur général) ———
   routeur.get('/api/e/:jeu/autorisations', ...espace, exigerPerm('comptes.gerer'), async (r) => {
     const liste = await s.global.lister('autorisations', { jeu: r.espace.id });
-    envoyerJson(r.res, 200, { autorisations: Object.fromEntries(liste.map((a) => [a.membreId, { mineur: !!a.mineur, parentale: a.parentale || '', image: a.image || '', note: a.note || '' }])) });
+    envoyerJson(r.res, 200, { autorisations: Object.fromEntries(liste.map((a) => [a.membreId, { mineur: !!a.mineur, parentale: a.parentale || '', image: a.image || '', moins15: !!a.moins15, accordJeune: a.accordJeune || '', note: a.note || '' }])) });
   });
 
   routeur.put('/api/e/:jeu/autorisations/:membreId', ...espace, exigerPerm('comptes.gerer'), async (r) => {

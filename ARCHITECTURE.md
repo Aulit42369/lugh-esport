@@ -329,3 +329,18 @@ Plus : captures PC (1440 px) et téléphone (390 px) en thème sombre, aucun dé
 ## Cache des fichiers statiques (16/11/2026)
 - `src/http/statique.js` : polices `.woff2` gardées un an (`immutable`, nom de fichier figé : remplacer une police = nouveau nom) ;
   tout le reste en `no-cache` + ETag (304 si inchangé). Compression : Caddy (`encode zstd gzip`) et le serveur pour les grosses réponses.
+
+## Corrections de l'audit (18/11/2026)
+- **Vitrine et mineurs** : `construireVitrine` ne garde un membre que si `vitrineAutorisee(fiche)` (fiche existante ; majeur,
+  ou mineur avec droit à l'image et, avant 15 ans, accord du jeune : champs `moins15`, `accordJeune` du schéma `autorisation`).
+  `vitrineEnAttente` + `GET /api/moi/vitrine` (connecté) donnent à « Mon compte » les jeux en attente (noms seulement).
+- **Pages rendues par le serveur** (`src/http/pages.js`) : `/mentions-legales`, `/confidentialite`, `/conditions` (texte de
+  `shared/administratif/`, identité lue à chaque appel, `noindex`) et la page 404 HTML ; `/api/*` inconnu reste en JSON.
+  Feuilles de la vitrine, aucun script. `statique.js` sert aussi `.jpg` (image d'aperçu).
+- **Interface** : `champ()` relie l'aide au contrôle ; `erreurChamp(controle, zone, message)` relie l'erreur, pose
+  `aria-invalid` et le focus. Les liens légaux de l'appli sont des `<a href>` (clic simple = fenêtre).
+- **Poids du JavaScript** (mesuré le 18/11, gzip niveau 6, après connexion puis ouverture d'un jeu) : joueur ~128 Ko,
+  capitaine ~156 Ko (61 modules, 431 Ko bruts), Administrateur à la Vue d'ensemble ~59 Ko. Proposition (non faite) pour
+  repasser sous 150 Ko : charger à la demande, à l'ouverture de la fenêtre concernée, les éditeurs (`*-editeur.js`,
+  `maps-outils.js`, `scrims-saisie.js`) et les textes légaux de `shared/administratif/` (déjà servis en pages HTML), au lieu
+  de les importer en tête des vues.

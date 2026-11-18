@@ -64,7 +64,6 @@ function dessinerNonLie(corps) {
     erreur,
     h('div', {}, bouton('Obtenir un code', {
       icone: 'discord',
-      classe: 'btn--principal',
       onclick: async (e) => {
         erreur.textContent = '';
         e.currentTarget.disabled = true;

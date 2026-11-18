@@ -3,6 +3,7 @@
 // passage) ; le serveur contrôle encore le type réel et retire ce qui resterait (src/domaine/photo.js).
 
 import { h, bouton, caseACocher, toast, messageErreur } from '../ui.js';
+import { icone } from '../icones.js';
 import { api } from '../api.js';
 import * as E from '../etat.js';
 
@@ -35,11 +36,21 @@ async function rafraichir(fiche) {
 export function ficheVitrine(c) {
   const v = c.vitrine || { visible: false, photo: false };
   const choix = caseACocher('Apparaître sur la vitrine publique', { coche: v.visible });
+  const attente = h('div', { 'aria-live': 'polite' });
+  if (v.visible) {
+    api('GET', '/api/moi/vitrine').then(({ enAttente }) => {
+      if (!enAttente?.length) return;
+      attente.replaceChildren(h('p', { class: 'alerte alerte--attention' }, icone('alerte'), h('span', {},
+        h('strong', {}, `En attente d’autorisation (${enAttente.join(', ')}) : `),
+        'ton pseudo et ta photo n’apparaissent pas encore. Le Responsable de ton jeu doit d’abord enregistrer ta fiche d’autorisations. Si tu es mineur, il faut le droit à l’image signé par tes parents (et ton propre accord si tu as moins de 15 ans).')));
+    }).catch(() => {});
+  }
   const fichier = h('input', { type: 'file', accept: 'image/jpeg,image/png,image/webp', class: 'visuellement-cache', id: 'photo-vitrine' });
   const fiche = h('section', { class: 'fiche pile', 'aria-labelledby': 'titre-vitrine' },
     h('h2', { id: 'titre-vitrine' }, 'Vitrine publique'),
     h('p', { class: 'texte-2 petit' }, 'La page d’accueil du site, visible par tout le monde, présente l’équipe. Si tu coches la case, ton pseudo et ton rôle y apparaissent (et ta photo si tu en mets une). Jamais ton nom, ton identifiant ni tes autres données. Tu peux décocher ou retirer ta photo à tout moment ; le staff peut aussi te masquer.'),
     choix.element,
+    attente,
     h('div', { class: 'rangee' },
       v.photo ? h('img', { src: `/api/moi/photo?${Date.now()}`, alt: 'Ta photo actuelle', width: 72, height: 72, class: 'photo-vitrine' }) : null,
       fichier,
@@ -51,7 +62,7 @@ export function ficheVitrine(c) {
           await rafraichir(fiche);
         } catch (e) { toast(messageErreur(e), { type: 'erreur' }); }
       } }) : null),
-    h('p', { class: 'texte-3 petit' }, 'Photo carrée, recadrée au centre (JPEG, PNG ou WebP). Les informations cachées de l’image (lieu, appareil) sont retirées. Pour un joueur mineur, la photo ne s’affiche qu’une fois le droit à l’image signé par ses parents.'));
+    h('p', { class: 'texte-3 petit' }, 'Photo carrée, recadrée au centre (JPEG, PNG ou WebP). Les informations cachées de l’image (lieu, appareil) sont retirées. Rien ne s’affiche tant que le Responsable du jeu n’a pas enregistré ta fiche d’autorisations ; pour un mineur, il faut le droit à l’image signé par ses parents (et son propre accord avant 15 ans).'));
 
   choix.input.addEventListener('change', async () => {
     try {

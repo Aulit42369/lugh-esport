@@ -56,6 +56,7 @@ async function membre(jeu, champs) {
   await sim.espace(jeu).stockage.ecrire('membres', m);
   return m;
 }
+const autoriser = (jeu, m, champs) => sim.global.ecrire('autorisations', { _id: `${jeu}:${m._id}`, jeu, membreId: m._id, ...champs });
 const vitrine = async () => (await client(sim.base).get('/api/public/vitrine')).json;
 const jeuDe = (v, id) => v.jeux.find((j) => j.id === id);
 
@@ -95,6 +96,10 @@ test('consentement : personne n’apparaît sans avoir coché, puis seulement ps
   assert.equal((await joueur.put('/api/moi/vitrine', { visible: 'oui' })).statut, 400);
   assert.equal((await joueur.put('/api/moi/vitrine', { visible: true })).statut, 200);
   assert.equal((await joueur.get('/api/auth/moi')).json.compte.vitrine.visible, true);
+  assert.deepEqual(jeuDe(await vitrine(), 'valorant').membres, [], 'sans fiche d’autorisations : rien, même coché');
+  assert.deepEqual((await joueur.get('/api/moi/vitrine')).json.enAttente, [sim.registre.liste().find((j) => j._id === 'valorant').nom]);
+  await autoriser('valorant', m, { mineur: false });
+  assert.deepEqual((await joueur.get('/api/moi/vitrine')).json.enAttente, []);
   v = await vitrine();
   assert.deepEqual(jeuDe(v, 'valorant').membres, [{ pseudo: 'Solaris', type: 'joueur', role: role.nom, statut: 'Titulaire', photo: null }]);
   const brut = JSON.stringify(v);
@@ -105,6 +110,7 @@ test('consentement : personne n’apparaît sans avoir coché, puis seulement ps
   const sm = await membre('valorant', { type: 'staff', statut: 'actif', fonction: 'coach', pseudo: 'Orion' });
   const staff = await compteConnecte(sim, { identifiant: 'orion', acces: { valorant: { metiers: ['coach'], membreId: sm._id } } });
   assert.equal((await staff.put('/api/moi/vitrine', { visible: true })).statut, 200);
+  await autoriser('valorant', sm, { mineur: false });
   const orion = jeuDe(await vitrine(), 'valorant').membres.find((x) => x.pseudo === 'Orion');
   assert.equal(orion?.type, 'staff');
   assert.ok(orion.role);
@@ -130,6 +136,7 @@ test('photo : envoyée, nettoyée, servie seulement publiée ; retirée, décoch
   assert.equal((await client(sim.base).put('/api/moi/photo', { image })).statut, 401, 'connexion obligatoire');
   assert.equal((await joueur.put('/api/moi/photo', { image })).statut, 200);
   assert.equal((await joueur.get('/api/moi/photo')).statut, 200, 'aperçu pour soi, même non publiée');
+  await autoriser('valorant', m, { mineur: false });
 
   assert.equal(jeuDe(await vitrine(), 'valorant').membres.find((x) => x.pseudo === 'Nova'), undefined, 'photo sans consentement : rien');
   await joueur.put('/api/moi/vitrine', { visible: true });
@@ -141,11 +148,11 @@ test('photo : envoyée, nettoyée, servie seulement publiée ; retirée, décoch
   assert.equal(servie.entetes['x-content-type-options'], 'nosniff');
   assert.ok(!servie.corps.toString('latin1').includes('GPS'), 'EXIF retiré avant stockage');
 
-  // Mineur sans droit à l'image : pseudo oui, photo non (et l'adresse n'est plus servie).
-  await sim.global.ecrire('autorisations', { _id: `valorant_${m._id}`, jeu: 'valorant', membreId: m._id, mineur: true, parentale: '2026-10-01', image: '' });
-  assert.equal(jeuDe(await vitrine(), 'valorant').membres.find((x) => x.pseudo === 'Nova').photo, null);
+  // Mineur sans droit à l'image : ni pseudo ni photo (et l'adresse n'est plus servie).
+  await autoriser('valorant', m, { mineur: true, parentale: '2026-10-01', image: '' });
+  assert.equal(jeuDe(await vitrine(), 'valorant').membres.find((x) => x.pseudo === 'Nova'), undefined);
   assert.equal((await requeteBrute(sim.base, photo)).statut, 404);
-  await sim.global.modifier('autorisations', `valorant_${m._id}`, { image: '2026-10-02' });
+  await sim.global.modifier('autorisations', `valorant:${m._id}`, { image: '2026-10-02' });
   assert.equal(jeuDe(await vitrine(), 'valorant').membres.find((x) => x.pseudo === 'Nova').photo, photo);
 
   // Décoché : la photo n'est plus servie.
@@ -171,6 +178,40 @@ test('photo : envoyée, nettoyée, servie seulement publiée ; retirée, décoch
   assert.equal((await admin.del(`/api/admin/comptes/${joueur.id}`)).statut, 200);
   assert.equal(await sim.global.lire('photos', joueur.id), null);
   assert.equal(jeuDe(await vitrine(), 'valorant').membres.find((x) => x.pseudo === 'Nova'), undefined);
+});
+
+test('mineurs : sans fiche, mineur sans droit à l’image, moins de 15 ans sans son accord → ni pseudo ni photo', async () => {
+  const cas = {};
+  for (const pseudo of ['SansFiche', 'MineurSansDroit', 'MineurAvecDroit', 'Majeur', 'Moins15', 'Moins15Accord']) {
+    const m = await membre('valorant', { pseudo });
+    const c = await compteConnecte(sim, { identifiant: pseudo.toLowerCase(), acces: { valorant: { metiers: ['joueur'], membreId: m._id } } });
+    await c.put('/api/moi/vitrine', { visible: true });
+    await c.put('/api/moi/photo', { image: jpeg().toString('base64') });
+    cas[pseudo] = { m, c };
+  }
+  await autoriser('valorant', cas.MineurSansDroit.m, { mineur: true, parentale: '2026-10-01', image: '' });
+  await autoriser('valorant', cas.MineurAvecDroit.m, { mineur: true, parentale: '2026-10-01', image: '2026-10-01' });
+  await autoriser('valorant', cas.Majeur.m, { mineur: false });
+  await autoriser('valorant', cas.Moins15.m, { mineur: true, parentale: '2026-10-01', image: '2026-10-01', moins15: true, accordJeune: '' });
+  await autoriser('valorant', cas.Moins15Accord.m, { mineur: true, parentale: '2026-10-01', image: '2026-10-01', moins15: true, accordJeune: '2026-10-03' });
+  const membres = jeuDe(await vitrine(), 'valorant').membres;
+  const montre = (p) => membres.find((x) => x.pseudo === p);
+  for (const p of ['SansFiche', 'MineurSansDroit', 'Moins15']) {
+    assert.equal(montre(p), undefined, `${p} : ni pseudo ni photo`);
+    assert.equal((await cas[p].c.get('/api/moi/vitrine')).json.enAttente.length, 1, `${p} : en attente dans Mon compte`);
+  }
+  for (const p of ['MineurAvecDroit', 'Majeur', 'Moins15Accord']) {
+    assert.match(montre(p)?.photo || '', /^\/api\/public\/photo\//, `${p} : pseudo et photo`);
+    assert.deepEqual((await cas[p].c.get('/api/moi/vitrine')).json.enAttente, []);
+  }
+  // Le Responsable enregistre la fiche par la route : les nouveaux champs sont validés et relus.
+  const resp = await compteConnecte(sim, { identifiant: 'respval', acces: { valorant: ['responsable'] } });
+  const put = await resp.put(`/api/e/valorant/autorisations/${cas.Moins15.m._id}`, { mineur: true, parentale: '2026-10-01', image: '2026-10-01', moins15: true, accordJeune: '2026-10-05' });
+  assert.equal(put.statut, 200, put.texte);
+  assert.deepEqual(put.json.manques, []);
+  assert.equal((await resp.get('/api/e/valorant/autorisations')).json.autorisations[cas.Moins15.m._id].accordJeune, '2026-10-05');
+  assert.ok(jeuDe(await vitrine(), 'valorant').membres.find((x) => x.pseudo === 'Moins15'));
+  for (const { c } of Object.values(cas)) await c.put('/api/moi/vitrine', { visible: false });
 });
 
 test('recrutement, résultats, présentation et lien « Postuler » ; jeu désactivé absent', async () => {
@@ -215,4 +256,44 @@ test('recrutement, résultats, présentation et lien « Postuler » ; jeu désac
   v = await vitrine();
   assert.equal(jeuDe(v, 'lol'), undefined);
   doc.actif = true;
+});
+
+test('pages légales servies sans JavaScript (même texte que les fenêtres), 404 habillée, API en JSON, aperçu social', async () => {
+  const { texteMentionsLegales } = await import('../shared/administratif/mentions-legales.js');
+  for (const [chemin, titre] of [['/mentions-legales', 'Mentions légales'], ['/confidentialite', 'Données et confidentialité'], ['/conditions', 'Conditions d’utilisation']]) {
+    const r = await requeteBrute(sim.base, chemin);
+    assert.equal(r.statut, 200, chemin);
+    assert.match(r.entetes['content-type'], /text\/html/);
+    const html = r.corps.toString();
+    assert.match(html, /<html lang="fr">/);
+    assert.match(html, new RegExp(`<h1>${titre}</h1>`));
+    assert.match(html, /<meta name="robots" content="noindex">/, 'comme les pages légales des autres sites');
+    assert.ok(!/<script/.test(html), 'aucun script : CSP stricte, lisible sans JavaScript');
+    assert.match(html, /href="\/mentions-legales"/);
+  }
+  const mentions = (await requeteBrute(sim.base, '/mentions-legales')).corps.toString();
+  for (const sec of texteMentionsLegales()) assert.ok(mentions.includes(`<h2>${sec.titre}</h2>`), `même source que la fenêtre : ${sec.titre}`);
+  // Nom de la structure échappé (jamais interprété).
+  await admin.put('/api/admin/administratif/identite', { nom: 'Lugh <b>Esport</b>' });
+  assert.ok((await requeteBrute(sim.base, '/conditions')).corps.toString().includes('Lugh &lt;b&gt;Esport&lt;/b&gt;'));
+  await admin.put('/api/admin/administratif/identite', { nom: 'Lugh Esport' });
+
+  const page = await requeteBrute(sim.base, '/nimporte-quoi');
+  assert.equal(page.statut, 404);
+  assert.match(page.entetes['content-type'], /text\/html/);
+  assert.match(page.corps.toString(), /Page introuvable[\s\S]*href="\/"/, 'lien de retour');
+  const api = await requeteBrute(sim.base, '/api/nimporte-quoi');
+  assert.equal(api.statut, 404);
+  assert.match(api.entetes['content-type'], /json/, 'l’API garde ses erreurs en JSON');
+
+  const vitrineHtml = (await requeteBrute(sim.base, '/')).corps.toString();
+  for (const m of ['og:title', 'og:description', 'og:image', 'og:image:alt', 'og:url', 'og:locale', 'twitter:card']) assert.match(vitrineHtml, new RegExp(`"${m}"`), m);
+  const ld = JSON.parse(vitrineHtml.match(/<script type="application\/ld\+json">(.+?)<\/script>/)[1]);
+  assert.equal(ld['@type'], 'SportsTeam');
+  assert.match(vitrineHtml, /href="\/confidentialite"/, 'liens légaux en HTML sur la vitrine');
+  const image = await requeteBrute(sim.base, '/og-image.jpg');
+  assert.equal(image.statut, 200);
+  assert.equal(image.entetes['content-type'], 'image/jpeg');
+  assert.ok(image.corps.length <= 200 * 1024, 'image d’aperçu ≤ 200 Ko');
+  assert.deepEqual([image.corps.readUInt16BE(0)], [0xffd8]);
 });
