@@ -6,22 +6,16 @@
 import { h, etatVide } from '../ui.js';
 import { icone } from '../icones.js';
 import * as E from '../etat.js';
-import { rendreStructure } from './admin-structure.js';
-import { rendreJeux } from './admin-jeux.js';
-import { rendreComptes } from './admin-comptes.js';
-import { rendreAnnonces } from './admin-annonces.js';
-import { rendreService } from './admin-service.js';
-import { rendreDiscord } from './admin-discord.js';
-import { rendreAdministratif } from './admin-administratif.js';
+import { chargement } from './admin-commun.js';
 
 const ONGLETS = [
-  { id: 'structure', titre: 'Vue d’ensemble', icone: 'structure', intro: 'Tous les jeux d’un coup d’œil : effectif, prochaines échéances, santé, présence et résultats.', rendre: rendreStructure },
-  { id: 'jeux', titre: 'Jeux', icone: 'jeux', intro: 'Active les jeux de la structure : chaque jeu activé a son propre espace, ses comptes et ses données.', rendre: rendreJeux },
-  { id: 'comptes', titre: 'Comptes', icone: 'roster', intro: 'Un compte par personne, avec ses métiers dans chaque jeu. Les Responsables gèrent aussi les comptes de leur jeu.', rendre: rendreComptes },
-  { id: 'administratif', titre: 'Administratif', icone: 'balance', intro: 'L’association : obligations légales et veille, livre des comptes, documents types, autorisations des mineurs.', rendre: rendreAdministratif },
-  { id: 'annonces', titre: 'Annonces', icone: 'annonce', intro: 'Un message en tête de l’accueil de tous les jeux, ou de certains, et qui l’a lu.', rendre: rendreAnnonces },
-  { id: 'discord', titre: 'Discord', icone: 'discord', intro: 'Le bot Discord de la structure : rôles synchronisés avec Lugh, rappels avant les séances et les matchs, comptes liés.', rendre: rendreDiscord },
-  { id: 'service', titre: 'Service', icone: 'meta', intro: 'État du serveur, de la méta et de Discord pour chaque jeu, et tout ce qui s’est passé dans la structure.', rendre: rendreService },
+  { id: 'structure', titre: 'Vue d’ensemble', icone: 'structure', intro: 'Tous les jeux d’un coup d’œil : effectif, prochaines échéances, santé, présence et résultats.', charger: () => import('./admin-structure.js'), fonction: 'rendreStructure' },
+  { id: 'jeux', titre: 'Jeux', icone: 'jeux', intro: 'Active les jeux de la structure : chaque jeu activé a son propre espace, ses comptes et ses données.', charger: () => import('./admin-jeux.js'), fonction: 'rendreJeux' },
+  { id: 'comptes', titre: 'Comptes', icone: 'roster', intro: 'Un compte par personne, avec ses métiers dans chaque jeu. Les Responsables gèrent aussi les comptes de leur jeu.', charger: () => import('./admin-comptes.js'), fonction: 'rendreComptes' },
+  { id: 'administratif', titre: 'Administratif', icone: 'balance', intro: 'L’association : obligations légales et veille, livre des comptes, documents types, autorisations des mineurs.', charger: () => import('./admin-administratif.js'), fonction: 'rendreAdministratif' },
+  { id: 'annonces', titre: 'Annonces', icone: 'annonce', intro: 'Un message en tête de l’accueil de tous les jeux, ou de certains, et qui l’a lu.', charger: () => import('./admin-annonces.js'), fonction: 'rendreAnnonces' },
+  { id: 'discord', titre: 'Discord', icone: 'discord', intro: 'Le bot Discord de la structure : rôles synchronisés avec Lugh, rappels avant les séances et les matchs, comptes liés.', charger: () => import('./admin-discord.js'), fonction: 'rendreDiscord' },
+  { id: 'service', titre: 'Service', icone: 'meta', intro: 'État du serveur, de la méta et de Discord pour chaque jeu, et tout ce qui s’est passé dans la structure.', charger: () => import('./admin-service.js'), fonction: 'rendreService' },
 ];
 
 export function rendre(page, params, ctx) {
@@ -41,5 +35,19 @@ export function rendre(page, params, ctx) {
     h('nav', { class: 'onglets adm-onglets', 'aria-label': 'Rubriques de l’administration générale' },
       ONGLETS.map((o) => h('a', { href: `#/admin/${o.id}`, 'aria-current': o.id === onglet.id ? 'page' : null }, icone(o.icone), o.titre))),
     zone);
-  return onglet.rendre(zone, ctx, params.slice(1)) || null;
+  // Chaque onglet est chargé à son ouverture (JS initial plus léger) ; même message d'échec que app.js.
+  let quitte = false;
+  let nettoyer = null;
+  zone.append(chargement());
+  onglet.charger()
+    .then((m) => {
+      if (quitte) return;
+      zone.replaceChildren();
+      nettoyer = m[onglet.fonction](zone, ctx, params.slice(1)) || null;
+    })
+    .catch((err) => {
+      console.error(err);
+      if (!quitte) zone.replaceChildren(h('p', {}, 'Cette page n’a pas pu être chargée. Recharge la page.'));
+    });
+  return () => { quitte = true; nettoyer?.(); };
 }

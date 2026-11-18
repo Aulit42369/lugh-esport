@@ -339,8 +339,13 @@ Plus : captures PC (1440 px) et téléphone (390 px) en thème sombre, aucun dé
   Feuilles de la vitrine, aucun script. `statique.js` sert aussi `.jpg` (image d'aperçu).
 - **Interface** : `champ()` relie l'aide au contrôle ; `erreurChamp(controle, zone, message)` relie l'erreur, pose
   `aria-invalid` et le focus. Les liens légaux de l'appli sont des `<a href>` (clic simple = fenêtre).
-- **Poids du JavaScript** (mesuré le 18/11, gzip niveau 6, après connexion puis ouverture d'un jeu) : joueur ~128 Ko,
-  capitaine ~156 Ko (61 modules, 431 Ko bruts), Administrateur à la Vue d'ensemble ~59 Ko. Proposition (non faite) pour
-  repasser sous 150 Ko : charger à la demande, à l'ouverture de la fenêtre concernée, les éditeurs (`*-editeur.js`,
-  `maps-outils.js`, `scrims-saisie.js`) et les textes légaux de `shared/administratif/` (déjà servis en pages HTML), au lieu
-  de les importer en tête des vues.
+- **Poids du JavaScript** : budget 150 Ko gzip (niveau 6) au démarrage. Mesure reproductible : `node scripts/poids-js.js`
+  (graphe des imports statiques, les `import()` exclus ; même liste de modules que le navigateur en simulation), gardée par
+  `test/poids-js.test.js` (3 profils + toute page ouverte par un lien direct). 18/11, avant → après : membre de deux jeux (Mes jeux +
+  accueil) 91,8 → 85,0 Ko, capitaine d'un jeu (accueil) 89,8 → 83,0 Ko, admin générale (Vue d'ensemble) 134,8 → 65,0 Ko.
+  (Les ~156/203 Ko de l'audit du 18/11 additionnaient plusieurs pages visitées.) Chargés à la demande : chaque onglet de
+  l'Administration générale (`admin.js` → `admin-<onglet>.js`, « Chargement… » puis l'onglet) et les textes légaux de
+  `shared/administratif/` (à l'ouverture de la fenêtre ; s'ils ne chargent pas, on ouvre la page servie par le serveur).
+  Pas fait : séparer les éditeurs (`*-editeur.js`, `scrims-saisie.js`) de leurs vues : ils mêlent des fonctions d'affichage,
+  ne sont dans aucun démarrage, et la plus lourde page en lien direct reste sous 100 Ko. Aucun préchargement ni `?v=` ;
+  le service worker n'a pas de liste de fichiers (réseau d'abord).

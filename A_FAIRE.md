@@ -60,8 +60,6 @@
 - **Après le déploiement du 18/11** : chaque membre déjà visible sur la vitrine disparaît tant que le Responsable de son
   jeu n'a pas enregistré sa fiche d'autorisations (Roster → fiche du membre → Autorisations → Mettre à jour, même pour un
   majeur : décocher « Mineur » et Enregistrer).
-- JS chargé après connexion : ~156 Ko compressé pour un capitaine (budget 150 Ko) ; découpage proposé (voir ARCHITECTURE,
-  « Poids du JavaScript ») à valider.
 - Vitrine (en ligne depuis le 14/11) : remplir Identité (présentation, lien « Postuler » = invitation Discord) et, dans chaque jeu, les places et les rôles recherchés ; soumettre `https://lugh.aulit42369.fr/sitemap.xml` à la Search Console. Le Riot « redirect URI » ne change pas (`/api/riot/retour`).
 - Demande de clé de production Riot : suivre `docs/DEMANDE-RIOT.md` (captures en simulation, Register Product, puis les 5 variables dans `/srv/lugh/.env` du serveur OVH + `sudo systemctl restart lugh`).
 - **Ménage de l'ancien hébergement** (Olivier, déménagement fait le 05/11/2026, rien n'en dépend plus) : supprimer le service Render

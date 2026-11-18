@@ -4,15 +4,12 @@
 
 import { h, modale } from '../ui.js';
 import { api } from '../api.js';
-import { texteConfidentialite } from '/shared/administratif/confidentialite.js';
-import { texteConditions } from '/shared/administratif/conditions.js';
-import { texteMentionsLegales } from '/shared/administratif/mentions-legales.js';
 
-// Chaque fenêtre propose d'ouvrir les deux autres.
+// Chaque fenêtre propose d'ouvrir les deux autres. Les textes ne sont chargés qu'à l'ouverture (JS initial plus léger).
 const FENETRES = {
-  confidentialite: { titre: 'Données et confidentialité', texte: texteConfidentialite },
-  conditions: { titre: 'Conditions d’utilisation', texte: texteConditions },
-  mentions: { titre: 'Mentions légales', texte: texteMentionsLegales },
+  confidentialite: { titre: 'Données et confidentialité', page: '/confidentialite', texte: async () => (await import('/shared/administratif/confidentialite.js')).texteConfidentialite },
+  conditions: { titre: 'Conditions d’utilisation', page: '/conditions', texte: async () => (await import('/shared/administratif/conditions.js')).texteConditions },
+  mentions: { titre: 'Mentions légales', page: '/mentions-legales', texte: async () => (await import('/shared/administratif/mentions-legales.js')).texteMentionsLegales },
 };
 
 async function fenetre(cle) {
@@ -20,7 +17,14 @@ async function fenetre(cle) {
   try {
     identite = await api('GET', '/api/public/structure');
   } catch { /* texte générique si le serveur ne répond pas */ }
-  const { titre, texte } = FENETRES[cle];
+  const { titre, page } = FENETRES[cle];
+  let texte;
+  try {
+    texte = await FENETRES[cle].texte();
+  } catch {
+    window.location.href = page; // texte injoignable : la page servie par le serveur, lisible sans JavaScript
+    return;
+  }
   modale({
     titre,
     large: true,
