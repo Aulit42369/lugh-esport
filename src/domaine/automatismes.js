@@ -5,12 +5,16 @@
 
 import { semaineIso, dateCivile, isoCivile, instantCivil } from '../../shared/temps.js';
 import { nouvelId } from '../../shared/validation.js';
+import { ecartListesOfficielles } from '../../shared/listes-officielles.js';
+import { idSuggestion } from '../../shared/alertes.js';
+import { listesOfficielles } from '../meta/listes-officielles.js';
 
 const JOURS_META = [1, 4]; // lundi, jeudi
 const HEURE_META = '07:45';
 const INTERVALLE_MS = 60_000;
 const ATTENTE_APRES_ECHEC_MS = 3 * 3600_000;
 const TENTATIVES_MAX = 3;
+const LISTES_PERIODE_MS = 24 * 3600_000; // listes officielles : une fois par jour
 export const DUREE_CANDIDAT_REFUSE_MS = 183 * 86_400_000; // 6 mois
 
 // Candidatures refusées depuis plus de 6 mois (date de la dernière modification, donc du refus au plus tôt) :
@@ -52,7 +56,7 @@ export function doitVerifierMeta(meta, maintenant, fuseau) {
 }
 
 export function creerAutomatismes({
-  depot, stockage, config, actualisation, definition = () => null, maintenant = () => new Date(), journal = console,
+  depot, stockage, config, actualisation, definition = () => null, maintenant = () => new Date(), journal = console, fetchListes = globalThis.fetch,
 }) {
   let dernierPassage = 0;
   let enCours = false;
@@ -83,6 +87,38 @@ export function creerAutomatismes({
     if (creneau) actualisation.lancer({ declencheur: 'automatique', creneau });
   }
 
+  // Valorant : compare les agents et cartes de la méta à la liste officielle (une fois par jour, au premier passage après le démarrage).
+  // N'écrit que dans la liste « À traiter » (suggestion) : jamais dans la méta. Échec : réessai dans 3 h.
+  async function listesAuto(t) {
+    if (definition()?.id !== 'valorant') return;
+    const etat = await stockage.lire('reglages', 'listes-officielles');
+    const derniere = Math.max(new Date(etat?.derniereVerif || 0).getTime(), new Date(etat?.derniereTentative || 0).getTime() - LISTES_PERIODE_MS + ATTENTE_APRES_ECHEC_MS);
+    if (t.getTime() - derniere < LISTES_PERIODE_MS) return;
+    const base = { ...etat, _id: 'listes-officielles', derniereTentative: t.toISOString() };
+    try {
+      const meta = await stockage.lire('meta', 'courante');
+      const ecart = ecartListesOfficielles(await listesOfficielles(fetchListes), meta);
+      await stockage.ecrire('reglages', { ...base, derniereVerif: t.toISOString() });
+      if (!meta || ecart.vide) return;
+      const morceaux = [];
+      if (ecart.agents.manquants.length) morceaux.push(`agents absents de la liste : ${ecart.agents.manquants.join(', ')}`);
+      if (ecart.agents.enTrop.length) morceaux.push(`agents qui ne sont plus dans le jeu : ${ecart.agents.enTrop.join(', ')}`);
+      if (ecart.cartes.manquants.length) morceaux.push(`cartes absentes de la liste : ${ecart.cartes.manquants.join(', ')}`);
+      if (ecart.cartes.enTrop.length) morceaux.push(`cartes qui ne sont plus dans le jeu : ${ecart.cartes.enTrop.join(', ')}`);
+      const noms = [...ecart.agents.manquants, ...ecart.agents.enTrop, ...ecart.cartes.manquants, ...ecart.cartes.enTrop];
+      const id = idSuggestion(`liste-officielle-${noms.join('-')}`);
+      if (await stockage.lire('suggestions', id)) return; // déjà signalé (traité ou ignoré) : pas de rappel
+      await depot.enregistrer('suggestions', id, {
+        cle: id, type: 'roster', titre: 'La liste officielle des agents ou cartes a changé',
+        texte: `Selon valorant-api.com : ${morceaux.join(' ; ')}. Vérifie sur la page Méta et lance une actualisation (rien n'a été modifié).`,
+        lien: '#/meta', statut: 'nouvelle', patch: meta.patch, creeLe: t.toISOString(),
+      }, null);
+    } catch (e) {
+      await stockage.ecrire('reglages', base).catch(() => {});
+      throw e;
+    }
+  }
+
   return {
     // Appelé à chaque requête de l'API vers ce jeu ; ne travaille qu'une fois par minute et ne bloque jamais la requête.
     verifier() {
@@ -90,7 +126,7 @@ export function creerAutomatismes({
       if (enCours || t.getTime() - dernierPassage < INTERVALLE_MS) return;
       dernierPassage = t.getTime();
       enCours = true;
-      Promise.all([semaineAuto(t), metaAuto(t), purgerCandidatsRefuses(depot, stockage, t)])
+      Promise.all([semaineAuto(t), metaAuto(t), purgerCandidatsRefuses(depot, stockage, t), listesAuto(t)])
         .catch((e) => journal.error?.('[automatismes]', e?.message || e))
         .finally(() => { enCours = false; });
     },

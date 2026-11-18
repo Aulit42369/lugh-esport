@@ -40,7 +40,7 @@ import { creerAnnoncesDiscord } from './notifications/annonces.js';
 const RACINE = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 export async function creerApp({
-  config, fabrique, maintenant = () => new Date(), interrogerClaude = null, fetchDiscord = null, fetchRiot = null, journal = console, automatismes = true,
+  config, fabrique, maintenant = () => new Date(), interrogerClaude = null, fetchDiscord = null, fetchRiot = null, fetchListes = null, journal = console, automatismes = true,
   delaiPlanningMs = undefined,
 }) {
   const global = fabrique.base(config.base);
@@ -56,7 +56,7 @@ export async function creerApp({
     config.avertissements.push(`${illisibles} clé(s) de double authentification illisible(s) : LUGH_CLE_2FA est absente ou n’est plus la même. Remets la valeur d’origine dans /srv/lugh/.env du serveur (sinon ces comptes ne peuvent plus se connecter).`);
   }
   const registre = creerRegistre({
-    fabrique, global, config, historique, maintenant, journal, interrogerClaude, fetchDiscord, delaiPlanningMs, automatismes,
+    fabrique, global, config, historique, maintenant, journal, interrogerClaude, fetchDiscord, fetchListes, delaiPlanningMs, automatismes,
   });
   await registre.initialiser();
 

@@ -57,6 +57,9 @@
 - **Connexions simultanées sur un même identifiant** : elles passent une par une (une fraction de seconde chacune). Une rafale de mauvais mots de passe bloque l'identifiant dès le 5e échec ; les suivantes reçoivent 429.
 - **Méta sur Discord** : les caractères `* _ ~ | > [ ] ( ) # <` et la barre oblique inverse du patch, de la saison et des noms sont échappés ; Discord les affiche tels quels, sans mise en forme.
 
+## Images Valorant (18/11/2026)
+- Pas de portraits d'agents ni de plans de cartes (valorant-api.com/media.valorant-api.com) : la politique de Riot pour les projets de fans (riotgames.com/en/legal) n'autorise que l'usage communautaire non commercial, original, sans application distribuée, avec la mention « Riot Games does not endorse or sponsor this project ». Lugh est une appli à comptes d'une structure : le cas n'est pas clairement permis. Seuls des noms sont lus côté serveur ; aucun appel navigateur vers un tiers (rien à ajouter à la politique de confidentialité). Pour des images, demander l'accord écrit de Riot.
+
 ## Vitrine publique (14/11/2026)
 
 - **L'espace privé est sous `/app/`** : tout nouveau lien vers l'appli (redirection serveur, message Discord, doc) doit viser `/app/#/…`, jamais `/#/…` (renvoyé seulement par `vitrine-renvoi.js`, donc avec JavaScript).

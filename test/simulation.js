@@ -98,7 +98,7 @@ export async function demarrer({
   const claude = fauxClaude();
   const discord = fauxDiscord();
   const app = await creerApp({
-    config, fabrique, maintenant, interrogerClaude: claude, fetchDiscord: discord, journal, automatismes, delaiPlanningMs,
+    config, fabrique, maintenant, interrogerClaude: claude, fetchDiscord: discord, fetchListes: async () => { throw new Error('hors ligne (test)'); }, journal, automatismes, delaiPlanningMs,
   });
   await amorcer({ ...app.services, journal: silencieux });
   const serveur = createServer((req, res) => app.traiter(req, res));

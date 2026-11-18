@@ -1,6 +1,7 @@
 # Lugh — À faire
 
 ## Fait
+- 18/11 : listes Valorant surveillées. Une fois par jour (au premier passage après le démarrage, puis toutes les 24 h ; échec : réessai 3 h plus tard), `automatismes.js` compare les agents et cartes de la méta à valorant-api.com (`src/meta/listes-officielles.js`, `shared/listes-officielles.js`) et crée une suggestion « À traiter » sur l'accueil (une seule fois par écart) ; la méta n'est jamais modifiée. Au 18/11 : Hush manque (attendu en 13.09). Images non reprises (voir PIEGES.md). `test/listes-officielles.test.js`.
 - 18/11 : corrections de l'audit de la vitrine et de l'appli. **Mineurs** : pseudo et photo d'un membre publiés seulement
   avec une fiche d'autorisations qui dit « majeur », ou « mineur » avec le droit à l'image (et, avant 15 ans, l'accord du
   jeune : nouvelle case « Moins de 15 ans » + date « Accord du jeune » sur la fiche) ; « Mon compte » affiche « En attente

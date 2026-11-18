@@ -19,7 +19,7 @@ const VERSION_INDEX = 2;
 
 export function creerRegistre({
   fabrique, global, config, historique, maintenant = () => new Date(), journal = console,
-  interrogerClaude = null, fetchDiscord = null, delaiPlanningMs = undefined, automatismes = true,
+  interrogerClaude = null, fetchDiscord = null, fetchListes = null, delaiPlanningMs = undefined, automatismes = true,
 }) {
   const espaces = new Map();
 
@@ -64,7 +64,7 @@ export function creerRegistre({
       ...(interrogerClaude ? { interroger: interrogerClaude } : {}),
     });
     e.automatismes = automatismes
-      ? creerAutomatismes({ depot, stockage, config, actualisation: e.actualisation, definition: e.definition, maintenant, journal })
+      ? creerAutomatismes({ depot, stockage, config, actualisation: e.actualisation, definition: e.definition, maintenant, journal, ...(fetchListes ? { fetchListes } : {}) })
       : null;
     espaces.set(e.id, e);
     return e;

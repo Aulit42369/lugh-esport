@@ -40,7 +40,7 @@ Lugh-2.0.0/
 │   │   ├── depot.js               révisions, synchronisation, signature, écouteurs d'écriture (une instance par jeu)
 │   │   ├── journal.js             journal global (qui, quoi, quel jeu), 90 jours
 │   │   ├── collections.js         droits, cascades et plafonds des collections d'un jeu
-│   │   ├── automatismes.js        à chaque visite d'un jeu : semaine créée depuis la semaine type, méta du lundi et du jeudi, candidatures refusées effacées 6 mois après le refus
+│   │   ├── automatismes.js        à chaque visite d'un jeu : semaine créée depuis la semaine type, méta du lundi et du jeudi, listes d'agents et cartes Valorant comparées chaque jour à valorant-api.com (suggestion « À traiter » si écart), candidatures refusées effacées 6 mois après le refus
 │   │   ├── amorcage.js            premier démarrage : compte Administrateur général
 │   │   ├── parametres.js          paramètres de la structure (double authentification exigée)
 │   │   ├── restauration.js        sauvegarde, restauration, point de restauration automatique (annulation)
